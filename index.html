@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>野渡无人喊你做题</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4F46E5',
+            secondary: '#10B981',
+            accent: '#F59E0B',
+            dark: '#1F2937',
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .bg-gradient {
+        background: linear-gradient(135deg, #4F46E5 0%, #10B981 100%);
+      }
+      .transition-custom {
+        transition: all 0.3s ease;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-sans bg-gray-50 text-dark min-h-screen flex flex-col">
+  <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-custom">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-pencil-square-o text-primary text-2xl"></i>
+      </div>
+      
+      <nav class="hidden md:flex items-center space-x-6">
+      </nav>
+      
+      <button class="md:hidden p-2 rounded-full hover:bg-gray-100 transition-custom hidden" id="mobile-menu-btn">
+        <i class="fa fa-bars text-gray-600"></i>
+      </button>
+    </div>
+    
+    <div id="mobile-menu" class="hidden bg-white border-t border-gray-100 md:hidden">
+    </div>
+  </header>
+
+  <main class="flex-grow">
+    <section class="bg-gradient text-white py-20 md:py-28 min-h-[80vh] flex items-center">
+      <div class="container mx-auto px-4 text-center">
+        <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-6">野渡无人喊你来做题</h2>
+        <p class="text-lg md:text-xl opacity-90 mb-10 max-w-2xl mx-auto">提升学习效率，实时评估掌握程度</p>
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <button onclick="window.location.href='student.html'" 
+                  class="bg-white text-primary px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-custom w-full sm:w-auto">
+            学生入口 <i class="fa fa-user-o ml-2"></i>
+          </button>
+          
+          <button onclick="window.location.href='admin.html'" 
+                  class="bg-white/20 backdrop-blur-sm border-2 border-white/30 px-8 py-3 rounded-lg font-medium hover:bg-white/30 transition-custom w-full sm:w-auto">
+            教师入口 <i class="fa fa-user-md ml-2"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-dark text-white py-10">
+    <div class="container mx-auto px-4 text-center">
+      <div class="flex items-center justify-center space-x-2 mb-3">
+        <i class="fa fa-pencil-square-o text-primary text-xl"></i>
+        <span class="text-lg font-bold">野渡无人喊你做题</span>
+      </div>
+      <p class="text-gray-400">© 2025 版权所有</p>
+    </div>
+  </footer>
+
+  <script>
+    // 移除移动端菜单相关脚本
+  </script>
+</body>
+</html>

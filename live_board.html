@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课堂实况抢榜大屏 - 野渡无人</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { bgDark: '#0B1120', panel: '#1E293B', primary: '#3B82F6', accent: '#F59E0B', danger: '#EF4444', success: '#10B981' } } } }
+  </script>
+  <style>
+    body { background-color: #0B1120; color: #F8FAFC; overflow-x: hidden; }
+    .neon-text { text-shadow: 0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3); }
+    .card-enter { animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: translateX(-50px); }
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+    .pulse-red { animation: pulseRed 2s infinite; }
+    @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0B1120; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <div id="setup-panel" class="absolute inset-0 flex items-center justify-center bg-bgDark z-50">
+    <div class="bg-panel p-8 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700">
+      <h2 class="text-2xl font-bold mb-6 text-center text-blue-400"><i class="fa fa-television mr-2"></i> 启动实况大屏</h2>
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">选择要测试的套卷</label>
+          <select id="paper-select" class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-primary"></select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">倒计时 (分钟)</label>
+          <input type="number" id="time-limit" value="15" class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-primary">
+        </div>
+        <button id="start-btn" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-colors mt-4 text-lg shadow-lg shadow-blue-900/50">
+          <i class="fa fa-rocket mr-2"></i> 开始实况抢榜
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="live-board" class="hidden flex-1 flex flex-col h-screen p-4 md:p-6 overflow-hidden">
+    <header class="flex justify-between items-center bg-panel rounded-2xl p-4 border border-gray-800 shadow-lg mb-4 flex-shrink-0">
+      <div class="flex items-center space-x-4">
+        <div class="bg-blue-900/50 text-blue-400 w-12 h-12 rounded-xl flex items-center justify-center text-2xl border border-blue-500/30"><i class="fa fa-graduation-cap"></i></div>
+        <div>
+          <h1 id="live-title" class="text-xl md:text-2xl font-bold text-white neon-text">加载中...</h1>
+          <p id="live-subtitle" class="text-gray-400 text-sm mt-1">本场测试已有 <span id="total-students" class="text-blue-400 font-bold">0</span> 人交卷</p>
+        </div>
+      </div>
+      
+     <div class="flex flex-col items-center bg-gray-800/80 p-4 rounded-2xl border border-gray-700 shadow-inner">
+        <div class="flex items-center space-x-4">
+            <button onclick="adjustTime(-1)" class="w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center transition shadow-md" title="减1分钟"><i class="fa fa-minus"></i></button>
+            
+            <div class="flex flex-col items-center px-2">
+                <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">点击数字可直接修改</p>
+                <div id="countdown-display" class="text-5xl font-black text-white font-mono tracking-tight cursor-pointer hover:text-blue-400 transition-colors drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" onclick="promptSetTime()">00:00</div>
+            </div>
+
+            <button onclick="adjustTime(1)" class="w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center transition shadow-md" title="加1分钟"><i class="fa fa-plus"></i></button>
+        </div>
+        
+        <div id="timer-controls" class="flex space-x-3 w-full mt-4">
+            <button onclick="togglePause()" id="pause-btn" class="flex-1 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-sm font-bold transition shadow-md"><i class="fa fa-pause mr-1"></i> 暂停计时</button>
+            <button id="end-early-btn" class="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-bold transition shadow-md"><i class="fa fa-stop-circle mr-1"></i> 提前结束</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex flex-1 gap-6 overflow-hidden">
+      <div class="flex-[3] bg-panel rounded-2xl border border-gray-800 shadow-lg flex flex-col overflow-hidden relative">
+        <div class="bg-gray-800/50 px-6 py-3 border-b border-gray-700 flex text-sm font-bold text-gray-400 uppercase tracking-wider">
+          <div class="w-16">排名</div>
+          <div class="flex-1">英雄榜</div>
+          <div class="w-24 text-center">正确率</div>
+          <div class="w-24 text-center">状态</div>
+          <div class="w-32 text-right">得分</div>
+        </div>
+        <div id="ranking-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+          <div class="h-full flex items-center justify-center text-gray-500 flex-col"><i class="fa fa-clock-o text-5xl mb-4 opacity-20"></i><p>倒计时进行中，等待学生交卷...</p></div>
+        </div>
+      </div>
+
+      <div class="flex-[1] flex flex-col gap-4">
+        <div class="bg-panel rounded-2xl border border-gray-800 shadow-lg p-5 flex-1 overflow-hidden flex flex-col">
+          <h3 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-4 border-b border-gray-700 pb-2"><i class="fa fa-bullhorn text-accent mr-2"></i> 赛况直击</h3>
+          <div id="news-feed" class="flex-1 overflow-y-auto space-y-3">
+             <div class="text-gray-500 text-sm text-center mt-10 italic">暂无赛况</div>
+          </div>
+        </div>
+        <div class="bg-panel rounded-2xl border border-gray-800 shadow-lg p-5 h-[40%] flex flex-col">
+          <h3 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-4 border-b border-gray-700 pb-2 flex justify-between">
+            <span><i class="fa fa-crosshairs text-danger mr-2"></i> 易错题雷达</span>
+          </h3>
+          <div id="error-radar" class="flex-1 overflow-y-auto space-y-3">
+            <div class="text-gray-500 text-sm text-center mt-6 italic">数据收集中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activePaperId = null;
+    let activePaper = null;
+    let endTime = 0;
+    let timerInterval = null;
+    let fetchInterval = null;
+    let submittedIds = new Set();
+    let firstBloodTaken = false;
+    
+    // 屏蔽历史快照
+    let baselineRecords = new Set();
+    // 🚀 核心升级：标记考试是否结束（结束时触发合榜）
+    let testEnded = false;
+
+    // 获取数据助手
+    async function fetchData(key) {
+      try { const response = await fetch(`/api/data?key=${key}`); return await response.json(); } 
+      catch (e) { console.error("抓取数据失败", e); return null; }
+    }
+
+    // 初始化下拉框
+    async function initSetup() {
+      const papers = await fetchData('gradePapers') || [];
+      const select = document.getElementById('paper-select');
+      if (papers.length === 0) {
+        select.innerHTML = '<option value="">暂无套卷，请先去后台发布</option>';
+        document.getElementById('start-btn').disabled = true;
+        return;
+      }
+      const testPapers = papers.filter(p => p.type === 'test');
+      const targetPapers = testPapers.length > 0 ? testPapers : papers;
+      targetPapers.reverse().forEach(p => {
+        select.innerHTML += `<option value="${p.id}">${p.name} (${p.grade === 'grade1' ? '高一' : p.grade === 'grade2' ? '高二' : '高三'})</option>`;
+      });
+    }
+
+    // 开始实况
+    document.getElementById('start-btn').addEventListener('click', async () => {
+      activePaperId = document.getElementById('paper-select').value;
+      const minutes = parseInt(document.getElementById('time-limit').value) || 15;
+      if (!activePaperId) return;
+
+      const papers = await fetchData('gradePapers') || [];
+      activePaper = papers.find(p => p.id === activePaperId);
+      
+      // 重置状态
+      testEnded = false;
+      baselineRecords.clear();
+      submittedIds.clear();
+      
+      // 给历史数据拍快照，防止它们在考试中途显示
+      const initialAnswers = await fetchData('studentAnswers') || [];
+      initialAnswers.filter(a => a.paperId === activePaperId).forEach(a => {
+          baselineRecords.add(a.studentId + '_' + a.submitTime);
+          // 把历史学生的ID也加入已播报名单，防止合榜时播报台被旧新闻刷屏
+          submittedIds.add(a.studentId);
+      });
+      
+      document.getElementById('setup-panel').classList.add('hidden');
+      document.getElementById('live-board').classList.remove('hidden');
+      document.getElementById('live-title').textContent = activePaper.name;
+
+      endTime = Date.now() + minutes * 60000;
+      
+      timerInterval = setInterval(updateTimer, 1000);
+      updateTimer();
+      fetchInterval = setInterval(pollData, 2000);
+    });
+
+    // 提前结束按钮：点击后倒计时归零，并立刻合榜！
+    document.getElementById('end-early-btn').addEventListener('click', () => {
+        if(confirm('确定要提前结束并合榜吗？\n结束后的提交将被标记为超时，并且大屏幕将立刻显示所有历史班级的总排名！')) {
+            endTime = Date.now(); 
+            testEnded = true; // 触发解除屏蔽
+            updateTimer(); 
+            document.getElementById('end-early-btn').classList.add('hidden');
+            pollData(); // 立刻刷新合榜数据
+        }
+    });
+
+   // 🚀 新增：倒计时时空掌控逻辑
+    let isPaused = false;
+    let pausedRemainTime = 0;
+
+    // 1. 点击直接修改
+    window.promptSetTime = function() {
+        if(testEnded) return alert('考试已结束，无法修改时间');
+        const minStr = prompt('请输入新的倒计时分钟数（支持小数，如 5.5）：');
+        if (minStr === null) return;
+        const min = parseFloat(minStr);
+        if (isNaN(min) || min < 0) return alert('请输入有效的数字！');
+        
+        if (isPaused) {
+            pausedRemainTime = min * 60000;
+            renderTimeDisplay(pausedRemainTime);
+        } else {
+            endTime = Date.now() + min * 60000;
+            updateTimer();
+        }
+    };
+
+    // 2. 快捷加减时间
+    window.adjustTime = function(minutes) {
+        if(testEnded) return alert('考试已结束，无法调整时间');
+        if (isPaused) {
+            pausedRemainTime = Math.max(0, pausedRemainTime + minutes * 60000);
+            renderTimeDisplay(pausedRemainTime);
+        } else {
+            endTime = Math.max(Date.now(), endTime + minutes * 60000);
+            updateTimer();
+        }
+    };
+
+    // 3. 暂停与恢复
+    window.togglePause = function() {
+        if(testEnded) return alert('考试已结束，无法操作');
+        const btn = document.getElementById('pause-btn');
+        if (!isPaused) {
+            // 触发暂停
+            isPaused = true;
+            pausedRemainTime = Math.max(0, endTime - Date.now());
+            clearInterval(timerInterval);
+            btn.innerHTML = '<i class="fa fa-play"></i> 继续';
+            btn.classList.replace('bg-yellow-600', 'bg-green-600');
+            btn.classList.replace('hover:bg-yellow-500', 'hover:bg-green-500');
+            document.getElementById('countdown-display').classList.add('animate-pulse', 'text-yellow-400');
+        } else {
+            // 恢复计时
+            isPaused = false;
+            endTime = Date.now() + pausedRemainTime;
+            timerInterval = setInterval(updateTimer, 1000);
+            btn.innerHTML = '<i class="fa fa-pause"></i> 暂停';
+            btn.classList.replace('bg-green-600', 'bg-yellow-600');
+            btn.classList.replace('hover:bg-green-500', 'hover:bg-yellow-500');
+            document.getElementById('countdown-display').classList.remove('animate-pulse', 'text-yellow-400');
+            updateTimer();
+        }
+    };
+
+    function renderTimeDisplay(remain) {
+        const m = Math.floor(remain / 60000);
+        const s = Math.floor((remain % 60000) / 1000);
+        document.getElementById('countdown-display').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // 4. 升级版倒计时刷新（融入防御机制）
+    function updateTimer() {
+      if(isPaused) return; 
+      const now = Date.now();
+      const remain = Math.max(0, endTime - now);
+      
+      renderTimeDisplay(remain);
+      
+      const display = document.getElementById('countdown-display');
+      if (remain <= 60000 && remain > 0) {
+        display.classList.add('text-danger');
+      } else if (remain === 0) {
+        display.textContent = "TIME UP";
+        display.classList.add('text-danger', 'pulse-red');
+        clearInterval(timerInterval);
+        document.getElementById('end-early-btn').classList.add('hidden');
+        document.getElementById('timer-controls').classList.add('hidden'); // 结束时隐藏控制台
+        
+        if (!testEnded) {
+            testEnded = true;
+            pollData();
+        }
+      } else {
+        display.classList.remove('text-danger');
+      }
+    }
+
+    // 核心：定时拉取并渲染数据
+    async function pollData() {
+      const allAnswers = await fetchData('studentAnswers') || [];
+      
+      // 🚀 核心合榜逻辑：
+      // 如果正在考试中 (!testEnded)，则屏蔽黑名单里的历史记录（本班内战）。
+      // 如果考试结束 (testEnded)，则不屏蔽任何记录（全校打榜）。
+      const paperAnswers = allAnswers.filter(a => {
+          if (a.paperId !== activePaperId) return false;
+          if (!testEnded && baselineRecords.has(a.studentId + '_' + a.submitTime)) {
+              return false; // 考试中，屏蔽历史记录
+          }
+          return true; // 考试结束，全部放行！
+      });
+      
+      const uniqueMap = new Map();
+      paperAnswers.forEach(ans => uniqueMap.set(ans.studentId, ans));
+      const currentStandings = Array.from(uniqueMap.values());
+
+      // 动态更新副标题
+      if (testEnded) {
+          document.getElementById('live-subtitle').innerHTML = `<span class="text-yellow-400 font-bold">🏆 全局总榜已揭晓</span> (累计 <span id="total-students" class="text-blue-400 font-bold">${currentStandings.length}</span> 人参与)`;
+      } else {
+          document.getElementById('live-subtitle').innerHTML = `本场测试已有 <span id="total-students" class="text-blue-400 font-bold">${currentStandings.length}</span> 人交卷`;
+      }
+
+      currentStandings.forEach(ans => {
+        if (!submittedIds.has(ans.studentId)) {
+          submittedIds.add(ans.studentId);
+          broadcastNews(ans);
+        }
+      });
+
+      currentStandings.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return (a.timeElapsed || 0) - (b.timeElapsed || 0);
+      });
+
+      renderLeaderboard(currentStandings);
+      analyzeErrors(currentStandings);
+    }
+
+    // 渲染排行榜
+    function renderLeaderboard(standings) {
+      const container = document.getElementById('ranking-container');
+      if (standings.length === 0) return;
+      container.innerHTML = '';
+
+      standings.forEach((ans, index) => {
+        const accuracy = Math.round((ans.score / activePaper.totalPoints) * 100);
+        
+        let statusBadge = '';
+        let submitDate;
+        try {
+            submitDate = new Date(ans.submitTime.replace(/-/g, '/')).getTime();
+            if(isNaN(submitDate)) submitDate = new Date(ans.submitTime).getTime();
+        } catch(e) {}
+
+        // 如果该记录在快照里，说明是历史记录，打上专属印章
+        const isHistory = baselineRecords.has(ans.studentId + '_' + ans.submitTime);
+
+        if (isHistory) {
+          statusBadge = `<span class="px-2 py-1 bg-blue-500/20 border border-blue-500/50 text-blue-400 text-xs rounded-md font-bold" title="历史班级交卷记录">🏛️ 历史榜</span>`;
+        } else if (submitDate > endTime && endTime > 0) {
+          statusBadge = `<span class="px-2 py-1 bg-red-500/20 border border-red-500/50 text-red-400 text-xs rounded-md font-bold">⚠️ 超时</span>`;
+        } else if (ans.score === activePaper.totalPoints) {
+          statusBadge = `<span class="px-2 py-1 bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 text-xs rounded-md font-bold">🔥 满分</span>`;
+        } else if (accuracy >= 80) {
+          statusBadge = `<span class="px-2 py-1 bg-green-500/20 border border-green-500/50 text-green-400 text-xs rounded-md font-bold">优秀</span>`;
+        }
+
+        const delay = index * 0.05; 
+
+        const item = document.createElement('div');
+        item.className = 'card-enter flex items-center bg-gray-800/40 hover:bg-gray-700/50 border border-gray-700/50 rounded-xl px-6 py-4 transition-all';
+        item.style.animationDelay = `${delay}s`;
+        
+        let rankColor = 'text-gray-500 font-bold text-xl';
+        if (index === 0) rankColor = 'text-yellow-400 font-black text-3xl drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]';
+        else if (index === 1) rankColor = 'text-gray-300 font-black text-2xl';
+        else if (index === 2) rankColor = 'text-orange-400 font-black text-2xl';
+
+        item.innerHTML = `
+          <div class="w-16 ${rankColor}">${index + 1}</div>
+          <div class="flex-1 flex flex-col">
+            <span class="font-bold text-lg text-white tracking-wide">${ans.studentName}</span>
+            <span class="text-xs text-gray-500 font-mono">${String(Math.floor((ans.timeElapsed||0)/60)).padStart(2,'0')}:${String((ans.timeElapsed||0)%60).padStart(2,'0')}</span>
+          </div>
+          <div class="w-24 text-center text-gray-300 font-mono">${accuracy}%</div>
+          <div class="w-24 text-center">${statusBadge}</div>
+          <div class="w-32 text-right">
+            <span class="text-2xl font-black ${accuracy < 60 ? 'text-danger' : 'text-primary'}">${ans.score}</span>
+            <span class="text-xs text-gray-500">分</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // 新闻播报台
+    function broadcastNews(ans) {
+      const feed = document.getElementById('news-feed');
+      if (feed.innerHTML.includes('暂无赛况')) feed.innerHTML = '';
+      
+      let msg = '';
+      let icon = '';
+      const isPerfect = ans.score === activePaper.totalPoints;
+      
+      let submitDate;
+      try { submitDate = new Date(ans.submitTime.replace(/-/g, '/')).getTime(); if(isNaN(submitDate)) submitDate = new Date(ans.submitTime).getTime(); } catch(e) {}
+      const isTimeout = submitDate > endTime && endTime > 0;
+
+      if (!firstBloodTaken && isPerfect && !isTimeout) {
+        msg = `<span class="text-yellow-400 font-bold">${ans.studentName}</span> 拿下了本场首个满分！(极速一血)`;
+        icon = '<i class="fa fa-trophy text-yellow-400 text-lg"></i>';
+        firstBloodTaken = true;
+      } else if (isTimeout) {
+        msg = `<span class="text-red-400">${ans.studentName}</span> 压哨失败，遗憾超时交卷。`;
+        icon = '<i class="fa fa-clock-o text-red-400 text-lg"></i>';
+      } else if (isPerfect) {
+        msg = `<span class="text-green-400">${ans.studentName}</span> 表现完美，斩获满分！`;
+        icon = '<i class="fa fa-star text-green-400 text-lg"></i>';
+      } else {
+        msg = `<span class="text-blue-400">${ans.studentName}</span> 成功交卷，得分 ${ans.score} 分。`;
+        icon = '<i class="fa fa-check-circle text-blue-400 text-lg"></i>';
+      }
+
+      const item = document.createElement('div');
+      item.className = 'card-enter bg-gray-800/60 p-3 rounded-lg border-l-4 border-blue-500 flex items-center space-x-3 text-sm';
+      item.innerHTML = `<div>${icon}</div><div class="text-gray-300">${msg}</div>`;
+      feed.insertBefore(item, feed.firstChild);
+
+      if (feed.children.length > 10) feed.removeChild(feed.lastChild);
+    }
+
+    // 易错题雷达分析
+    function analyzeErrors(standings) {
+      if (standings.length < 3) return;
+
+      const radar = document.getElementById('error-radar');
+      radar.innerHTML = '';
+      
+      const qCount = activePaper.questionCount;
+      let hasError = false;
+
+      for (let i = 0; i < qCount; i++) {
+        let wrongCount = 0;
+        standings.forEach(ans => {
+          if (ans.answers && ans.answers[i] !== activePaper.answers[i]) wrongCount++;
+        });
+        
+        const errorRate = (wrongCount / standings.length) * 100;
+        
+        if (errorRate >= 40) {
+          hasError = true;
+          radar.innerHTML += `
+            <div class="bg-red-900/20 border border-red-500/30 p-3 rounded-lg flex justify-between items-center pulse-red mb-2">
+              <div>
+                <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mr-2">第 ${i+1} 题</span>
+                <span class="text-red-400 text-sm font-bold">高危阵亡点</span>
+              </div>
+              <div class="text-red-500 font-mono font-bold">${Math.round(errorRate)}% 错误率</div>
+            </div>
+          `;
+        }
+      }
+
+      if (!hasError) {
+        radar.innerHTML = `<div class="text-green-500/70 text-sm text-center mt-6 italic"><i class="fa fa-shield mr-1"></i> 当前防线稳固，暂无大面积阵亡题目</div>`;
+      }
+    }
+
+    window.onload = initSetup;
+  </script>
+</body>
+</html>

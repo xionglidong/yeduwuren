@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学生学情分析报告</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./js/localforage.min.js"></script>
+  <script>window.localforage || document.write('<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"><\/script>')</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#4F46E5', accent: '#F59E0B' },
+          screens: { 'print': {'raw': 'print'} }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background: #525659; display: flex; justify-content: center; padding: 20px; font-family: 'Segoe UI', Roboto, sans-serif; }
+    .page { background: white; width: 210mm; min-height: 297mm; padding: 15mm 20mm; position: relative; display: flex; flex-direction: column; }
+    
+    .rank-badge { 
+      font-size: 0.75rem; 
+      padding: 2px 8px; 
+      border-radius: 99px; 
+      font-weight: bold; 
+      margin-left: 8px; 
+      vertical-align: middle; 
+      display: inline-flex;
+      align-items: center;
+      background-color: #F3F4F6; 
+      color: #6B7280;
+    }
+
+    .font-handwriting { font-family: 'KaiTi', 'STKaiti', '楷体', serif; } 
+    .font-calligraphy { font-family: 'Ma Shan Zheng', cursive; } 
+    .font-art { font-family: 'Zhi Mang Xing', cursive; } 
+    
+    @media print {
+      body { background: white; padding: 0; margin: 0; }
+      .page { box-shadow: none; width: 100%; margin: 0; padding: 15mm 20mm; min-height: 100vh; }
+      .no-print { display: none !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      textarea { border: none !important; resize: none !important; overflow: hidden !important; background: transparent !important; }
+      .comment-box { border-color: transparent !important; background-color: transparent !important; }
+      textarea::-webkit-resizer { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="fixed top-6 right-6 flex flex-col gap-3 no-print z-50">
+    <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition font-bold flex items-center">
+      <i class="fa fa-print mr-2"></i> 打印 / 存为PDF
+    </button>
+    <button onclick="window.close()" class="bg-gray-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-gray-700 transition flex items-center">
+      <i class="fa fa-times mr-2"></i> 关闭页面
+    </button>
+  </div>
+
+  <div class="page" id="reportContent">
+    <header class="mb-4">
+      <div class="text-sm text-gray-500 font-bold mb-2 flex items-center">
+        <i class="fa fa-university mr-2 text-primary"></i>野渡无人喊你做题
+      </div>
+      <div class="border-b-4 border-primary pb-4 text-center">
+        <h1 class="text-3xl font-extrabold text-gray-800 tracking-wide mb-3">学生阶段性学情分析报告</h1>
+        <div class="no-print flex justify-center items-center space-x-2 bg-gray-50 p-2 rounded-lg w-fit mx-auto shadow-sm border border-gray-100">
+          <div class="flex items-center">
+            <span class="text-xs text-gray-500 mr-1">统计周期:</span>
+            <input type="date" id="startDateInput" class="text-xs border rounded px-1 py-1 text-gray-600 focus:outline-none focus:ring-1 focus:ring-primary">
+          </div>
+          <div class="flex items-center">
+            <span class="text-xs text-gray-500 mr-1">至</span>
+            <input type="date" id="endDateInput" class="text-xs border rounded px-1 py-1 text-gray-600 focus:outline-none focus:ring-1 focus:ring-primary">
+          </div>
+          <button onclick="applyDateFilter()" class="bg-primary text-white text-xs px-3 py-1 rounded hover:bg-primary/90 transition shadow-sm font-bold">
+            <i class="fa fa-refresh mr-1"></i>分析数据
+          </button>
+          <button onclick="resetDateFilter()" class="text-gray-400 hover:text-gray-600 text-xs px-2" title="重置为全部">
+            <i class="fa fa-undo"></i>
+          </button>
+        </div>
+        <div class="hidden print:block text-center text-sm text-gray-500 mt-1">
+           统计周期：<span id="printDateRange">全部记录</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="flex justify-between items-center bg-slate-50 rounded-xl border border-slate-200 p-5 mb-6 shadow-sm">
+      <div class="flex items-center gap-6">
+        <div class="w-20 h-20 bg-white border-4 border-blue-100 rounded-full flex items-center justify-center overflow-hidden shadow-sm cursor-pointer hover:ring-4 hover:ring-accent/50 transition relative group" onclick="changeRandomAvatar()" title="点击随机更换头像">
+          <img id="rptAvatarImg" src="" alt="Avatar" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+          <div class="absolute inset-0 bg-black/20 hidden group-hover:flex items-center justify-center text-white font-bold no-print">
+            <i class="fa fa-refresh fa-spin-hover"></i>
+          </div>
+        </div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-800 mb-1" id="rptName">加载中...</h2>
+          <div class="text-gray-600 text-sm mt-2 flex gap-2">
+             <span class="bg-white px-2 py-1 rounded border shadow-sm"><i class="fa fa-id-badge text-blue-500 mr-1"></i> <span id="rptId">--</span></span>
+             <span class="bg-white px-2 py-1 rounded border shadow-sm"><i class="fa fa-graduation-cap text-blue-500 mr-1"></i> <span id="rptGrade">--</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-gray-500 uppercase font-bold mb-1">当前总积分</div>
+        <div class="flex items-baseline justify-end">
+           <span class="text-4xl font-black text-accent" id="rptPoints">0</span>
+           <span id="rptRankPoints" class="rank-badge">计算中...</span>
+        </div>
+        <div class="mt-2"><span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full font-bold shadow-sm" id="rptTitle">...</span></div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-4 gap-4 mb-6">
+        <div class="p-4 bg-green-50 rounded-xl border border-green-100 text-center relative overflow-hidden group hover:shadow-md transition">
+          <div class="text-xs text-green-600 font-bold mb-1 uppercase tracking-wider">阶段正确率</div>
+          <div class="flex flex-col items-center justify-center">
+             <span class="text-3xl font-black text-green-700" id="rptAcc">--%</span>
+             <span id="rptRankAcc" class="mt-1 text-xs px-2 py-0.5 bg-green-200 text-green-800 rounded-full font-bold">排名 --</span>
+          </div>
+          <i class="fa fa-check-circle absolute -bottom-4 -right-4 text-6xl text-green-100 opacity-50 group-hover:scale-110 transition"></i>
+        </div>
+        <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-center relative overflow-hidden group hover:shadow-md transition">
+          <div class="text-xs text-indigo-600 font-bold mb-1 uppercase tracking-wider">阶段平均分</div>
+          <div class="flex flex-col items-center justify-center">
+             <span class="text-3xl font-black text-indigo-700" id="rptAvg">--</span>
+             <span id="rptRankAvg" class="mt-1 text-xs px-2 py-0.5 bg-indigo-200 text-indigo-800 rounded-full font-bold">排名 --</span>
+          </div>
+          <i class="fa fa-line-chart absolute -bottom-4 -right-4 text-6xl text-indigo-100 opacity-50 group-hover:scale-110 transition"></i>
+        </div>
+        <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 text-center relative overflow-hidden group hover:shadow-md transition">
+          <div class="text-xs text-orange-600 font-bold mb-1 uppercase tracking-wider">阶段答卷</div>
+          <div class="flex flex-col items-center justify-center">
+             <span class="text-3xl font-black text-orange-700" id="rptCount">--</span>
+             <span id="rptRankCount" class="mt-1 text-xs px-2 py-0.5 bg-orange-200 text-orange-800 rounded-full font-bold">排名 --</span>
+          </div>
+          <i class="fa fa-pencil-square-o absolute -bottom-4 -right-4 text-6xl text-orange-100 opacity-50 group-hover:scale-110 transition"></i>
+        </div>
+        <div class="p-4 bg-red-50 rounded-xl border border-red-100 text-center relative overflow-hidden group hover:shadow-md transition">
+          <div class="text-xs text-red-600 font-bold mb-1 uppercase tracking-wider">阶段错题</div>
+          <div class="flex flex-col items-center justify-center">
+             <span class="text-3xl font-black text-red-700" id="rptWrong">--</span>
+             <span class="mt-1 text-xs text-red-400">需重点复习</span>
+          </div>
+          <i class="fa fa-times-circle absolute -bottom-4 -right-4 text-6xl text-red-100 opacity-50 group-hover:scale-110 transition"></i>
+        </div>
+    </section>
+
+    <section class="mb-6">
+      <div class="grid grid-cols-2 gap-6">
+        <div class="bg-white border rounded-xl p-4 shadow-sm">
+          <h4 class="font-bold text-gray-600 text-sm mb-2"><i class="fa fa-line-chart mr-1"></i> 分数走势 (Scores)</h4>
+          <div class="w-full h-48"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="bg-white border rounded-xl p-4 shadow-sm">
+          <h4 class="font-bold text-gray-600 text-sm mb-2"><i class="fa fa-area-chart mr-1"></i> 竞争力对比</h4>
+          <div class="w-full h-48"><canvas id="compareChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex-grow bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-3 pl-3 border-l-4 border-blue-500 flex items-center">
+            <i class="fa fa-pencil-square-o mr-2 text-blue-500"></i> 课上测试
+        </h3>
+        <div class="overflow-hidden rounded-lg border border-gray-200">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+                    <tr><th class="p-3 pl-4 w-1/4">日期</th><th class="p-3 w-1/2">名称</th><th class="p-3 text-center w-1/8">得分 / 总分</th><th class="p-3 text-center w-1/8">班级排名</th></tr>
+                </thead>
+                <tbody id="test-list" class="divide-y divide-gray-100 text-gray-700"></tbody>
+            </table>
+            <div id="test-empty" class="hidden text-center py-6 text-gray-400 text-sm bg-gray-50">暂无课上测试记录</div>
+        </div>
+      </div>
+
+      <hr class="border-t border-dashed border-gray-300 my-6">
+
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-3 pl-3 border-l-4 border-green-500 flex items-center">
+            <i class="fa fa-book mr-2 text-green-500"></i> 作业提交
+        </h3>
+        <div class="overflow-hidden rounded-lg border border-gray-200">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+                    <tr><th class="p-3 pl-4 w-1/4">日期</th><th class="p-3 w-1/2">名称</th><th class="p-3 text-center w-1/8">得分 / 总分</th><th class="p-3 text-center w-1/8">班级排名</th></tr>
+                </thead>
+                <tbody id="hw-list" class="divide-y divide-gray-100 text-gray-700"></tbody>
+            </table>
+            <div id="hw-empty" class="hidden text-center py-6 text-gray-400 text-sm bg-gray-50">暂无课后作业记录</div>
+        </div>
+      </div>
+
+      <hr class="border-t border-dashed border-gray-300 my-6">
+
+      <div>
+        <h3 class="text-lg font-bold text-gray-800 mb-3 pl-3 border-l-4 border-orange-500 flex items-center">
+            <i class="fa fa-camera mr-2 text-orange-500"></i> 整理错题
+        </h3>
+        <div class="overflow-hidden rounded-lg border border-gray-200">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+                    <tr><th class="p-3 pl-4 w-1/4">日期</th><th class="p-3 w-1/2">名称</th><th class="p-3 text-center w-1/8">得分 / 总分</th><th class="p-3 text-center w-1/8">班级排名</th></tr>
+                </thead>
+                <tbody id="corr-list" class="divide-y divide-gray-100 text-gray-700"></tbody>
+            </table>
+            <div id="corr-empty" class="hidden text-center py-6 text-gray-400 text-sm bg-gray-50">暂无改错记录</div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="mt-2 mb-2 break-inside-avoid">
+       <div class="flex justify-between items-center mb-2 pl-3 border-l-4 border-accent">
+           <h4 class="font-bold text-gray-700 text-lg">教师评语</h4>
+           <div class="flex items-center space-x-3 no-print">
+               <div class="flex items-center space-x-1 border-r border-gray-300 pr-3">
+                   <button onclick="changeCommentColor('#ef4444')" class="w-5 h-5 rounded-full bg-red-500 border border-gray-200 shadow-sm hover:scale-110 transition" title="红色笔迹"></button>
+                   <button onclick="changeCommentColor('#1f2937')" class="w-5 h-5 rounded-full bg-gray-800 border border-gray-200 shadow-sm hover:scale-110 transition" title="黑色笔迹"></button>
+                   <button onclick="changeCommentColor('#2563eb')" class="w-5 h-5 rounded-full bg-blue-600 border border-gray-200 shadow-sm hover:scale-110 transition" title="蓝色笔迹"></button>
+               </div>
+               <select id="fontSelector" onchange="changeCommentFont(this.value)" class="text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-accent">
+                   <option value="font-handwriting">手写楷体 (默认)</option>
+                   <option value="font-calligraphy">名家书法 (联网)</option>
+                   <option value="font-art">艺术草书 (联网)</option>
+                   <option value="font-sans">电脑常规</option>
+               </select>
+           </div>
+       </div>
+       <div class="comment-box border-2 border-dashed border-gray-300 rounded-xl p-4 bg-yellow-50/30 min-h-[120px] relative hover:border-accent transition-colors">
+         <textarea id="teacherCommentInput" class="w-full h-full resize-none focus:outline-none leading-relaxed text-lg font-handwriting text-red-500" rows="4" placeholder="请在此输入评语...（建议使用红色手写体，效果更佳）"></textarea>
+         <i class="fa fa-pencil absolute bottom-3 right-3 text-gray-300 no-print"></i>
+       </div>
+    </section>
+
+    <footer class="mt-auto pt-4 flex justify-end text-sm text-gray-500">
+        <div>生成日期：<span id="rptDate">...</span></div>
+    </footer>
+  </div>
+
+  <script>
+    const KEYS = { POINTS: 'studentPoints', ANSWERS: 'studentAnswers', PAPERS: 'gradePapers' };
+    
+    let g_allStudentRecords = [], g_papers = [], g_currentStudent = null, g_allPts = {}, g_allAns = [];
+
+    // 联网版数据获取函数
+    async function getData(key) {
+      try { const response = await fetch(`/api/data?key=${key}`); return await response.json(); } 
+      catch (e) { console.error("获取数据失败:", e); return null; }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentId = urlParams.get('id');
+        if (!studentId) return document.body.innerHTML = '<div class="text-center p-10 text-white">请从管理后台打开此页面</div>';
+
+        try {
+            const [pts, allAns, papers] = await Promise.all([
+                getData(KEYS.POINTS).then(res => res || {}),
+                getData(KEYS.ANSWERS).then(res => res || []),
+                getData(KEYS.PAPERS).then(res => res || [])
+            ]);
+            
+            const stu = pts[studentId];
+            if (!stu) return alert('未找到学生数据');
+
+            g_currentStudent = stu; g_papers = papers; g_allPts = pts; g_allAns = allAns;
+            g_allStudentRecords = allAns.filter(a => a.studentId === studentId).sort((a,b) => parseDateSafe(b.submitTime) - parseDateSafe(a.submitTime));
+
+            initDatePickers(); resetDateFilter();
+        } catch (err) { console.error(err); alert('数据读取失败: ' + err.message); }
+    });
+
+    // 评语样式控制
+    function changeCommentColor(color) { document.getElementById('teacherCommentInput').style.color = color; }
+    function changeCommentFont(fontClass) {
+        const textarea = document.getElementById('teacherCommentInput');
+        textarea.classList.remove('font-handwriting', 'font-calligraphy', 'font-art', 'font-sans');
+        if (fontClass !== 'font-sans') textarea.classList.add(fontClass);
+        else textarea.style.fontFamily = "'Segoe UI', Roboto, sans-serif";
+    }
+
+    function changeRandomAvatar() {
+        if (!g_currentStudent) return;
+        const randomSeed = Math.floor(Math.random() * 100000);
+        const img = document.getElementById('rptAvatarImg');
+        img.style.opacity = '0.5'; 
+        img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${g_currentStudent.id}_${randomSeed}&backgroundColor=b6e3f4`;
+        img.onload = () => { img.style.opacity = '1'; };
+    }
+
+    function parseDateSafe(dateStr) {
+        if (!dateStr) return new Date(0);
+        let d = new Date(dateStr); if (!isNaN(d.getTime())) return d;
+        d = new Date(dateStr.replace(/-/g, '/')); if (!isNaN(d.getTime())) return d;
+        return new Date(0); 
+    }
+
+    function initDatePickers() {
+        const end = new Date(), start = new Date(); start.setDate(1); 
+        const toInputStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        document.getElementById('endDateInput').value = toInputStr(end);
+        document.getElementById('startDateInput').value = toInputStr(start);
+    }
+
+    function applyDateFilter() {
+        const startStr = document.getElementById('startDateInput').value, endStr = document.getElementById('endDateInput').value;
+        if(!startStr || !endStr) return;
+        const startParts = startStr.split('-'), endParts = endStr.split('-');
+        const startDate = new Date(startParts[0], startParts[1]-1, startParts[2], 0, 0, 0);
+        const endDate = new Date(endParts[0], endParts[1]-1, endParts[2], 23, 59, 59, 999);
+        if(startDate > endDate) return alert('日期范围无效');
+
+        const filteredRecords = g_allStudentRecords.filter(r => {
+            const rDate = parseDateSafe(r.submitTime); 
+            return rDate >= startDate && rDate <= endDate;
+        });
+        document.getElementById('printDateRange').innerText = `${startDate.getFullYear()}/${startDate.getMonth()+1}/${startDate.getDate()} - ${endDate.getFullYear()}/${endDate.getMonth()+1}/${endDate.getDate()}`;
+        updatePageData(filteredRecords, startDate, endDate);
+    }
+
+    function resetDateFilter() {
+        document.getElementById('startDateInput').value = ''; document.getElementById('endDateInput').value = '';
+        document.getElementById('printDateRange').innerText = '全部历史记录';
+        updatePageData(g_allStudentRecords, null, null);
+    }
+
+    // 🚀 数据分配与渲染中枢
+    function updatePageData(records, startDate, endDate) {
+        document.getElementById('rptDate').innerText = new Date().toLocaleDateString();
+        document.getElementById('rptName').innerText = g_currentStudent.name;
+        document.getElementById('rptId').innerText = g_currentStudent.id;
+        document.getElementById('rptGrade').innerText = g_currentStudent.grade || '未设置';
+        document.getElementById('rptPoints').innerText = g_currentStudent.points;
+        document.getElementById('rptTitle').innerText = getRankTitle(g_currentStudent.points);
+        
+        const img = document.getElementById('rptAvatarImg');
+        if (img.src === '' || img.src === window.location.href) img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${g_currentStudent.id}&backgroundColor=b6e3f4`;
+
+        // 顶部的四大汇总数据 (保留)
+        const myStats = calculateStats(records, g_papers);
+        document.getElementById('rptAcc').innerText = myStats.acc.toFixed(1) + '%';
+        document.getElementById('rptAvg').innerText = myStats.avg.toFixed(1);
+        document.getElementById('rptCount').innerText = myStats.count;
+        document.getElementById('rptWrong').innerText = myStats.wrong;
+
+        // 计算排名并更新顶部徽章 (保留)
+        const allStudentPhaseStats = [];
+        for (let sid in g_allPts) {
+            let sRecs = g_allAns.filter(a => a.studentId === sid);
+            if (startDate && endDate) {
+                sRecs = sRecs.filter(r => {
+                    const rDate = parseDateSafe(r.submitTime);
+                    return rDate >= startDate && rDate <= endDate;
+                });
+            }
+            const stats = calculateStats(sRecs, g_papers);
+            allStudentPhaseStats.push({ id: sid, points: g_allPts[sid].points, acc: stats.acc, avg: stats.avg, count: stats.count });
+        }
+        
+        const getRank = (field) => {
+            const sorted = [...allStudentPhaseStats].sort((a, b) => b[field] - a[field]);
+            return sorted.findIndex(s => s.id === g_currentStudent.id) + 1;
+        };
+
+        renderRankBadge('rptRankPoints', getRank('points')); 
+        renderRankBadge('rptRankAcc', getRank('acc'), true); 
+        renderRankBadge('rptRankAvg', getRank('avg'), true); 
+        renderRankBadge('rptRankCount', getRank('count'), true); 
+
+        // 🚀 中部：按照Type将记录分发到三个列表
+        const testRecs = records.filter(r => { const p = g_papers.find(x=>x.id===r.paperId); return p && (p.type === 'test' || !p.type); });
+        const hwRecs = records.filter(r => { const p = g_papers.find(x=>x.id===r.paperId); return p && p.type === 'homework'; });
+        const corrRecs = records.filter(r => { const p = g_papers.find(x=>x.id===r.paperId); return p && p.type === 'correction'; });
+
+        renderModuleList('test-list', 'test-empty', testRecs);
+        renderModuleList('hw-list', 'hw-empty', hwRecs);
+        renderModuleList('corr-list', 'corr-empty', corrRecs);
+
+        // 综合图表 (保留)
+        renderCharts(records, g_papers, myStats.acc);
+    }
+
+    function renderRankBadge(elId, rank, isPhase = false) {
+        const el = document.getElementById(elId);
+        if(!el) return;
+        let text = `第 ${rank} 名`;
+        if(isPhase) text = `阶段排名 ${rank}`;
+        el.innerText = text;
+        el.className = 'mt-1 text-xs px-2 py-0.5 rounded-full font-bold inline-block border';
+        
+        if (rank === 1) {
+            el.classList.add('bg-yellow-100', 'text-yellow-800', 'border-yellow-300');
+            el.innerHTML = `<i class="fa fa-trophy mr-1"></i>${text}`;
+        } else if (rank === 2) {
+            el.classList.add('bg-gray-100', 'text-gray-700', 'border-gray-300');
+        } else if (rank === 3) {
+            el.classList.add('bg-orange-100', 'text-orange-800', 'border-orange-300');
+        } else {
+            el.classList.add('bg-slate-50', 'text-slate-500', 'border-transparent');
+        }
+    }
+
+    // 🚀 独立列表渲染引擎（附带单次排名计算）
+    function renderModuleList(tbodyId, emptyId, recs) {
+        const tbody = document.getElementById(tbodyId);
+        const emptyHint = document.getElementById(emptyId);
+        tbody.innerHTML = '';
+
+        if(recs.length === 0) {
+            emptyHint.classList.remove('hidden');
+            return;
+        }
+        emptyHint.classList.add('hidden');
+        
+        let html = '';
+        recs.forEach(r => {
+            const p = g_papers.find(i => i.id === r.paperId);
+            const max = p ? p.totalPoints : 100;
+            const pName = p ? p.name : '未知任务';
+            const dateDisplay = r.submitTime.split(' ')[0] || r.submitTime;
+            
+            // 实时计算该学生在此次任务中的班级单次排名
+            const allScoresForPaper = g_allAns.filter(a => a.paperId === r.paperId).map(a => a.score);
+            let rank = 1;
+            for(let s of allScoresForPaper) {
+                if(s > r.score) rank++; // 分数比他高的有几个，他的排名就退后几名
+            }
+            const totalStudents = allScoresForPaper.length;
+
+            let rankHtml = '';
+            if (rank <= 3 && totalStudents >= 3) {
+                // 前三名加一点高亮色彩
+                rankHtml = `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-bold text-xs shadow-sm">第 ${rank} 名 <span class="font-normal opacity-70">/ ${totalStudents}</span></span>`;
+            } else {
+                rankHtml = `<span class="px-2 py-1 bg-gray-100 rounded text-xs font-bold text-gray-600 shadow-sm">第 ${rank} 名 <span class="font-normal text-gray-400">/ ${totalStudents}</span></span>`;
+            }
+
+         html += `
+            <tr class="hover:bg-blue-50 transition-colors">
+                <td class="p-3 border-b border-gray-100 pl-4 text-gray-500 text-sm whitespace-nowrap">${dateDisplay}</td>
+                <td class="p-3 border-b border-gray-100 font-bold text-gray-700 max-w-[150px] truncate" title="${pName}">${pName}</td>
+                <td class="p-3 border-b border-gray-100 text-center whitespace-nowrap min-w-[80px]">
+                    <span class="font-bold text-gray-800 text-sm">${r.score}</span><span class="text-xs text-gray-400">/${max}</span>
+                </td>
+                <td class="p-3 border-b border-gray-100 text-center whitespace-nowrap">
+                    ${rankHtml}
+                </td>
+            </tr>`;   
+        });
+        tbody.innerHTML = html;
+    }
+
+    function calculateStats(records, papers) {
+        let totalScore = 0, totalMax = 0, wrong = 0;
+        records.forEach(r => {
+            const p = papers.find(i => i.id === r.paperId);
+            const max = p ? p.totalPoints : 100;
+            totalScore += r.score;
+            totalMax += max;
+            if(max > 0 && r.score < max) wrong++; 
+        });
+        return {
+            count: records.length,
+            acc: totalMax > 0 ? (totalScore / totalMax) * 100 : 0,
+            avg: records.length > 0 ? totalScore / records.length : 0,
+            wrong: wrong
+        };
+    }
+
+    function getRankTitle(points) {
+        if(points > 3000) return '👑 学神';
+        if(points > 1500) return '🥇 学霸';
+        if(points > 800) return '🥈 学师';
+        if(points > 200) return '🥉 学者';
+        return '🌱 学徒';
+    }
+
+    function renderCharts(myRecs, papers, myAcc) {
+        const chartData = [...myRecs].reverse(); 
+        const trendData = chartData.map(r => r.score);
+        const labels = chartData.map(r => {
+            const p = papers.find(i => i.id === r.paperId);
+            const dateStr = r.submitTime.split(' ')[0].substring(5); 
+            return `${dateStr}\n${p ? p.name.substring(0,4) : '试卷'}`;
+        });
+
+        if(window.trendChartInst) window.trendChartInst.destroy();
+        if(window.compareChartInst) window.compareChartInst.destroy();
+
+        window.trendChartInst = new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: { 
+                labels: labels, 
+                datasets: [{ 
+                    label: '得分', 
+                    data: trendData, 
+                    borderColor: '#4F46E5', 
+                    backgroundColor: 'rgba(79,70,229,0.1)', 
+                    fill: true, 
+                    tension: 0.3, 
+                    pointRadius: 4 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { y: { beginAtZero: true } } 
+            }
+        });
+
+        window.compareChartInst = new Chart(document.getElementById('compareChart'), {
+            type: 'line',
+            data: { 
+                labels: ['我 (本阶段)', '班级平均', '优秀标杆'], 
+                datasets: [{ 
+                    label: '综合正确率%', 
+                    data: [myAcc.toFixed(1), 75, 90], 
+                    borderColor: '#F59E0B', 
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3, 
+                    pointRadius: 6,
+                    pointBackgroundColor: ['#10B981', '#9CA3AF', '#F59E0B']
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { min: 0, max: 100 }, 
+                    x: { display: true } 
+                } 
+            }
+        });
+    }
+  </script>
+</body>
+</html>

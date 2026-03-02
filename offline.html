@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>线下成绩批量录入</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="./js/localforage.min.js"></script>
+  <script>window.localforage || document.write('<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"><\/script>')</script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#4F46E5', accent: '#F59E0B' },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background: #F3F4F6; padding: 20px; font-family: 'Segoe UI', Roboto, sans-serif; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    /* 输入框聚焦效果 */
+    .score-input:focus { background-color: #EEF2FF; border-color: #4F46E5; font-weight: bold; color: #4F46E5; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="mb-6 border-b pb-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800"><i class="fa fa-pencil-square-o mr-2 text-primary"></i>线下成绩批量录入</h1>
+        <p class="text-sm text-gray-500 mt-1">录入的数据将自动同步至学生学情报告</p>
+      </div>
+      <button onclick="window.close()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times text-xl"></i></button>
+    </header>
+
+    <div class="grid grid-cols-3 gap-4 mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
+      <div>
+        <label class="block text-xs font-bold text-gray-500 mb-1">考试名称</label>
+        <input type="text" id="examName" class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="例如：第三周数学周测">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-gray-500 mb-1">总分 (满分)</label>
+        <input type="number" id="examMax" class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" value="100">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-gray-500 mb-1">考试日期</label>
+        <input type="date" id="examDate" class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <div class="flex justify-between items-end mb-2">
+        <h3 class="font-bold text-gray-700">学生名单 <span class="text-xs font-normal text-gray-400" id="stuCount">(共 0 人)</span></h3>
+        <span class="text-xs text-orange-500"><i class="fa fa-lightbulb-o"></i> 提示：按 Tab 或 Enter 键可快速跳到下一位</span>
+      </div>
+      
+      <div class="overflow-hidden border rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">学号</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">姓名</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">得分</th>
+            </tr>
+          </thead>
+          <tbody id="studentListBody" class="bg-white divide-y divide-gray-200">
+            <tr><td colspan="3" class="text-center py-4 text-gray-400">正在加载学生数据...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="flex justify-end pt-4 border-t">
+      <button onclick="saveOfflineScores()" class="bg-green-600 text-white px-8 py-3 rounded-lg shadow hover:bg-green-700 transition font-bold flex items-center">
+        <i class="fa fa-check-circle mr-2"></i> 保存并同步
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const KEYS = { POINTS: 'studentPoints', ANSWERS: 'studentAnswers', PAPERS: 'gradePapers' };
+    let g_students = [];
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        // 初始化日期为今天
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('examDate').value = `${yyyy}-${mm}-${dd}`;
+
+        try {
+            const pts = await localforage.getItem(KEYS.POINTS) || {};
+            
+            // 转换为数组
+            g_students = Object.values(pts);
+            
+            renderStudentList();
+            document.getElementById('stuCount').innerText = `(共 ${g_students.length} 人)`;
+
+        } catch (err) { console.error(err); alert('数据读取失败'); }
+    });
+
+    function renderStudentList() {
+        const tbody = document.getElementById('studentListBody');
+        tbody.innerHTML = '';
+
+        if (g_students.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4">暂无学生，请先在后台添加学生</td></tr>';
+            return;
+        }
+
+        // --- 核心逻辑：按年级分组 ---
+        const grouped = {};
+        g_students.forEach(stu => {
+            const g = stu.grade || '未分类';
+            if (!grouped[g]) grouped[g] = [];
+            grouped[g].push(stu);
+        });
+
+        // 获取年级列表并排序 (高一 -> 高二 -> 高三 -> 未分类)
+        const grades = Object.keys(grouped).sort((a, b) => a.localeCompare(b, 'zh'));
+
+        let html = '';
+        grades.forEach(grade => {
+            // 1. 渲染年级标题行
+            html += `
+                <tr class="bg-slate-100 border-b border-slate-200">
+                    <td colspan="3" class="px-4 py-2 font-bold text-slate-700 text-sm">
+                        <i class="fa fa-tag mr-2 text-primary"></i>${grade}
+                        <span class="text-xs font-normal text-slate-400 ml-2">(${grouped[grade].length}人)</span>
+                    </td>
+                </tr>
+            `;
+
+            // 2. 渲染该年级下的学生 (按学号排序)
+            const students = grouped[grade].sort((a,b) => a.id.localeCompare(b.id));
+            
+            students.forEach(stu => {
+                html += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 text-sm text-gray-500 pl-8">${stu.id}</td>
+                        <td class="px-4 py-3 text-sm font-bold text-gray-800">${stu.name}</td>
+                        <td class="px-4 py-2">
+                            <input type="number" 
+                                   data-sid="${stu.id}" 
+                                   class="score-input border border-gray-300 rounded px-3 py-1 w-24 text-center focus:outline-none focus:ring-2 focus:ring-primary transition" 
+                                   placeholder="0"
+                                   onkeydown="handleEnterKey(event, this)">
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+        
+        tbody.innerHTML = html;
+    }
+
+    // 辅助功能：按回车键跳到下一个输入框
+    function handleEnterKey(e, currentInput) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const allInputs = document.querySelectorAll('.score-input');
+            const index = Array.from(allInputs).indexOf(currentInput);
+            if (index > -1 && index < allInputs.length - 1) {
+                allInputs[index + 1].focus();
+            }
+        }
+    }
+
+    async function saveOfflineScores() {
+        const name = document.getElementById('examName').value.trim();
+        const max = parseFloat(document.getElementById('examMax').value);
+        const date = document.getElementById('examDate').value;
+
+        if (!name) return alert('请输入考试名称');
+        if (!max || max <= 0) return alert('请输入有效的满分值');
+
+        if (!confirm(`确认要提交《${name}》的成绩吗？\n这将直接更新学生的总积分和报表。`)) return;
+
+        try {
+            // 1. 读取旧数据
+            const [allPapers, allAnswers, studentPoints] = await Promise.all([
+                localforage.getItem(KEYS.PAPERS) || [],
+                localforage.getItem(KEYS.ANSWERS) || [],
+                localforage.getItem(KEYS.POINTS) || {}
+            ]);
+
+            // 2. 创建一个“虚拟试卷”记录
+            const newPaperId = 'offline_' + Date.now();
+            const newPaper = {
+                id: newPaperId,
+                name: name,
+                totalPoints: max,
+                timeLimit: 0,
+                questions: [], // 线下考试无具体题目数据
+                createTime: new Date().toISOString()
+            };
+            allPapers.push(newPaper);
+
+            // 3. 收集分数并创建答卷记录
+            const inputs = document.querySelectorAll('.score-input');
+            let recordCount = 0;
+
+            for (let input of inputs) {
+                const scoreStr = input.value.trim();
+                // 如果留空，视为缺考，不记录；如果填0，视为0分，记录。
+                if (scoreStr === '') continue; 
+
+                const score = parseFloat(scoreStr);
+                const stuId = input.dataset.sid;
+
+                // 创建答题记录
+                const newAnswer = {
+                    paperId: newPaperId,
+                    studentId: stuId,
+                    studentName: studentPoints[stuId].name, // 冗余存名方便查
+                    score: score,
+                    submitTime: date + ' 12:00:00', // 补全时间格式
+                    details: [], // 无答题详情
+                    fillInBlankDetails: [],
+                    isOffline: true // 标记为线下数据
+                };
+                allAnswers.push(newAnswer);
+
+                // 更新学生总积分
+                if (studentPoints[stuId]) {
+                    studentPoints[stuId].points = (studentPoints[stuId].points || 0) + score;
+                    studentPoints[stuId].lastUpdate = new Date().toLocaleString() + ' (Offline)';
+                }
+                recordCount++;
+            }
+
+            // 4. 保存所有数据
+            await Promise.all([
+                localforage.setItem(KEYS.PAPERS, allPapers),
+                localforage.setItem(KEYS.ANSWERS, allAnswers),
+                localforage.setItem(KEYS.POINTS, studentPoints)
+            ]);
+
+            alert(`成功！已录入 ${recordCount} 条成绩。\n学情报告已自动更新。`);
+            // 清空输入框防止重复提交
+            document.querySelectorAll('.score-input').forEach(i => i.value = '');
+            document.getElementById('examName').value = '';
+
+        } catch (err) {
+            console.error(err);
+            alert('保存失败：' + err.message);
+        }
+    }
+  </script>
+</body>
+</html>

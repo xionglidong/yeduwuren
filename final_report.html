@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>寒假课教学总结总表</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="./js/localforage.min.js"></script>
+  <script>window.localforage || document.write('<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"><\/script>')</script>
+  <style>
+    body { background: #f4f7f6; padding: 40px; font-family: 'PingFang SC', system-ui; }
+    .report-card { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 30px; }
+    .stat-box { border-left: 4px solid #4F46E5; background: #f8fafc; padding: 15px; }
+    @media print { .no-print { display: none; } body { padding: 0; background: white; } .report-card { box-shadow: none; border: 1px solid #eee; } }
+  </style>
+</head>
+<body>
+
+  <div class="max-w-6xl mx-auto report-card">
+    <div class="border-b-2 border-gray-100 pb-6 mb-8 flex justify-between items-end">
+        <div>
+            <h1 class="text-3xl font-black text-gray-800">寒假课教学数据总表</h1>
+            <p class="text-gray-500 mt-2"><i class="fa fa-calendar mr-2"></i>统计区间：2026-01-31 至 2026-02-12</p>
+        </div>
+        <button onclick="window.print()" class="no-print bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 shadow-lg transition">
+            <i class="fa fa-print mr-2"></i>打印/导出总结
+        </button>
+    </div>
+
+    <div class="grid grid-cols-4 gap-6 mb-10">
+        <div class="stat-box">
+            <div class="text-xs text-gray-400 font-bold uppercase">总参与人数</div>
+            <div class="text-3xl font-black text-indigo-600" id="totalStudents">0</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #10B981;">
+            <div class="text-xs text-gray-400 font-bold uppercase">总答题次数</div>
+            <div class="text-3xl font-black text-green-600" id="totalCount">0</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #F59E0B;">
+            <div class="text-xs text-gray-400 font-bold uppercase">总练习题数</div>
+            <div class="text-3xl font-black text-orange-500" id="totalQuestions">0</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #EF4444;">
+            <div class="text-xs text-gray-400 font-bold uppercase">整体正确率</div>
+            <div class="text-3xl font-black text-red-500" id="overallAcc">0%</div>
+        </div>
+    </div>
+
+    <div class="mb-10">
+        <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+            <i class="fa fa-trophy mr-2 text-yellow-500"></i> 线下测试汇总 (实战表现)
+        </h3>
+        <div class="overflow-hidden border rounded-xl">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-gray-50 text-gray-500 font-bold">
+                    <tr>
+                        <th class="px-6 py-3">测试名称</th>
+                        <th class="px-6 py-3">参考人数</th>
+                        <th class="px-6 py-3 text-center">最高分</th>
+                        <th class="px-6 py-3 text-center">平均分</th>
+                        <th class="px-6 py-3 text-center">及格率</th>
+                    </tr>
+                </thead>
+                <tbody id="offlineTable" class="divide-y divide-gray-100">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+            <i class="fa fa-line-chart mr-2 text-blue-500"></i> 个人练习详情 (刷题排行)
+        </h3>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="col-span-2 overflow-hidden border rounded-xl">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-blue-50 text-blue-600 font-bold">
+                        <tr>
+                            <th class="px-6 py-3">学生姓名</th>
+                            <th class="px-6 py-3">答题次数</th>
+                            <th class="px-6 py-3">练习得分</th>
+                            <th class="px-6 py-3">个人正确率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable" class="divide-y divide-gray-100">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    const KEYS = { POINTS: 'studentPoints', ANSWERS: 'studentAnswers', PAPERS: 'gradePapers' };
+    const S_DATE = new Date('2026-01-31T00:00:00');
+    const E_DATE = new Date('2026-02-12T23:59:59');
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const [pts, ans, pps] = await Promise.all([
+                localforage.getItem(KEYS.POINTS) || {},
+                localforage.getItem(KEYS.ANSWERS) || [],
+                localforage.getItem(KEYS.PAPERS) || []
+            ]);
+
+            // 1. 筛选时间段内的所有记录
+            const filteredAns = ans.filter(a => {
+                const d = new Date(a.submitTime);
+                return d >= S_DATE && d <= E_DATE;
+            });
+
+            const offPapers = pps.filter(p => {
+                const d = new Date(p.createTime);
+                return (p.id.startsWith('offline_') || !p.questions || p.questions.length === 0) 
+                       && d >= S_DATE && d <= E_DATE;
+            });
+
+            renderOverview(filteredAns, pts, pps);
+            renderOfflineSummary(offPapers, filteredAns);
+            renderStudentRanking(filteredAns, pts, pps);
+
+        } catch (e) { console.error(e); }
+    });
+
+    function renderOverview(ans, pts, pps) {
+        const studentIds = [...new Set(ans.map(a => a.studentId))];
+        document.getElementById('totalStudents').innerText = studentIds.length;
+        document.getElementById('totalCount').innerText = ans.length;
+
+        let totalQuestions = 0;
+        let totalScoreRatio = 0;
+
+        ans.forEach(a => {
+            const paper = pps.find(p => p.id === a.paperId);
+            if(paper) {
+                totalQuestions += (paper.questions ? paper.questions.length : 1);
+                totalScoreRatio += (a.score / (paper.totalPoints || 100));
+            }
+        });
+
+        document.getElementById('totalQuestions').innerText = totalQuestions;
+        const avgAcc = ans.length > 0 ? (totalScoreRatio / ans.length * 100).toFixed(1) : 0;
+        document.getElementById('overallAcc').innerText = avgAcc + '%';
+    }
+
+    function renderOfflineSummary(papers, allAns) {
+        const tbody = document.getElementById('offlineTable');
+        let html = '';
+        papers.forEach(p => {
+            const records = allAns.filter(a => a.paperId === p.id);
+            if(records.length === 0) return;
+
+            const scores = records.map(r => r.score);
+            const max = Math.max(...scores);
+            const avg = (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1);
+            const pass = (scores.filter(s => s >= p.totalPoints * 0.6).length / scores.length * 100).toFixed(0);
+
+            html += `<tr>
+                <td class="px-6 py-4 font-bold text-gray-800">${p.name}</td>
+                <td class="px-6 py-4 text-gray-500">${records.length} 人</td>
+                <td class="px-6 py-4 text-center text-green-600 font-bold">${max}</td>
+                <td class="px-6 py-4 text-center font-bold">${avg}</td>
+                <td class="px-6 py-4 text-center text-orange-500">${pass}%</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="5" class="text-center py-10 text-gray-400">区间内无线下测试</td></tr>';
+    }
+
+    function renderStudentRanking(ans, pts, pps) {
+        const studentStats = {};
+        ans.forEach(a => {
+            if(!studentStats[a.studentId]) {
+                studentStats[a.studentId] = { name: a.studentName || pts[a.studentId]?.name || '未知', count: 0, totalRatio: 0, score: 0 };
+            }
+            const paper = pps.find(p => p.id === a.paperId);
+            studentStats[a.studentId].count++;
+            studentStats[a.studentId].score += a.score;
+            studentStats[a.studentId].totalRatio += (a.score / (paper?.totalPoints || 100));
+        });
+
+        const sorted = Object.values(studentStats).sort((a,b) => b.count - a.count);
+        const tbody = document.getElementById('studentTable');
+        tbody.innerHTML = sorted.map(s => `
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-3 font-medium">${s.name}</td>
+                <td class="px-6 py-3 font-bold text-blue-600">${s.count} 次</td>
+                <td class="px-6 py-3 text-gray-500">${s.score.toFixed(0)} 分</td>
+                <td class="px-6 py-3 font-bold">${(s.totalRatio / s.count * 100).toFixed(1)}%</td>
+            </tr>
+        `).join('');
+    }
+  </script>
+</body>
+</html>
