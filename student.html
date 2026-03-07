@@ -145,8 +145,15 @@
     let currentPaper = null, currentQuestionIndex = 0, studentAnswers = [], studentInfo = {}, studentPointsData = {}, exchangeRecords = [], prizes = [], timerInterval = null, secondsElapsed = 0;
     let uploadedFbImages = [], fbSelfScore = 0, fbIsConfirmed = false, allAnswerRecords = [], fbJudgments = null;
     let growthQuestionChartInstance = null, growthAccuracyChartInstance = null, growthPeriod = 'week';
-let uploadedDraftImages = []; // 🚀 新增：草稿纸多图数组
-    let currentModuleTab = 'test'; 
+    let uploadedDraftImages = []; // 🚀 新增：草稿纸多图数组
+    let currentModuleTab = 'test';
+    const DEFAULT_PAPER_PAGE_SIZE = 5;
+    const PAPER_PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
+    const paperPaginationState = {
+      grade1PaperList: { page: 1, pageSize: DEFAULT_PAPER_PAGE_SIZE },
+      grade2PaperList: { page: 1, pageSize: DEFAULT_PAPER_PAGE_SIZE },
+      grade3PaperList: { page: 1, pageSize: DEFAULT_PAPER_PAGE_SIZE }
+    };
 
     const loginBtn = document.getElementById('login-btn'), studentNameInput = document.getElementById('student-name'), studentIdInput = document.getElementById('student-id'), userPointsCard = document.getElementById('user-points-card'), exchangeHistory = document.getElementById('exchange-history'), examContainer = document.getElementById('exam-container'), rankingList = document.getElementById('ranking-list'), historyList = document.getElementById('history-list');
     const growthTrendCard = document.getElementById('growth-trend-card'), growthQuestionChart = document.getElementById('growthQuestionChart'), growthAccuracyChart = document.getElementById('growthAccuracyChart'), growthPeriodButtons = document.querySelectorAll('.growth-period-btn');
@@ -205,7 +212,7 @@ let uploadedDraftImages = []; // 🚀 新增：草稿纸多图数组
         const papers = await getData(PAPER_STORAGE_KEY) || []; 
         allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || []; 
         updateTabBadges(papers, allAnswerRecords); // 🚀 触发红点检测
-        processAndRenderPapers(papers); 
+        await processAndRenderPapers(papers); 
     }
 
    // 🚀 核心红点检测系统 (终极护甲版：直接使用原生时间戳比对，绝不报错)
@@ -248,9 +255,131 @@ let uploadedDraftImages = []; // 🚀 新增：草稿纸多图数组
             }
         });
     }
-    async function processAndRenderPapers(papers) { const filteredPapers = papers.filter(p => { const pType = p.type || 'test'; return pType === currentModuleTab; }); const grade1Papers = filteredPapers.filter(p => p.grade === 'grade1'); const grade2Papers = filteredPapers.filter(p => p.grade === 'grade2'); const grade3Papers = filteredPapers.filter(p => p.grade === 'grade3'); grade1PaperCount.textContent = `${grade1Papers.length}套`; grade2PaperCount.textContent = `${grade2Papers.length}套`; grade3PaperCount.textContent = `${grade3Papers.length}套`; renderPaperList(grade1PaperList, grade1Papers); renderPaperList(grade2PaperList, grade2Papers); renderPaperList(grade3PaperList, grade3Papers); const grade1Section = document.getElementById('grade1'), grade2Section = document.getElementById('grade2'), grade3Section = document.getElementById('grade3'); if (!userGrade) { grade1Section.classList.remove('hidden'); grade2Section.classList.remove('hidden'); grade3Section.classList.remove('hidden'); } else { grade1Section.classList.add('hidden'); grade2Section.classList.add('hidden'); grade3Section.classList.add('hidden'); if (userGrade === '高一') grade1Section.classList.remove('hidden'); if (userGrade === '高二') grade2Section.classList.remove('hidden'); if (userGrade === '高三') grade3Section.classList.remove('hidden'); } await renderStudentStats(); }
+    function getPaperPaginationState(containerId) {
+      if (!paperPaginationState[containerId]) {
+        paperPaginationState[containerId] = { page: 1, pageSize: DEFAULT_PAPER_PAGE_SIZE };
+      }
+      return paperPaginationState[containerId];
+    }
+    function buildPaperPageItems(currentPage, totalPages) {
+      if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+      const pages = new Set([1, 2, 3, totalPages - 1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+      const validPages = Array.from(pages).filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+      const items = [];
+      for (let i = 0; i < validPages.length; i++) {
+        const page = validPages[i];
+        if (i > 0 && page - validPages[i - 1] > 1) items.push('ellipsis');
+        items.push(page);
+      }
+      return items;
+    }
+    function renderPaperPaginationControls(container, total, totalPages) {
+      const state = getPaperPaginationState(container.id);
+      let controls = document.getElementById(`${container.id}Pagination`);
+      if (!controls) {
+        controls = document.createElement('div');
+        controls.id = `${container.id}Pagination`;
+        controls.className = 'mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3';
+        container.insertAdjacentElement('afterend', controls);
+      }
+      if (total <= 0) {
+        controls.innerHTML = '';
+        controls.classList.add('hidden');
+        return;
+      }
+      controls.classList.remove('hidden');
+      const start = (state.page - 1) * state.pageSize + 1;
+      const end = Math.min(state.page * state.pageSize, total);
+      const pageItems = buildPaperPageItems(state.page, totalPages);
+      controls.innerHTML = `
+        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+          <span>每页</span>
+          <select id="${container.id}PageSize" class="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white">
+            ${PAPER_PAGE_SIZE_OPTIONS.map((size) => `<option value="${size}" ${size === state.pageSize ? 'selected' : ''}>${size}</option>`).join('')}
+          </select>
+          <span>条</span>
+          <span class="text-gray-400 ml-1">当前 ${start}-${end} / ${total}</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1">
+          <button id="${container.id}PrevPage" class="px-2.5 py-1 rounded border text-sm ${state.page === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${state.page === 1 ? 'disabled' : ''}>上一页</button>
+          ${pageItems.map((item) => {
+            if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+            const active = item === state.page;
+            return `<button data-page="${item}" class="paper-page-btn min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">${item}</button>`;
+          }).join('')}
+          <button id="${container.id}NextPage" class="px-2.5 py-1 rounded border text-sm ${state.page === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${state.page === totalPages ? 'disabled' : ''}>下一页</button>
+        </div>
+      `;
+      const pageSizeSelect = document.getElementById(`${container.id}PageSize`);
+      const prevBtn = document.getElementById(`${container.id}PrevPage`);
+      const nextBtn = document.getElementById(`${container.id}NextPage`);
+      pageSizeSelect.addEventListener('change', async function () {
+        state.pageSize = parseInt(this.value, 10) || DEFAULT_PAPER_PAGE_SIZE;
+        state.page = 1;
+        await loadAndRenderPapers();
+      });
+      prevBtn.addEventListener('click', async function () {
+        if (state.page > 1) {
+          state.page -= 1;
+          await loadAndRenderPapers();
+        }
+      });
+      nextBtn.addEventListener('click', async function () {
+        if (state.page < totalPages) {
+          state.page += 1;
+          await loadAndRenderPapers();
+        }
+      });
+      controls.querySelectorAll('.paper-page-btn').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const target = parseInt(this.dataset.page, 10);
+          if (!Number.isNaN(target) && target !== state.page) {
+            state.page = target;
+            await loadAndRenderPapers();
+          }
+        });
+      });
+    }
+    async function processAndRenderPapers(papers) { const filteredPapers = papers.filter(p => { const pType = p.type || 'test'; return pType === currentModuleTab; }); const grade1Papers = filteredPapers.filter(p => p.grade === 'grade1'); const grade2Papers = filteredPapers.filter(p => p.grade === 'grade2'); const grade3Papers = filteredPapers.filter(p => p.grade === 'grade3'); grade1PaperCount.textContent = `${grade1Papers.length}套`; grade2PaperCount.textContent = `${grade2Papers.length}套`; grade3PaperCount.textContent = `${grade3Papers.length}套`; await renderPaperList(grade1PaperList, grade1Papers); await renderPaperList(grade2PaperList, grade2Papers); await renderPaperList(grade3PaperList, grade3Papers); const grade1Section = document.getElementById('grade1'), grade2Section = document.getElementById('grade2'), grade3Section = document.getElementById('grade3'); if (!userGrade) { grade1Section.classList.remove('hidden'); grade2Section.classList.remove('hidden'); grade3Section.classList.remove('hidden'); } else { grade1Section.classList.add('hidden'); grade2Section.classList.add('hidden'); grade3Section.classList.add('hidden'); if (userGrade === '高一') grade1Section.classList.remove('hidden'); if (userGrade === '高二') grade2Section.classList.remove('hidden'); if (userGrade === '高三') grade3Section.classList.remove('hidden'); } await renderStudentStats(); }
     async function getLatestAnswerRecord(paperId) { const userRecords = allAnswerRecords.filter(a => a.studentId === userId && a.paperId === paperId); if (userRecords.length === 0) return null; userRecords.sort((a, b) => new Date(b.submitTime).getTime() - new Date(a.submitTime).getTime()); return userRecords[0]; }
-    function renderPaperList(container, papers) { if (papers.length === 0) { container.innerHTML = '<div class="text-center text-gray-500 py-6">该模块暂无新任务</div>'; return; } container.innerHTML = ''; papers.forEach(async (paper, index) => { const isNew = paper.createTime ? new Date() - new Date(paper.createTime) < 24 * 60 * 60 * 1000 : false; const latestRecord = await getLatestAnswerRecord(paper.id); const hasAnswered = latestRecord !== null; let statusHtml = '', buttonHtml = ''; if (hasAnswered) { statusHtml = `<span class="ml-3 text-sm font-bold ${latestRecord.isFirstSubmission ? 'text-secondary' : 'text-red-500'}">${latestRecord.isFirstSubmission ? '已作答' : '已重做'} · 得分 ${latestRecord.score}/${paper.totalPoints}</span>`; buttonHtml = `<button class="text-primary hover:text-primary/70 text-sm view-history-btn" data-paper-id="${paper.id}"><i class="fa fa-eye mr-1"></i> 查看详情</button>`; } else { statusHtml = `<span class="ml-3 text-sm text-gray-500">点击开始</span>`; } const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer question-item bg-white relative'; paperItem.dataset.paperId = paper.id; paperItem.innerHTML = `<div class="flex flex-col"><div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800">${index + 1}. ${paper.name}</h4><div class="mt-2 flex items-center"><span class="bg-blue-100 text-blue-500 px-3 py-1 rounded-full text-sm font-medium">共${paper.questionCount}题 · 总分${paper.totalPoints}分</span>${statusHtml}</div>${paper.createTime ? `<p class="mt-2 text-xs text-gray-400">发布时间: ${paper.createTime}</p>` : ''}</div><div class="flex-shrink-0 mt-1">${buttonHtml}</div></div></div>${isNew ? '<span class="badge-new">新</span>' : ''}`; paperItem.addEventListener('click', function (e) { if (!e.target.closest('.view-history-btn')) openAnswerCard(this.dataset.paperId); }); if (hasAnswered) paperItem.querySelector('.view-history-btn').addEventListener('click', function () { showHistoryDetailModal(paper.id); }); container.appendChild(paperItem); }); }
+    async function renderPaperList(container, papers) {
+      if (papers.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-6">该模块暂无新任务</div>';
+        renderPaperPaginationControls(container, 0, 0);
+        return;
+      }
+      const state = getPaperPaginationState(container.id);
+      const totalPages = Math.max(1, Math.ceil(papers.length / state.pageSize));
+      if (state.page > totalPages) state.page = totalPages;
+      if (state.page < 1) state.page = 1;
+      const startIndex = (state.page - 1) * state.pageSize;
+      const pagePapers = papers.slice(startIndex, startIndex + state.pageSize);
+      const paperViewData = await Promise.all(pagePapers.map(async (paper) => {
+        const latestRecord = await getLatestAnswerRecord(paper.id);
+        return { paper, latestRecord };
+      }));
+      container.innerHTML = '';
+      paperViewData.forEach(({ paper, latestRecord }, index) => {
+        const absoluteIndex = startIndex + index + 1;
+        const isNew = paper.createTime ? new Date() - new Date(paper.createTime) < 24 * 60 * 60 * 1000 : false;
+        const hasAnswered = latestRecord !== null;
+        let statusHtml = '', buttonHtml = '';
+        if (hasAnswered) {
+          statusHtml = `<span class="ml-3 text-sm font-bold ${latestRecord.isFirstSubmission ? 'text-secondary' : 'text-red-500'}">${latestRecord.isFirstSubmission ? '已作答' : '已重做'} · 得分 ${latestRecord.score}/${paper.totalPoints}</span>`;
+          buttonHtml = `<button class="text-primary hover:text-primary/70 text-sm view-history-btn" data-paper-id="${paper.id}"><i class="fa fa-eye mr-1"></i> 查看详情</button>`;
+        } else {
+          statusHtml = '<span class="ml-3 text-sm text-gray-500">点击开始</span>';
+        }
+        const paperItem = document.createElement('div');
+        paperItem.className = 'border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer question-item bg-white relative';
+        paperItem.dataset.paperId = paper.id;
+        paperItem.innerHTML = `<div class="flex flex-col"><div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800">${absoluteIndex}. ${paper.name}</h4><div class="mt-2 flex items-center"><span class="bg-blue-100 text-blue-500 px-3 py-1 rounded-full text-sm font-medium">共${paper.questionCount}题 · 总分${paper.totalPoints}分</span>${statusHtml}</div>${paper.createTime ? `<p class="mt-2 text-xs text-gray-400">发布时间: ${paper.createTime}</p>` : ''}</div><div class="flex-shrink-0 mt-1">${buttonHtml}</div></div></div>${isNew ? '<span class="badge-new">新</span>' : ''}`;
+        paperItem.addEventListener('click', function (e) { if (!e.target.closest('.view-history-btn')) openAnswerCard(this.dataset.paperId); });
+        if (hasAnswered) paperItem.querySelector('.view-history-btn').addEventListener('click', function () { showHistoryDetailModal(paper.id); });
+        container.appendChild(paperItem);
+      });
+      renderPaperPaginationControls(container, papers.length, totalPages);
+    }
     
     async function showHistoryDetailModal(paperId) { 
         const paper = (await getData(PAPER_STORAGE_KEY)).find(p => p.id === paperId); if (!paper) return; 
