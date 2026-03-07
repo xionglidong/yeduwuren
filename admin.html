@@ -77,6 +77,17 @@
               <div><label class="block text-sm font-medium text-gray-600 mb-1">选择题数量 <span class="text-red-500">*</span></label><input type="number" id="paperQuestionCount" min="0" max="50" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">选择题单题分值 <span class="text-red-500">*</span></label><input type="number" id="paperQuestionPoints" min="1" max="20" value="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">填空/简答题数量</label><input type="number" id="paperFillBlankCount" min="0" max="20" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
+              <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
+                <div>
+                  <label for="paperAllowRedo" class="block text-sm font-medium text-gray-700">允许学生重做</label>
+                  <p class="text-xs text-gray-500 mt-1">开启后可多次作答，积分按该套题历史最高分计算</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="paperAllowRedo" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+                  <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5"></span>
+                </label>
+              </div>
               <div id="fbPointsConfigArea" class="hidden md:col-span-3 border border-blue-100 p-4 rounded-lg bg-blue-50 mt-2">
                   <label class="block text-sm font-medium text-blue-800 mb-3"><i class="fa fa-sliders mr-1"></i> 设置每道填空/简答题的分值</label>
                   <div id="dynamicFbPointsContainer" class="grid grid-cols-3 md:grid-cols-6 gap-3"></div>
@@ -220,7 +231,7 @@
 
     const loginScreen = document.getElementById('loginScreen'), mainContent = document.getElementById('mainContent'), adminName = document.getElementById('adminName'), adminPassword = document.getElementById('adminPassword'), loginBtn = document.getElementById('loginBtn'), loginError = document.getElementById('loginError'), logoutBtn = document.getElementById('logoutBtn');
     const tabButtons = document.querySelectorAll('.bg-white.rounded-xl.shadow-md.p-4.mb-8 button'), tabPanes = document.querySelectorAll('.tab-pane');
-    const paperGrade = document.getElementById('paperGrade'), paperName = document.getElementById('paperName'), paperQuestionCount = document.getElementById('paperQuestionCount'), paperQuestionPoints = document.getElementById('paperQuestionPoints');
+    const paperGrade = document.getElementById('paperGrade'), paperName = document.getElementById('paperName'), paperQuestionCount = document.getElementById('paperQuestionCount'), paperQuestionPoints = document.getElementById('paperQuestionPoints'), paperAllowRedo = document.getElementById('paperAllowRedo');
     const paperFillBlankCount = document.getElementById('paperFillBlankCount'), paperFillBlankPoints = document.getElementById('paperFillBlankPoints'), paperFillBlankAnswerImage = document.getElementById('paperFillBlankAnswerImage'), previewContainer = document.getElementById('previewContainer'), answerImagePreview = document.getElementById('answerImagePreview'), imagePreviewModal = document.getElementById('imagePreviewModal'), fullScreenPreviewImage = document.getElementById('fullScreenPreviewImage');
     const optionA = document.getElementById('optionA'), optionB = document.getElementById('optionB'), optionC = document.getElementById('optionC'), optionD = document.getElementById('optionD'), dynamicAnswers = document.getElementById('dynamicAnswers'), addPaperBtn = document.getElementById('addPaperBtn');
     const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade3AddBtn = document.getElementById('grade3AddBtn');
@@ -372,6 +383,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const questionCount = parseInt(paperQuestionCount.value) || 0, singlePoints = parseFloat(paperQuestionPoints.value) || 0;
       const optionAVal = optionA.value.trim(), optionBVal = optionB.value.trim(), optionCVal = optionC.value.trim(), optionDVal = optionD.value.trim();
       const fillBlankCount = parseInt(paperFillBlankCount.value) || 0;
+      const allowRedo = !!(paperAllowRedo && paperAllowRedo.checked);
       
       if (!name) return alert('请填写套卷名称');
       if (questionCount === 0 && fillBlankCount === 0) return alert('套卷不能没有任何题目');
@@ -409,7 +421,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         } catch (e) { alert('图片上传服务器失败，请重试'); return; }
       }
       
-      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, totalPoints: (questionCount * singlePoints) + totalFbPoints, answers, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
+      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, totalPoints: (questionCount * singlePoints) + totalFbPoints, answers, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
       const papers = await getData(PAPER_STORAGE_KEY) || []; 
       papers.push(newPaper); 
       await saveData(PAPER_STORAGE_KEY, papers);
@@ -427,6 +439,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       if(document.getElementById('answer2')) document.getElementById('answer2').value = 'A'; 
       if(document.getElementById('answer3')) document.getElementById('answer3').value = 'A'; 
       optionA.value = ''; optionB.value = ''; optionC.value = ''; optionD.value = '';
+      if (paperAllowRedo) paperAllowRedo.checked = false;
       
       alert('任务添加成功！');
     }
@@ -442,13 +455,15 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     async function renderPaperList(container, papers, allAnswers) { // 🚀 接收传入的数据，不再重复请求
         container.innerHTML = ''; 
         if (papers.length === 0) return container.innerHTML = '<div class="text-center text-gray-500 py-4">暂无套卷</div>'; 
-        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + item.score, 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : '📝 测试'); const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-blue-500 view-answers text-sm whitespace-nowrap" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
+        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + item.score, 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : '📝 测试'); const redoEnabled = !!paper.allowRedo; const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
+    paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
     paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
             paperItem.querySelector('.view-analysis').addEventListener('click', function () { showPaperAnalysis(this.dataset.id); });
             paperItem.querySelector('.config-answers').addEventListener('click', function () { openAnswerConfigModal(this.dataset.id); });
             paperItem.querySelector('.delete-paper').addEventListener('click', function () { if (confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) deletePaper(this.dataset.id); });
     }); 
     }
+            async function togglePaperRedoStatus(paperId, isEnabled) { let papers = await getData(PAPER_STORAGE_KEY) || []; const idx = papers.findIndex(p => p.id === paperId); if (idx === -1) return; papers[idx].allowRedo = !isEnabled; await saveData(PAPER_STORAGE_KEY, papers); renderAllPaperLists(); }
             async function deletePaper(paperId) { let papers = await getData(PAPER_STORAGE_KEY) || []; papers = papers.filter(p => p.id !== paperId); await saveData(PAPER_STORAGE_KEY, papers); let answers = await getData(ANSWER_STORAGE_KEY) || []; answers = answers.filter(a => a.paperId !== paperId); await saveData(ANSWER_STORAGE_KEY, answers); renderAllPaperLists(); }
     
     // 🚀 核心：强绑定按钮点击事件，绝不丢失
@@ -1088,6 +1103,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             if (!allAnswers[recordIndex]) return alert('记录同步错误，请重新打开'); 
             
             const record = allAnswers[recordIndex];
+            const beforeBestScore = allAnswers
+              .filter(a => String(a.paperId) === String(currentGradingContext.paperId) && String(a.studentId) === String(studentId))
+              .reduce((best, item) => Math.max(best, parseFloat(item.score) || 0), 0);
             const newFbScore = tempJudgments.reduce((acc, curr) => acc + (typeof curr === 'number' ? curr : 0), 0);
             const oldFbScore = parseFloat(record.fillInBlankScore) || 0;
             const diff = newFbScore - oldFbScore; 
@@ -1098,14 +1116,18 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             
             await saveData(ANSWER_STORAGE_KEY, allAnswers); 
             
-            if (record.isFirstSubmission) { 
-                const studentPoints = await getData(STUDENT_POINTS_KEY) || {}; 
-                if (studentPoints[studentId]) { 
-                    studentPoints[studentId].points += diff; 
-                    studentPoints[studentId].lastUpdate = new Date().toLocaleString() + ' (Teacher Override)'; 
-                    await saveData(STUDENT_POINTS_KEY, studentPoints); 
-                } 
-            } 
+            const afterBestScore = allAnswers
+              .filter(a => String(a.paperId) === String(currentGradingContext.paperId) && String(a.studentId) === String(studentId))
+              .reduce((best, item) => Math.max(best, parseFloat(item.score) || 0), 0);
+            const pointsDelta = afterBestScore - beforeBestScore;
+            if (pointsDelta !== 0) {
+                const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+                if (studentPoints[studentId]) {
+                    studentPoints[studentId].points += pointsDelta;
+                    studentPoints[studentId].lastUpdate = new Date().toLocaleString() + ' (Teacher Override)';
+                    await saveData(STUDENT_POINTS_KEY, studentPoints);
+                }
+            }
             
             alert('✅ 判分保存成功！积分与成绩已自动修正。'); 
             window.closeFbGradingModal(); 

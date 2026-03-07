@@ -342,6 +342,7 @@
     }
     async function processAndRenderPapers(papers) { const filteredPapers = papers.filter(p => { const pType = p.type || 'test'; return pType === currentModuleTab; }); const grade1Papers = filteredPapers.filter(p => p.grade === 'grade1'); const grade2Papers = filteredPapers.filter(p => p.grade === 'grade2'); const grade3Papers = filteredPapers.filter(p => p.grade === 'grade3'); grade1PaperCount.textContent = `${grade1Papers.length}套`; grade2PaperCount.textContent = `${grade2Papers.length}套`; grade3PaperCount.textContent = `${grade3Papers.length}套`; await renderPaperList(grade1PaperList, grade1Papers); await renderPaperList(grade2PaperList, grade2Papers); await renderPaperList(grade3PaperList, grade3Papers); const grade1Section = document.getElementById('grade1'), grade2Section = document.getElementById('grade2'), grade3Section = document.getElementById('grade3'); if (!userGrade) { grade1Section.classList.remove('hidden'); grade2Section.classList.remove('hidden'); grade3Section.classList.remove('hidden'); } else { grade1Section.classList.add('hidden'); grade2Section.classList.add('hidden'); grade3Section.classList.add('hidden'); if (userGrade === '高一') grade1Section.classList.remove('hidden'); if (userGrade === '高二') grade2Section.classList.remove('hidden'); if (userGrade === '高三') grade3Section.classList.remove('hidden'); } await renderStudentStats(); }
     async function getLatestAnswerRecord(paperId) { const userRecords = allAnswerRecords.filter(a => a.studentId === userId && a.paperId === paperId); if (userRecords.length === 0) return null; userRecords.sort((a, b) => new Date(b.submitTime).getTime() - new Date(a.submitTime).getTime()); return userRecords[0]; }
+    function getBestAnswerScore(paperId) { const userRecords = allAnswerRecords.filter(a => a.studentId === userId && a.paperId === paperId); if (userRecords.length === 0) return 0; return userRecords.reduce((best, item) => Math.max(best, parseFloat(item.score) || 0), 0); }
     async function renderPaperList(container, papers) {
       if (papers.length === 0) {
         container.innerHTML = '<div class="text-center text-gray-500 py-6">该模块暂无新任务</div>';
@@ -363,9 +364,15 @@
         const absoluteIndex = startIndex + index + 1;
         const isNew = paper.createTime ? new Date() - new Date(paper.createTime) < 24 * 60 * 60 * 1000 : false;
         const hasAnswered = latestRecord !== null;
+        const bestScore = getBestAnswerScore(paper.id);
+        const canRedo = !!paper.allowRedo;
         let statusHtml = '', buttonHtml = '';
         if (hasAnswered) {
-          statusHtml = `<span class="ml-3 text-sm font-bold ${latestRecord.isFirstSubmission ? 'text-secondary' : 'text-red-500'}">${latestRecord.isFirstSubmission ? '已作答' : '已重做'} · 得分 ${latestRecord.score}/${paper.totalPoints}</span>`;
+          if (canRedo) {
+            statusHtml = `<span class="ml-3 text-sm font-bold text-indigo-600">最高分 ${bestScore}/${paper.totalPoints} · 可重做</span>`;
+          } else {
+            statusHtml = `<span class="ml-3 text-sm font-bold ${latestRecord.isFirstSubmission ? 'text-secondary' : 'text-red-500'}">${latestRecord.isFirstSubmission ? '已作答' : '已重做'} · 得分 ${latestRecord.score}/${paper.totalPoints}</span>`;
+          }
           buttonHtml = `<button class="text-primary hover:text-primary/70 text-sm view-history-btn" data-paper-id="${paper.id}"><i class="fa fa-eye mr-1"></i> 查看详情</button>`;
         } else {
           statusHtml = '<span class="ml-3 text-sm text-gray-500">点击开始</span>';
@@ -430,7 +437,8 @@
     async function openAnswerCard(paperId) {
       if (!userName) return showGeneralModal('请先登录', '请先登录后再进行答题', 'warning');
       const papers = await getData(PAPER_STORAGE_KEY) || []; currentPaper = papers.find(p => p.id === paperId); if (!currentPaper) return;
-      if (await getLatestAnswerRecord(paperId) !== null) return showGeneralModal('提示', '该套卷您已完成作答，请查看详情。', 'warning');
+      const latestRecord = await getLatestAnswerRecord(paperId);
+      if (latestRecord !== null && !currentPaper.allowRedo) return showGeneralModal('提示', '该套卷您已完成作答，请查看详情。', 'warning');
       
       const draftDataStr = localStorage.getItem('draft_' + paperId);
       if (draftDataStr) {
@@ -561,7 +569,7 @@ submitAllBtn.disabled =
       if (!confirm(`确定要提交所有答案吗？提交后将无法修改。`)) return;
 
       submitAllBtn.disabled = true; submitAllBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 正在极速交卷中...';
-      stopTimer(); const isFirstSubmission = await getLatestAnswerRecord(currentPaper.id) === null;
+      stopTimer();
       let score = 0; const scoreDetails = [];
       // 👇 就是在这个外面加上了 if 判断 👇
       if (currentPaper.questionCount > 0) { 
@@ -570,6 +578,9 @@ submitAllBtn.disabled =
       // 👆 加上了一对大括号闭合 👆
       score += (fbSelfScore || 0);
       let allAnswers = await getData(ANSWER_STORAGE_KEY) || [];
+      const previousRecords = allAnswers.filter(a => a.paperId === currentPaper.id && a.studentId === userId);
+      const isFirstSubmission = previousRecords.length === 0;
+      const previousBestScore = previousRecords.reduce((best, item) => Math.max(best, parseFloat(item.score) || 0), 0);
       // 🚀 核心升级：将多图数组传给服务器
       const answerRecord = { paperId: currentPaper.id, studentId: userId, studentName: userName, answers: studentAnswers, score: score, totalPoints: currentPaper.totalPoints, submitTime: new Date().toLocaleString(), timeElapsed: secondsElapsed, isFirstSubmission: isFirstSubmission, fillInBlankStudentImage: uploadedFbImages, fillInBlankScore: fbSelfScore || 0, fillInBlankDetails: fbJudgments, draftImages: uploadedDraftImages };
       allAnswers.push(answerRecord); 
@@ -577,8 +588,21 @@ submitAllBtn.disabled =
           await saveData(ANSWER_STORAGE_KEY, allAnswers);
           allAnswerRecords = allAnswers;
           localStorage.removeItem('draft_' + currentPaper.id);
+          const bestScoreAfterSubmit = Math.max(previousBestScore, score);
+          const pointsGain = Math.max(0, bestScoreAfterSubmit - previousBestScore);
           let message = '';
-          if (isFirstSubmission) { studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; studentPointsData[userId].points += score; studentPointsData[userId].lastUpdate = new Date().toLocaleString(); await saveData(STUDENT_POINTS_KEY, studentPointsData); userPoints = studentPointsData[userId].points; message = `本次答题得分 **${score} 分** 已加入您的总积分！`; } else message = `您已提交过本套题，本次提交分数 **${score} 分** 不会增加积分。`;
+          studentPointsData = await getData(STUDENT_POINTS_KEY) || {};
+          if (!studentPointsData[userId]) studentPointsData[userId] = { name: userName, id: userId, grade: userGrade || '', points: 0, createTime: Date.now(), lastUpdate: new Date().toLocaleString() };
+          if (pointsGain > 0) {
+              studentPointsData[userId].points += pointsGain;
+              studentPointsData[userId].lastUpdate = new Date().toLocaleString();
+              await saveData(STUDENT_POINTS_KEY, studentPointsData);
+              userPoints = studentPointsData[userId].points;
+              if (isFirstSubmission) message = `本次答题得分 **${score} 分** 已加入您的总积分！`;
+              else message = `本次刷新该套题历史最高分（${previousBestScore} → ${bestScoreAfterSubmit}），为您增加 **${pointsGain} 分** 积分。`;
+          } else {
+              message = `本次得分 **${score} 分**，未超过历史最高分 **${previousBestScore} 分**，积分不变。`;
+          }
           closeAnswerModal(); showScoreDetailModal(score, currentPaper.totalPoints, scoreDetails, message, secondsElapsed); await calculateUserRank(); await loadRankingList(); await loadAndRenderPapers(); updatePrizeButtons();
       } finally { submitAllBtn.disabled = false; submitAllBtn.innerHTML = '提交所有答案'; }
     }
