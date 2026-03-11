@@ -71,8 +71,8 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="space-y-4">
               <h3 class="text-lg font-medium text-gray-800">套卷信息</h3>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">所属年级 <span class="text-red-500">*</span></label><select id="paperGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="grade1">高一</option><option value="grade2">高二</option><option value="grade3">高三</option></select></div>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">发布类型 <span class="text-red-500">*</span></label><select id="paperType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="test">📝 课上测试</option><option value="homework">📚 课后作业</option><option value="correction">📸 改错任务</option></select></div>
+              <div><label class="block text-sm font-medium text-gray-600 mb-1">发布类型 <span class="text-red-500">*</span></label><select id="paperType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="test">📝 课上测试</option><option value="homework">📚 课后作业</option><option value="correction">📸 改错任务</option><option value="custom">🧩 自定义题库</option></select></div>
+              <div id="paperGradeWrap"><label class="block text-sm font-medium text-gray-600 mb-1">所属年级 <span class="text-red-500">*</span></label><select id="paperGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="grade1">高一</option><option value="grade2">高二</option><option value="grade3">高三</option></select></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">套卷名称 <span class="text-red-500">*</span></label><input type="text" id="paperName" placeholder="如：第一套海淀期末考试题" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">选择题数量 <span class="text-red-500">*</span></label><input type="number" id="paperQuestionCount" min="0" max="50" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">选择题单题分值 <span class="text-red-500">*</span></label><input type="number" id="paperQuestionPoints" min="1" max="20" value="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
@@ -122,6 +122,44 @@
         </div>
 
         <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
+          <h2 class="text-xl font-semibold text-gray-700 mb-6 flex items-center"><i class="fa fa-graduation-cap text-indigo-500 mr-2"></i> 自学成才内容管理</h2>
+          <div class="grid md:grid-cols-5 gap-4">
+            <div><label class="block text-sm font-medium text-gray-600 mb-1">标题</label><input type="text" id="selfLearningTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：指数函数基础"></div>
+            <div><label class="block text-sm font-medium text-gray-600 mb-1">年级</label><select id="selfLearningGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="all">全部年级</option><option value="grade1">高一</option><option value="grade2">高二</option><option value="grade3">高三</option></select></div>
+            <div><label class="block text-sm font-medium text-gray-600 mb-1">视频文件路径</label><div class="relative"><input type="text" id="selfLearningVideo" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg" placeholder="如：video/lesson1.mp4"><label class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 cursor-pointer transition-colors" title="浏览选择本地视频"><i class="fa fa-folder-open text-lg"></i><input type="file" id="selfLearningVideoPicker" accept="video/*" class="hidden"></label></div></div>
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-600 mb-1">配套题目 <span class="text-red-500">*</span></label>
+              <input type="hidden" id="selfLearningRelatedPaper" value="">
+              <button type="button" id="selfLearningPaperTrigger" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-left bg-white hover:border-indigo-400 transition-colors">
+                <span id="selfLearningPaperSelectedText" class="text-gray-500">请选择配套题目</span>
+                <i class="fa fa-angle-down float-right mt-1 text-gray-400"></i>
+              </button>
+              <div id="selfLearningPaperDropdown" class="hidden absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                <input type="text" id="selfLearningPaperSearch" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="搜索套题名称">
+                <div id="selfLearningPaperOptions" class="mt-2 space-y-1 max-h-52 overflow-y-auto"></div>
+                <div class="mt-2 flex items-center justify-between">
+                  <button type="button" id="selfLearningPaperPrev" class="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">上一页</button>
+                  <span id="selfLearningPaperPageInfo" class="text-xs text-gray-500">1 / 1</span>
+                  <button type="button" id="selfLearningPaperNext" class="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">下一页</button>
+                </div>
+              </div>
+            </div>
+            <div><label class="block text-sm font-medium text-gray-600 mb-1">简介</label><input type="text" id="selfLearningSummary" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：10分钟掌握核心概念"></div>
+          </div>
+          <button id="addSelfLearningBtn" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg"><i class="fa fa-plus mr-2"></i> 添加内容</button>
+          <div class="mt-6">
+            <button type="button" id="selfLearningListToggleBtn" class="w-full flex items-center justify-between text-left text-lg font-medium mb-3 px-1 py-1 rounded hover:bg-gray-50">
+              <span>已发布内容</span>
+              <i id="selfLearningListToggleIcon" class="fa fa-chevron-down text-gray-400"></i>
+            </button>
+            <div id="selfLearningListWrap" class="hidden">
+              <div id="selfLearningList" class="space-y-2"></div>
+              <div id="selfLearningListPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
           <h2 class="text-xl font-semibold text-gray-700 mb-6 flex items-center"><i class="fa fa-gift text-yellow-500 mr-2"></i> 奖品管理</h2>
           <div class="grid md:grid-cols-3 gap-6">
             <div><label class="block text-sm font-medium text-gray-600 mb-1">奖品名称</label><input type="text" id="prizeName" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
@@ -164,6 +202,14 @@
           <div class="bg-white rounded-xl shadow-md p-6 fade-in"><h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-book text-blue-500 mr-2"></i> 高一题库管理</h3><div id="grade1AddBtn" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 mb-4"><i class="fa fa-plus text-purple-500 text-2xl mb-2"></i><p>添加新套卷</p></div><div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="grade1PaperList"></div></div>
           <div class="bg-white rounded-xl shadow-md p-6 fade-in"><h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-book text-blue-500 mr-2"></i> 高二题库管理</h3><div id="grade2AddBtn" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 mb-4"><i class="fa fa-plus text-purple-500 text-2xl mb-2"></i><p>添加新套卷</p></div><div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="grade2PaperList"></div></div>
           <div class="bg-white rounded-xl shadow-md p-6 fade-in"><h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-book text-blue-500 mr-2"></i> 高三题库管理</h3><div id="grade3AddBtn" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 mb-4"><i class="fa fa-plus text-purple-500 text-2xl mb-2"></i><p>添加新套卷</p></div><div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="grade3PaperList"></div></div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
+          <h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-puzzle-piece text-indigo-500 mr-2"></i> 自定义题库管理</h3>
+          <div id="customPaperAddBtn" class="border-2 border-dashed border-indigo-200 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-500 mb-4 bg-indigo-50/40">
+            <i class="fa fa-plus text-indigo-500 text-2xl mb-2"></i>
+            <p>添加自定义题库</p>
+          </div>
+          <div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="customPaperManageList"></div>
         </div>
       </div>
 
@@ -222,19 +268,20 @@
   
   <div id="fbGradingModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[70] backdrop-blur-sm"><div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="fbGradingModalContent"><div class="flex justify-between items-center mb-4 pb-4 border-b"><h3 class="text-xl font-bold text-gray-800"><i class="fa fa-check-square-o text-primary mr-2"></i> 详细判分面板</h3><button id="closeFbGradingModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="mb-4 bg-blue-50 p-3 rounded text-sm text-blue-700"><p><i class="fa fa-info-circle mr-1"></i> 请对照学生答卷和参考答案，判定对错。</p><p class="mt-1 font-bold" id="fbGradingScoreDisplay">当前得分: 0分</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="border rounded p-2 bg-gray-50"><p class="text-xs text-center text-gray-500 mb-1">学生答卷</p><div id="fbGradingStudentImageContainer" class="space-y-2 max-h-48 overflow-y-auto"></div></div><div class="border rounded p-2 bg-green-50"><p class="text-xs text-center text-green-600 mb-1">参考答案</p><div id="fbGradingAnswerImageContainer" class="space-y-2 max-h-48 overflow-y-auto p-1"></div></div></div><div id="fbGradingList" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-1"></div><div class="mt-6 flex justify-end space-x-3 pt-4 border-t"><button id="cancelFbGradingBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">取消</button><button id="saveFbGradingBtn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"><i class="fa fa-save mr-1"></i> 保存判分</button></div></div></div>
   <div id="answerConfigModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all scale-95 opacity-0" id="answerConfigModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fa fa-cog text-blue-600 mr-2"></i><span id="configAnswerPaperTitle">配置答案</span></h3><button id="closeAnswerConfigModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="answersConfigList" class="space-y-3"></div><div class="flex justify-end space-x-3 mt-6 pt-4 border-t"><button id="cancelAnswerConfigBtn" class="px-4 py-2 bg-gray-200 rounded-lg">取消</button><button id="saveAnswerConfigBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg">保存并判分</button></div></div></div>
+  <div id="selfLearningInteractionModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[65] backdrop-blur-sm"><div id="selfLearningInteractionModalContent" class="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-4"><h3 id="selfLearningInteractionModalTitle" class="text-lg font-bold text-gray-800">互动详情</h3><button id="closeSelfLearningInteractionModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="selfLearningInteractionModalList" class="space-y-2 max-h-[55vh] overflow-y-auto"></div><div id="selfLearningInteractionModalPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div></div>
 
   <script>
-    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', ADMIN_SESSION_KEY = 'adminLoggedIn', PRIZES_STORAGE_KEY = 'exchangePrizes', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
+    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', ADMIN_SESSION_KEY = 'adminLoggedIn', PRIZES_STORAGE_KEY = 'exchangePrizes', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions', ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
     async function getData(key) { if (key === ADMIN_SESSION_KEY) return localStorage.getItem(key); try { const response = await fetch(`/api/data?key=${key}`); return await response.json(); } catch (e) { return null; } }
     async function saveData(key, value) { if (key === ADMIN_SESSION_KEY) { localStorage.setItem(key, value); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: value }) }); } catch (e) { alert("网络错误"); } }
     async function removeData(key) { if (key === ADMIN_SESSION_KEY) { localStorage.removeItem(key); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: null }) }); } catch (e) { console.error(e); } }
 
     const loginScreen = document.getElementById('loginScreen'), mainContent = document.getElementById('mainContent'), adminName = document.getElementById('adminName'), adminPassword = document.getElementById('adminPassword'), loginBtn = document.getElementById('loginBtn'), loginError = document.getElementById('loginError'), logoutBtn = document.getElementById('logoutBtn');
     const tabButtons = document.querySelectorAll('.bg-white.rounded-xl.shadow-md.p-4.mb-8 button'), tabPanes = document.querySelectorAll('.tab-pane');
-    const paperGrade = document.getElementById('paperGrade'), paperName = document.getElementById('paperName'), paperQuestionCount = document.getElementById('paperQuestionCount'), paperQuestionPoints = document.getElementById('paperQuestionPoints'), paperAllowRedo = document.getElementById('paperAllowRedo');
+    const paperGrade = document.getElementById('paperGrade'), paperGradeWrap = document.getElementById('paperGradeWrap'), paperType = document.getElementById('paperType'), paperName = document.getElementById('paperName'), paperQuestionCount = document.getElementById('paperQuestionCount'), paperQuestionPoints = document.getElementById('paperQuestionPoints'), paperAllowRedo = document.getElementById('paperAllowRedo');
     const paperFillBlankCount = document.getElementById('paperFillBlankCount'), paperFillBlankPoints = document.getElementById('paperFillBlankPoints'), paperFillBlankAnswerImage = document.getElementById('paperFillBlankAnswerImage'), previewContainer = document.getElementById('previewContainer'), answerImagePreview = document.getElementById('answerImagePreview'), imagePreviewModal = document.getElementById('imagePreviewModal'), fullScreenPreviewImage = document.getElementById('fullScreenPreviewImage');
     const optionA = document.getElementById('optionA'), optionB = document.getElementById('optionB'), optionC = document.getElementById('optionC'), optionD = document.getElementById('optionD'), dynamicAnswers = document.getElementById('dynamicAnswers'), addPaperBtn = document.getElementById('addPaperBtn');
-    const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade3AddBtn = document.getElementById('grade3AddBtn');
+    const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade3AddBtn = document.getElementById('grade3AddBtn'), customPaperManageList = document.getElementById('customPaperManageList'), customPaperAddBtn = document.getElementById('customPaperAddBtn');
     const dailyRecordList = document.getElementById('dailyRecordList'), recordDateFilter = document.getElementById('recordDateFilter'), noRecordsHint = document.getElementById('noRecordsHint');
     const prizeName = document.getElementById('prizeName'), prizePoints = document.getElementById('prizePoints'), prizeDesc = document.getElementById('prizeDesc'), addPrizeBtn = document.getElementById('addPrizeBtn'), prizeList = document.getElementById('prizeList');
     const exportAllDataBtn = document.getElementById('exportAllDataBtn'), selectImportFileBtn = document.getElementById('selectImportFileBtn'), importFileInput = document.getElementById('importFileInput'), importFileName = document.getElementById('importFileName');
@@ -242,6 +289,16 @@
     let currentViewingPaperId = null; 
     const studentList = document.getElementById('studentList'), exportStudentsBtn = document.getElementById('exportStudentsBtn');
     const rankingTableBody = document.getElementById('rankingTableBody'), exchangeHistoryTableBody = document.getElementById('exchangeHistoryTableBody'), exportRankingBtn = document.getElementById('exportRankingBtn'), exportExchangeBtn = document.getElementById('exportExchangeBtn');
+    const selfLearningTitle = document.getElementById('selfLearningTitle'), selfLearningSummary = document.getElementById('selfLearningSummary'), selfLearningVideo = document.getElementById('selfLearningVideo'), selfLearningVideoPicker = document.getElementById('selfLearningVideoPicker'), selfLearningGrade = document.getElementById('selfLearningGrade'), selfLearningRelatedPaper = document.getElementById('selfLearningRelatedPaper'), selfLearningPaperTrigger = document.getElementById('selfLearningPaperTrigger'), selfLearningPaperSelectedText = document.getElementById('selfLearningPaperSelectedText'), selfLearningPaperDropdown = document.getElementById('selfLearningPaperDropdown'), selfLearningPaperSearch = document.getElementById('selfLearningPaperSearch'), selfLearningPaperOptions = document.getElementById('selfLearningPaperOptions'), selfLearningPaperPrev = document.getElementById('selfLearningPaperPrev'), selfLearningPaperNext = document.getElementById('selfLearningPaperNext'), selfLearningPaperPageInfo = document.getElementById('selfLearningPaperPageInfo'), addSelfLearningBtn = document.getElementById('addSelfLearningBtn'), selfLearningList = document.getElementById('selfLearningList'), selfLearningListWrap = document.getElementById('selfLearningListWrap'), selfLearningListToggleBtn = document.getElementById('selfLearningListToggleBtn'), selfLearningListToggleIcon = document.getElementById('selfLearningListToggleIcon');
+    const selfLearningInteractionModal = document.getElementById('selfLearningInteractionModal'), selfLearningInteractionModalContent = document.getElementById('selfLearningInteractionModalContent'), selfLearningInteractionModalTitle = document.getElementById('selfLearningInteractionModalTitle'), selfLearningInteractionModalList = document.getElementById('selfLearningInteractionModalList'), selfLearningInteractionModalPagination = document.getElementById('selfLearningInteractionModalPagination'), closeSelfLearningInteractionModalBtn = document.getElementById('closeSelfLearningInteractionModalBtn');
+    const SELF_LEARNING_PAPER_PAGE_SIZE = 8;
+    const SELF_LEARNING_LIST_PAGE_SIZE = 5;
+    const SELF_LEARNING_WATCH_PAGE_SIZE = 5;
+    const SELF_LEARNING_INTERACTION_MODAL_PAGE_SIZE = 5;
+    let selfLearningPaperCandidates = [], selfLearningPaperFiltered = [], selfLearningPaperPage = 1;
+    let selfLearningListPage = 1, selfLearningListExpanded = false;
+    let selfLearningWatchPageState = {};
+    let selfLearningInteractionModalState = { contentId: '', type: 'likes', page: 1, title: '' };
 
     async function init() { if (await getData(ADMIN_SESSION_KEY) === 'true') { showMainContent(); } else { loginBtn.addEventListener('click', handleLogin); [adminName, adminPassword].forEach(el => { el.addEventListener('keyup', e => e.key === 'Enter' && handleLogin()); }); } }
     async function handleLogin() { const name = adminName.value.trim(), password = adminPassword.value.trim(); loginError.classList.add('hidden'); if (!name || !password) return showLoginError('请输入完整的用户名和密码'); if (name === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) { await saveData(ADMIN_SESSION_KEY, 'true'); showMainContent(); } else { showLoginError('用户名或密码错误，请重试'); adminPassword.value = ''; } }
@@ -267,17 +324,23 @@
       initStorageData(); 
       generateAnswerSelects(); 
       renderAllPaperLists();
+      initSelfLearningManagement();
       
       generateFbPointsConfig(); 
       paperQuestionCount.addEventListener('input', generateAnswerSelects); 
       paperFillBlankCount.addEventListener('input', generateFbPointsConfig); 
+      if (paperType) paperType.addEventListener('change', syncPaperFormByType);
+      syncPaperFormByType();
 
-      document.getElementById('grade1AddBtn').addEventListener('click', () => { paperGrade.value = 'grade1'; scrollToForm(); });
-      document.getElementById('grade2AddBtn').addEventListener('click', () => { paperGrade.value = 'grade2'; scrollToForm(); });
-      grade3AddBtn.addEventListener('click', () => { paperGrade.value = 'grade3'; scrollToForm(); });
+      document.getElementById('grade1AddBtn').addEventListener('click', () => { if (paperType) paperType.value = 'test'; paperGrade.value = 'grade1'; syncPaperFormByType(); scrollToForm(); });
+      document.getElementById('grade2AddBtn').addEventListener('click', () => { if (paperType) paperType.value = 'test'; paperGrade.value = 'grade2'; syncPaperFormByType(); scrollToForm(); });
+      grade3AddBtn.addEventListener('click', () => { if (paperType) paperType.value = 'test'; paperGrade.value = 'grade3'; syncPaperFormByType(); scrollToForm(); });
+      if (customPaperAddBtn) customPaperAddBtn.addEventListener('click', () => { if (paperType) paperType.value = 'custom'; syncPaperFormByType(); scrollToForm(); });
       addPaperBtn.addEventListener('click', addNewPaper);
       closeDetailModalBtn.addEventListener('click', closeDetailModal);
       answerDetailModal.addEventListener('click', e => e.target === answerDetailModal && closeDetailModal()); 
+      if (closeSelfLearningInteractionModalBtn) closeSelfLearningInteractionModalBtn.addEventListener('click', closeSelfLearningInteractionModal);
+      if (selfLearningInteractionModal) selfLearningInteractionModal.addEventListener('click', (e) => { if (e.target === selfLearningInteractionModal) closeSelfLearningInteractionModal(); });
       logoutBtn.addEventListener('click', handleLogout);
       tabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
       initPrizeManagement(); 
@@ -349,9 +412,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 });
 }); 
     }
-    async function exportAllData() { if (!confirm('确定要导出全部系统数据吗？')) return; try { const keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY], allData = {}; for (const key of keys) allData[key] = await getData(key); const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `quiz_system_backup_${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); alert('数据导出成功！'); } catch (error) { alert('导出数据失败。'); } }
-    async function importAllData(event) { const file = event.target.files[0]; if (!file) return; importFileName.textContent = file.name; if (!confirm(`确定要导入文件 "${file.name}" 吗？这将会覆盖当前系统中的所有数据！`)) { importFileInput.value = ''; importFileName.textContent = '未选择文件'; return; } const reader = new FileReader(); reader.onload = async function (e) { try { const importedData = JSON.parse(e.target.result), keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY]; let importCount = 0; for (const key of keys) { if (importedData.hasOwnProperty(key)) { await saveData(key, importedData[key]); importCount++; } } alert(`数据导入成功！页面即将刷新。`); window.location.reload(); } catch (error) { alert('导入数据失败。文件格式不正确。'); } finally { importFileInput.value = ''; importFileName.textContent = '未选择文件'; } }; reader.readAsText(file); }
-    async function initStorageData() { if (!await getData(PAPER_STORAGE_KEY)) await saveData(PAPER_STORAGE_KEY, []); if (!await getData(ANSWER_STORAGE_KEY)) await saveData(ANSWER_STORAGE_KEY, []); if (!await getData(PRIZES_STORAGE_KEY)) await saveData(PRIZES_STORAGE_KEY, []); if (!await getData(STUDENT_POINTS_KEY)) await saveData(STUDENT_POINTS_KEY, {}); if (!await getData(EXCHANGE_RECORDS_KEY)) await saveData(EXCHANGE_RECORDS_KEY, []); }
+    async function exportAllData() { if (!confirm('确定要导出全部系统数据吗？')) return; try { const keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY, SELF_LEARNING_STORAGE_KEY, SELF_LEARNING_WATCH_STORAGE_KEY, SELF_LEARNING_INTERACTION_STORAGE_KEY], allData = {}; for (const key of keys) allData[key] = await getData(key); const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `quiz_system_backup_${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); alert('数据导出成功！'); } catch (error) { alert('导出数据失败。'); } }
+    async function importAllData(event) { const file = event.target.files[0]; if (!file) return; importFileName.textContent = file.name; if (!confirm(`确定要导入文件 "${file.name}" 吗？这将会覆盖当前系统中的所有数据！`)) { importFileInput.value = ''; importFileName.textContent = '未选择文件'; return; } const reader = new FileReader(); reader.onload = async function (e) { try { const importedData = JSON.parse(e.target.result), keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY, SELF_LEARNING_STORAGE_KEY, SELF_LEARNING_WATCH_STORAGE_KEY, SELF_LEARNING_INTERACTION_STORAGE_KEY]; let importCount = 0; for (const key of keys) { if (importedData.hasOwnProperty(key)) { await saveData(key, importedData[key]); importCount++; } } alert(`数据导入成功！页面即将刷新。`); window.location.reload(); } catch (error) { alert('导入数据失败。文件格式不正确。'); } finally { importFileInput.value = ''; importFileName.textContent = '未选择文件'; } }; reader.readAsText(file); }
+    async function initStorageData() { if (!await getData(PAPER_STORAGE_KEY)) await saveData(PAPER_STORAGE_KEY, []); if (!await getData(ANSWER_STORAGE_KEY)) await saveData(ANSWER_STORAGE_KEY, []); if (!await getData(PRIZES_STORAGE_KEY)) await saveData(PRIZES_STORAGE_KEY, []); if (!await getData(STUDENT_POINTS_KEY)) await saveData(STUDENT_POINTS_KEY, {}); if (!await getData(EXCHANGE_RECORDS_KEY)) await saveData(EXCHANGE_RECORDS_KEY, []); if (!await getData(SELF_LEARNING_STORAGE_KEY)) await saveData(SELF_LEARNING_STORAGE_KEY, []); if (!await getData(SELF_LEARNING_WATCH_STORAGE_KEY)) await saveData(SELF_LEARNING_WATCH_STORAGE_KEY, {}); if (!await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY)) await saveData(SELF_LEARNING_INTERACTION_STORAGE_KEY, {}); }
     function generateAnswerSelects() { 
         const count = parseInt(paperQuestionCount.value) || 0; 
         const optionsPanel = document.getElementById('optionA').parentNode.parentNode;
@@ -378,8 +441,13 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     
     function scrollToForm() { document.querySelector('#paper .bg-white.rounded-xl.shadow-md.p-6.mb-8.fade-in').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => paperName.focus(), 500); }
 
+    function syncPaperFormByType() {
+      const isCustomPaper = paperType && paperType.value === 'custom';
+      if (paperGradeWrap) paperGradeWrap.classList.toggle('hidden', !!isCustomPaper);
+    }
+
     async function addNewPaper() {
-      const type = document.getElementById('paperType').value, grade = paperGrade.value, name = paperName.value.trim();
+      const type = paperType ? paperType.value : 'test', grade = paperGrade.value, name = paperName.value.trim();
       const questionCount = parseInt(paperQuestionCount.value) || 0, singlePoints = parseFloat(paperQuestionPoints.value) || 0;
       const optionAVal = optionA.value.trim(), optionBVal = optionB.value.trim(), optionCVal = optionC.value.trim(), optionDVal = optionD.value.trim();
       const fillBlankCount = parseInt(paperFillBlankCount.value) || 0;
@@ -427,7 +495,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       await saveData(PAPER_STORAGE_KEY, papers);
       renderAllPaperLists();
       
-      document.getElementById('paperType').value = 'test'; paperName.value = ''; paperQuestionCount.value = '0'; paperQuestionPoints.value = '2'; paperFillBlankCount.value = '0'; paperFillBlankAnswerImage.value = ''; 
+      if (paperType) paperType.value = 'test'; paperName.value = ''; paperQuestionCount.value = '0'; paperQuestionPoints.value = '2'; paperFillBlankCount.value = '0'; paperFillBlankAnswerImage.value = ''; 
       const pContainer = document.getElementById('previewContainer'); if(pContainer) pContainer.classList.add('hidden'); 
       const aImgPreview = document.getElementById('answerImagePreview'); if(aImgPreview) aImgPreview.src = ''; 
       const adminPreviewGrid = document.getElementById('adminPreviewGrid'); if(adminPreviewGrid) adminPreviewGrid.innerHTML = '';
@@ -439,6 +507,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       if(document.getElementById('answer2')) document.getElementById('answer2').value = 'A'; 
       if(document.getElementById('answer3')) document.getElementById('answer3').value = 'A'; 
       optionA.value = ''; optionB.value = ''; optionC.value = ''; optionD.value = '';
+      syncPaperFormByType();
       if (paperAllowRedo) paperAllowRedo.checked = false;
       
       alert('任务添加成功！');
@@ -450,12 +519,453 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         renderPaperList(grade1PaperList, papers.filter(p => p.grade === 'grade1'), allAnswers);
         renderPaperList(grade2PaperList, papers.filter(p => p.grade === 'grade2'), allAnswers);
         renderPaperList(grade3PaperList, papers.filter(p => p.grade === 'grade3'), allAnswers);
+        if (customPaperManageList) renderPaperList(customPaperManageList, papers.filter(p => (p.type || 'test') === 'custom'), allAnswers);
+        await refreshSelfLearningPaperOptions();
+    }
+
+    async function initSelfLearningManagement() {
+      if (!addSelfLearningBtn) return;
+      addSelfLearningBtn.addEventListener('click', addSelfLearningContent);
+      if (selfLearningGrade) selfLearningGrade.addEventListener('change', refreshSelfLearningPaperOptions);
+      if (selfLearningListToggleBtn) {
+        selfLearningListToggleBtn.addEventListener('click', function () {
+          selfLearningListExpanded = !selfLearningListExpanded;
+          if (selfLearningListWrap) selfLearningListWrap.classList.toggle('hidden', !selfLearningListExpanded);
+          if (selfLearningListToggleIcon) selfLearningListToggleIcon.className = `fa ${selfLearningListExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-gray-400`;
+        });
+      }
+      if (selfLearningVideoPicker) {
+        selfLearningVideoPicker.addEventListener('click', function () {
+          this.value = '';
+        });
+        selfLearningVideoPicker.addEventListener('change', function () {
+          const file = this.files && this.files[0];
+          if (!file || !selfLearningVideo) return;
+          selfLearningVideo.value = `video/${file.name}`;
+        });
+      }
+      if (selfLearningPaperTrigger) {
+        selfLearningPaperTrigger.addEventListener('click', function () {
+          if (!selfLearningPaperDropdown) return;
+          selfLearningPaperDropdown.classList.toggle('hidden');
+        });
+      }
+      if (selfLearningPaperSearch) {
+        selfLearningPaperSearch.addEventListener('input', function () {
+          selfLearningPaperPage = 1;
+          applySelfLearningPaperFilter();
+          renderSelfLearningPaperSelector();
+        });
+      }
+      if (selfLearningPaperPrev) {
+        selfLearningPaperPrev.addEventListener('click', function () {
+          if (selfLearningPaperPage <= 1) return;
+          selfLearningPaperPage--;
+          renderSelfLearningPaperSelector();
+        });
+      }
+      if (selfLearningPaperNext) {
+        selfLearningPaperNext.addEventListener('click', function () {
+          const totalPages = Math.max(1, Math.ceil(selfLearningPaperFiltered.length / SELF_LEARNING_PAPER_PAGE_SIZE));
+          if (selfLearningPaperPage >= totalPages) return;
+          selfLearningPaperPage++;
+          renderSelfLearningPaperSelector();
+        });
+      }
+      document.addEventListener('click', function (e) {
+        if (!selfLearningPaperDropdown || !selfLearningPaperTrigger) return;
+        const target = e.target;
+        if (!selfLearningPaperDropdown.contains(target) && !selfLearningPaperTrigger.contains(target)) {
+          selfLearningPaperDropdown.classList.add('hidden');
+        }
+      });
+      await refreshSelfLearningPaperOptions();
+      await renderSelfLearningList();
+    }
+
+    function applySelfLearningPaperFilter() {
+      const keyword = selfLearningPaperSearch ? selfLearningPaperSearch.value.trim().toLowerCase() : '';
+      selfLearningPaperFiltered = selfLearningPaperCandidates.filter((p) => {
+        const name = (p.name || '').toLowerCase();
+        return !keyword || name.includes(keyword);
+      });
+    }
+
+    function buildCompactPageItems(currentPage, totalPages) {
+      if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+      const pages = new Set([1, 2, 3, totalPages - 1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+      const validPages = Array.from(pages).filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+      const items = [];
+      for (let i = 0; i < validPages.length; i++) {
+        const page = validPages[i];
+        if (i > 0 && page - validPages[i - 1] > 1) items.push('ellipsis');
+        items.push(page);
+      }
+      return items;
+    }
+
+    async function renderSelfLearningListPagination(total) {
+      const pager = document.getElementById('selfLearningListPagination');
+      if (!pager) return;
+      const totalPages = Math.max(1, Math.ceil(total / SELF_LEARNING_LIST_PAGE_SIZE));
+      if (total <= SELF_LEARNING_LIST_PAGE_SIZE) {
+        pager.classList.add('hidden');
+        pager.innerHTML = '';
+        return;
+      }
+      if (selfLearningListPage > totalPages) selfLearningListPage = totalPages;
+      if (selfLearningListPage < 1) selfLearningListPage = 1;
+      pager.classList.remove('hidden');
+      const pageItems = buildCompactPageItems(selfLearningListPage, totalPages);
+      pager.innerHTML = `
+        <button class="self-learning-list-prev px-2.5 py-1 rounded border text-sm ${selfLearningListPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${selfLearningListPage === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageItems.map((item) => {
+          if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+          const active = item === selfLearningListPage;
+          return `<button class="self-learning-list-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`;
+        }).join('')}
+        <button class="self-learning-list-next px-2.5 py-1 rounded border text-sm ${selfLearningListPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${selfLearningListPage === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      const prevBtn = pager.querySelector('.self-learning-list-prev');
+      const nextBtn = pager.querySelector('.self-learning-list-next');
+      if (prevBtn) prevBtn.addEventListener('click', async function () {
+        if (selfLearningListPage <= 1) return;
+        selfLearningListPage -= 1;
+        await renderSelfLearningList();
+      });
+      if (nextBtn) nextBtn.addEventListener('click', async function () {
+        if (selfLearningListPage >= totalPages) return;
+        selfLearningListPage += 1;
+        await renderSelfLearningList();
+      });
+      pager.querySelectorAll('.self-learning-list-page').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const target = parseInt(this.dataset.page, 10);
+          if (Number.isNaN(target) || target === selfLearningListPage) return;
+          selfLearningListPage = target;
+          await renderSelfLearningList();
+        });
+      });
+    }
+
+    function renderSelfLearningPaperSelector() {
+      if (!selfLearningPaperOptions) return;
+      const totalPages = Math.max(1, Math.ceil(selfLearningPaperFiltered.length / SELF_LEARNING_PAPER_PAGE_SIZE));
+      if (selfLearningPaperPage > totalPages) selfLearningPaperPage = totalPages;
+      const startIndex = (selfLearningPaperPage - 1) * SELF_LEARNING_PAPER_PAGE_SIZE;
+      const pageItems = selfLearningPaperFiltered.slice(startIndex, startIndex + SELF_LEARNING_PAPER_PAGE_SIZE);
+      if (pageItems.length === 0) {
+        selfLearningPaperOptions.innerHTML = '<div class="text-xs text-gray-400 p-2">暂无匹配套题</div>';
+      } else {
+        selfLearningPaperOptions.innerHTML = pageItems.map((p) => {
+          const active = selfLearningRelatedPaper && selfLearningRelatedPaper.value === p.id;
+          return `<button type="button" class="choose-self-learning-paper w-full text-left px-2 py-1.5 rounded text-sm ${active ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-100 text-gray-700'}" data-id="${p.id}" data-name="${p.name}" data-points="${p.totalPoints || 0}">${p.name}<span class="text-xs text-gray-400 ml-2">${p.questionCount || 0}题 / ${p.totalPoints || 0}分</span></button>`;
+        }).join('');
+      }
+      if (selfLearningPaperPageInfo) selfLearningPaperPageInfo.textContent = `${selfLearningPaperPage} / ${totalPages}`;
+      if (selfLearningPaperPrev) selfLearningPaperPrev.disabled = selfLearningPaperPage <= 1;
+      if (selfLearningPaperNext) selfLearningPaperNext.disabled = selfLearningPaperPage >= totalPages;
+      selfLearningPaperOptions.querySelectorAll('.choose-self-learning-paper').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          if (selfLearningRelatedPaper) selfLearningRelatedPaper.value = this.dataset.id || '';
+          if (selfLearningPaperSelectedText) selfLearningPaperSelectedText.textContent = `${this.dataset.name} (${this.dataset.points}分)`;
+          if (selfLearningPaperDropdown) selfLearningPaperDropdown.classList.add('hidden');
+          renderSelfLearningPaperSelector();
+        });
+      });
+    }
+
+    async function refreshSelfLearningPaperOptions() {
+      if (!selfLearningRelatedPaper) return;
+      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const gradeValue = selfLearningGrade ? selfLearningGrade.value : 'all';
+      selfLearningPaperCandidates = papers.filter((p) => {
+        if (gradeValue === 'all') return true;
+        return p.grade === gradeValue;
+      });
+      const selectedId = selfLearningRelatedPaper.value;
+      const selectedExists = selfLearningPaperCandidates.some((p) => p.id === selectedId);
+      if (!selectedExists) {
+        selfLearningRelatedPaper.value = '';
+        if (selfLearningPaperSelectedText) selfLearningPaperSelectedText.textContent = '请选择配套题目';
+      } else {
+        const selectedPaper = selfLearningPaperCandidates.find((p) => p.id === selectedId);
+        if (selfLearningPaperSelectedText && selectedPaper) selfLearningPaperSelectedText.textContent = `${selectedPaper.name} (${selectedPaper.totalPoints || 0}分)`;
+      }
+      selfLearningPaperPage = 1;
+      applySelfLearningPaperFilter();
+      renderSelfLearningPaperSelector();
+    }
+
+    function getSelfLearningInteractionTypeLabel(type) {
+      if (type === 'danmus') return '弹幕';
+      if (type === 'comments') return '评论';
+      return '点赞';
+    }
+
+    function closeSelfLearningInteractionModal() {
+      if (!selfLearningInteractionModal || !selfLearningInteractionModalContent) return;
+      selfLearningInteractionModalContent.classList.remove('scale-100', 'opacity-100');
+      selfLearningInteractionModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => { selfLearningInteractionModal.classList.add('hidden'); }, 220);
+    }
+
+    async function openSelfLearningInteractionModal(contentId, type, title) {
+      if (!contentId || !selfLearningInteractionModal || !selfLearningInteractionModalContent) return;
+      selfLearningInteractionModalState = { contentId, type: type || 'likes', page: 1, title: title || '' };
+      await renderSelfLearningInteractionModal();
+      selfLearningInteractionModal.classList.remove('hidden');
+      setTimeout(() => {
+        selfLearningInteractionModalContent.classList.remove('scale-95', 'opacity-0');
+        selfLearningInteractionModalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    async function renderSelfLearningInteractionModal() {
+      if (!selfLearningInteractionModalList || !selfLearningInteractionModalPagination) return;
+      const allInteractions = await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY) || {};
+      const bucket = allInteractions[selfLearningInteractionModalState.contentId] || {};
+      const type = selfLearningInteractionModalState.type || 'likes';
+      const typeLabel = getSelfLearningInteractionTypeLabel(type);
+      if (selfLearningInteractionModalTitle) {
+        const title = selfLearningInteractionModalState.title || '自学成才';
+        selfLearningInteractionModalTitle.textContent = `${title} - ${typeLabel}列表`;
+      }
+      let rows = [];
+      if (type === 'likes') {
+        rows = Object.values(bucket.likes || {}).map((entry) => ({
+          studentId: entry.studentId || '',
+          studentName: entry.studentName || '未知学生',
+          timeText: entry.timeText || '',
+          createTime: entry.createTime || 0
+        })).sort((a, b) => (b.createTime || 0) - (a.createTime || 0));
+      } else if (type === 'danmus') {
+        rows = (Array.isArray(bucket.danmus) ? bucket.danmus : []).slice().sort((a, b) => (b.createTime || 0) - (a.createTime || 0));
+      } else {
+        rows = (Array.isArray(bucket.comments) ? bucket.comments : []).slice().sort((a, b) => (b.createTime || 0) - (a.createTime || 0));
+      }
+      const totalPages = Math.max(1, Math.ceil(rows.length / SELF_LEARNING_INTERACTION_MODAL_PAGE_SIZE));
+      if (selfLearningInteractionModalState.page > totalPages) selfLearningInteractionModalState.page = totalPages;
+      if (selfLearningInteractionModalState.page < 1) selfLearningInteractionModalState.page = 1;
+      const startIndex = (selfLearningInteractionModalState.page - 1) * SELF_LEARNING_INTERACTION_MODAL_PAGE_SIZE;
+      const pageRows = rows.slice(startIndex, startIndex + SELF_LEARNING_INTERACTION_MODAL_PAGE_SIZE);
+      if (pageRows.length === 0) {
+        selfLearningInteractionModalList.innerHTML = `<div class="text-sm text-gray-400 py-6 text-center">暂无${typeLabel}记录</div>`;
+      } else if (type === 'likes') {
+        selfLearningInteractionModalList.innerHTML = pageRows.map((row) => `<div class="border border-gray-100 rounded-lg px-3 py-2 text-sm text-gray-700"><span class="font-medium">${row.studentName}</span>${row.studentId ? `（${row.studentId}）` : ''}${row.timeText ? `<span class="text-xs text-gray-500 ml-2">${row.timeText}</span>` : ''}</div>`).join('');
+      } else if (type === 'danmus') {
+        selfLearningInteractionModalList.innerHTML = pageRows.map((row) => `<div class="border border-gray-100 rounded-lg px-3 py-2 text-sm text-gray-700 flex justify-between gap-2"><div class="min-w-0"><div class="text-xs text-gray-500">${row.studentName || '未知学生'}${row.studentId ? `（${row.studentId}）` : ''} · ${parseInt(row.videoTime, 10) || 0}s ${row.timeText ? `· ${row.timeText}` : ''}</div><div class="truncate">${row.text || ''}</div></div><button class="admin-delete-interaction text-red-500 text-xs shrink-0" data-type="danmus" data-content-id="${selfLearningInteractionModalState.contentId}" data-entry-id="${row.id}">删除</button></div>`).join('');
+      } else {
+        selfLearningInteractionModalList.innerHTML = pageRows.map((row) => `<div class="border border-gray-100 rounded-lg px-3 py-2 text-sm text-gray-700 flex justify-between gap-2"><div class="min-w-0"><div class="text-xs text-gray-500">${row.studentName || '未知学生'}${row.studentId ? `（${row.studentId}）` : ''}${row.timeText ? ` · ${row.timeText}` : ''}</div><div class="truncate">${row.text || ''}</div></div><button class="admin-delete-interaction text-red-500 text-xs shrink-0" data-type="comments" data-content-id="${selfLearningInteractionModalState.contentId}" data-entry-id="${row.id}">删除</button></div>`).join('');
+      }
+      if (rows.length <= SELF_LEARNING_INTERACTION_MODAL_PAGE_SIZE) {
+        selfLearningInteractionModalPagination.classList.add('hidden');
+        selfLearningInteractionModalPagination.innerHTML = '';
+      } else {
+        const pageItems = buildCompactPageItems(selfLearningInteractionModalState.page, totalPages);
+        selfLearningInteractionModalPagination.classList.remove('hidden');
+        selfLearningInteractionModalPagination.innerHTML = `
+          <button class="interaction-page-prev px-2.5 py-1 rounded border text-sm ${selfLearningInteractionModalState.page === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${selfLearningInteractionModalState.page === 1 ? 'disabled' : ''}>上一页</button>
+          ${pageItems.map((item) => {
+            if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+            const active = item === selfLearningInteractionModalState.page;
+            return `<button class="interaction-page-btn min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`;
+          }).join('')}
+          <button class="interaction-page-next px-2.5 py-1 rounded border text-sm ${selfLearningInteractionModalState.page === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${selfLearningInteractionModalState.page === totalPages ? 'disabled' : ''}>下一页</button>
+        `;
+      }
+      const prevBtn = selfLearningInteractionModalPagination.querySelector('.interaction-page-prev');
+      const nextBtn = selfLearningInteractionModalPagination.querySelector('.interaction-page-next');
+      if (prevBtn) prevBtn.addEventListener('click', async function () {
+        if (selfLearningInteractionModalState.page <= 1) return;
+        selfLearningInteractionModalState.page -= 1;
+        await renderSelfLearningInteractionModal();
+      });
+      if (nextBtn) nextBtn.addEventListener('click', async function () {
+        if (selfLearningInteractionModalState.page >= totalPages) return;
+        selfLearningInteractionModalState.page += 1;
+        await renderSelfLearningInteractionModal();
+      });
+      selfLearningInteractionModalPagination.querySelectorAll('.interaction-page-btn').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const page = parseInt(this.dataset.page, 10);
+          if (Number.isNaN(page) || page === selfLearningInteractionModalState.page) return;
+          selfLearningInteractionModalState.page = page;
+          await renderSelfLearningInteractionModal();
+        });
+      });
+      selfLearningInteractionModalList.querySelectorAll('.admin-delete-interaction').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const contentId = this.dataset.contentId;
+          const entryId = this.dataset.entryId;
+          const targetType = this.dataset.type;
+          if (!contentId || !entryId || !targetType) return;
+          if (!confirm(`确定删除这条${targetType === 'danmus' ? '弹幕' : '评论'}吗？`)) return;
+          const interactionStatsAll = await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY) || {};
+          const targetBucket = interactionStatsAll[contentId];
+          if (!targetBucket) return;
+          if (targetType === 'danmus' && Array.isArray(targetBucket.danmus)) targetBucket.danmus = targetBucket.danmus.filter((d) => d.id !== entryId);
+          if (targetType === 'comments' && Array.isArray(targetBucket.comments)) targetBucket.comments = targetBucket.comments.filter((c) => c.id !== entryId);
+          await saveData(SELF_LEARNING_INTERACTION_STORAGE_KEY, interactionStatsAll);
+          await renderSelfLearningInteractionModal();
+          await renderSelfLearningList();
+        });
+      });
+    }
+
+    async function renderSelfLearningList() {
+      if (!selfLearningList) return;
+      const contents = await getData(SELF_LEARNING_STORAGE_KEY) || [];
+      const watchStatsAll = await getData(SELF_LEARNING_WATCH_STORAGE_KEY) || {};
+      const interactionStatsAll = await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY) || {};
+      const studentPointsMap = await getData(STUDENT_POINTS_KEY) || {};
+      const pager = document.getElementById('selfLearningListPagination');
+      if (contents.length === 0) {
+        selfLearningList.innerHTML = '<div class="text-center text-gray-500 py-4">暂无内容</div>';
+        if (pager) { pager.classList.add('hidden'); pager.innerHTML = ''; }
+        return;
+      }
+      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const paperMap = {};
+      papers.forEach((p) => { paperMap[p.id] = p.name; });
+      const sortedContents = contents.sort((a, b) => (b.createTime || 0) - (a.createTime || 0));
+      const totalPages = Math.max(1, Math.ceil(sortedContents.length / SELF_LEARNING_LIST_PAGE_SIZE));
+      if (selfLearningListPage > totalPages) selfLearningListPage = totalPages;
+      if (selfLearningListPage < 1) selfLearningListPage = 1;
+      const startIndex = (selfLearningListPage - 1) * SELF_LEARNING_LIST_PAGE_SIZE;
+      const formatWatchDuration = (seconds) => {
+        const sec = Math.max(0, parseInt(seconds, 10) || 0);
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = sec % 60;
+        if (h > 0) return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      };
+      const pageItems = sortedContents.slice(startIndex, startIndex + SELF_LEARNING_LIST_PAGE_SIZE);
+      selfLearningList.innerHTML = pageItems.map((item) => {
+        const itemTitleAttr = String(item.title || '').replace(/"/g, '&quot;');
+        const gradeText = item.grade === 'grade1' ? '高一' : (item.grade === 'grade2' ? '高二' : (item.grade === 'grade3' ? '高三' : '全部'));
+        const relatedPaperName = item.relatedPaperId ? (paperMap[item.relatedPaperId] || '已删除题目') : '未绑定';
+        const interaction = interactionStatsAll[item.id] || {};
+        const likeCount = interaction.likes ? Object.keys(interaction.likes).length : 0;
+        const danmuCount = Array.isArray(interaction.danmus) ? interaction.danmus.length : 0;
+        const commentCount = Array.isArray(interaction.comments) ? interaction.comments.length : 0;
+        const itemWatchStats = watchStatsAll[item.id] || {};
+        const watchRows = Object.values(itemWatchStats).map((record) => {
+          const progressPercent = Math.max(0, Math.min(100, parseInt(record.progressPercent, 10) || 0));
+          const watchedSeconds = parseInt(record.watchedSeconds, 10) || 0;
+          const duration = parseInt(record.duration, 10) || 0;
+          const studentMeta = record.studentId ? studentPointsMap[record.studentId] : null;
+          const studentName = record.studentName || (studentMeta && studentMeta.name) || '未知学生';
+          const studentLabel = record.studentId ? `${studentName}（${record.studentId}）` : studentName;
+          const watchedText = `${formatWatchDuration(watchedSeconds)}${duration > 0 ? ` / ${formatWatchDuration(duration)}` : ''}`;
+          return { studentLabel, progressPercent, watchedText, lastUpdate: record.lastUpdate || '' };
+        }).sort((a, b) => b.progressPercent - a.progressPercent);
+        const watchTotalPages = Math.max(1, Math.ceil(watchRows.length / SELF_LEARNING_WATCH_PAGE_SIZE));
+        let watchPage = selfLearningWatchPageState[item.id] || 1;
+        if (watchPage > watchTotalPages) watchPage = watchTotalPages;
+        if (watchPage < 1) watchPage = 1;
+        selfLearningWatchPageState[item.id] = watchPage;
+        const watchStart = (watchPage - 1) * SELF_LEARNING_WATCH_PAGE_SIZE;
+        const watchPageRows = watchRows.slice(watchStart, watchStart + SELF_LEARNING_WATCH_PAGE_SIZE);
+        const watchPageItems = buildCompactPageItems(watchPage, watchTotalPages);
+        const watchPaginationHtml = watchRows.length > SELF_LEARNING_WATCH_PAGE_SIZE
+          ? `<div class="mt-2 flex items-center justify-end gap-1"><button class="watch-page-prev px-2 py-0.5 rounded border text-xs ${watchPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-id="${item.id}" ${watchPage === 1 ? 'disabled' : ''}>上一页</button>${watchPageItems.map((pi) => { if (pi === 'ellipsis') return '<span class="px-1 text-gray-400 text-xs">...</span>'; const active = pi === watchPage; return `<button class="watch-page-btn min-w-[24px] px-1.5 py-0.5 rounded border text-xs ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-id="${item.id}" data-page="${pi}">${pi}</button>`; }).join('')}<button class="watch-page-next px-2 py-0.5 rounded border text-xs ${watchPage === watchTotalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-id="${item.id}" ${watchPage === watchTotalPages ? 'disabled' : ''}>下一页</button></div>`
+          : '';
+        const watchHtml = watchRows.length === 0
+          ? '<div class="text-xs text-gray-400 mt-2">暂无观看记录</div>'
+          : `<div class="mt-2 space-y-2">${watchPageRows.map((row) => `<div><div class="flex justify-between text-xs text-gray-600 mb-1"><span>${row.studentLabel}</span><span>${row.watchedText} · ${row.progressPercent}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width:${row.progressPercent}%"></div></div>${row.lastUpdate ? `<div class="text-[10px] text-gray-400 mt-0.5 text-right">更新: ${row.lastUpdate}</div>` : ''}</div>`).join('')}${watchPaginationHtml}</div>`;
+        return `<div class="border rounded-lg bg-gray-50 p-3"><div class="flex justify-between items-start gap-3"><div class="flex-1"><h4 class="font-medium text-gray-800">${item.title}</h4><p class="text-xs text-gray-500 mt-2">${item.summary || '无简介'}</p><p class="text-xs text-indigo-600 mt-2">视频: ${item.videoFile || '未设置'}</p><p class="text-xs text-blue-600 mt-1">年级: ${gradeText} | 配套题: ${relatedPaperName}</p><p class="text-xs text-rose-600 mt-1">互动统计: <button class="open-self-learning-interaction text-rose-600 hover:underline" data-content-id="${item.id}" data-content-title="${itemTitleAttr}" data-type="likes">点赞 ${likeCount}</button> · <button class="open-self-learning-interaction text-rose-600 hover:underline" data-content-id="${item.id}" data-content-title="${itemTitleAttr}" data-type="danmus">弹幕 ${danmuCount}</button> · <button class="open-self-learning-interaction text-rose-600 hover:underline" data-content-id="${item.id}" data-content-title="${itemTitleAttr}" data-type="comments">评论 ${commentCount}</button></p><div class="mt-3 pt-2 border-t border-gray-200"><p class="text-xs font-medium text-gray-700">观看时长统计</p>${watchHtml}</div></div><div><button class="text-red-500 text-sm delete-self-learning" data-id="${item.id}"><i class="fa fa-trash mr-1"></i> 删除</button></div></div></div>`;
+      }).join('');
+      selfLearningList.querySelectorAll('.watch-page-prev').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id;
+          const current = selfLearningWatchPageState[id] || 1;
+          if (current <= 1) return;
+          selfLearningWatchPageState[id] = current - 1;
+          await renderSelfLearningList();
+        });
+      });
+      selfLearningList.querySelectorAll('.watch-page-next').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id;
+          const current = selfLearningWatchPageState[id] || 1;
+          selfLearningWatchPageState[id] = current + 1;
+          await renderSelfLearningList();
+        });
+      });
+      selfLearningList.querySelectorAll('.watch-page-btn').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id;
+          const target = parseInt(this.dataset.page, 10);
+          if (!id || Number.isNaN(target)) return;
+          selfLearningWatchPageState[id] = target;
+          await renderSelfLearningList();
+        });
+      });
+      selfLearningList.querySelectorAll('.open-self-learning-interaction').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const contentId = this.dataset.contentId;
+          const type = this.dataset.type;
+          const title = this.dataset.contentTitle;
+          await openSelfLearningInteractionModal(contentId, type, title);
+        });
+      });
+      selfLearningList.querySelectorAll('.delete-self-learning').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id;
+          if (!confirm('确定删除这条自学内容吗？')) return;
+          let contents = await getData(SELF_LEARNING_STORAGE_KEY) || [];
+          contents = contents.filter((item) => item.id !== id);
+          await saveData(SELF_LEARNING_STORAGE_KEY, contents);
+          const watchStatsAll = await getData(SELF_LEARNING_WATCH_STORAGE_KEY) || {};
+          if (watchStatsAll[id]) {
+            delete watchStatsAll[id];
+            await saveData(SELF_LEARNING_WATCH_STORAGE_KEY, watchStatsAll);
+          }
+          const interactionStatsAll = await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY) || {};
+          if (interactionStatsAll[id]) {
+            delete interactionStatsAll[id];
+            await saveData(SELF_LEARNING_INTERACTION_STORAGE_KEY, interactionStatsAll);
+          }
+          delete selfLearningWatchPageState[id];
+          await renderSelfLearningList();
+        });
+      });
+      await renderSelfLearningListPagination(sortedContents.length);
+    }
+
+    async function addSelfLearningContent() {
+      const title = selfLearningTitle ? selfLearningTitle.value.trim() : '';
+      const summary = selfLearningSummary ? selfLearningSummary.value.trim() : '';
+      const videoFile = selfLearningVideo ? selfLearningVideo.value.trim() : '';
+      const grade = selfLearningGrade ? selfLearningGrade.value : 'all';
+      const relatedPaperId = selfLearningRelatedPaper ? selfLearningRelatedPaper.value : '';
+      if (!title) return alert('请填写内容标题');
+      if (!videoFile) return alert('请填写视频文件路径');
+      if (!relatedPaperId) return alert('请绑定配套题目');
+      let contents = await getData(SELF_LEARNING_STORAGE_KEY) || [];
+      contents.push({ id: `sl_${Date.now()}`, title, summary, videoFile, grade, relatedPaperId, createTime: Date.now() });
+      await saveData(SELF_LEARNING_STORAGE_KEY, contents);
+      if (selfLearningTitle) selfLearningTitle.value = '';
+      if (selfLearningSummary) selfLearningSummary.value = '';
+      if (selfLearningVideo) selfLearningVideo.value = '';
+      if (selfLearningVideoPicker) selfLearningVideoPicker.value = '';
+      if (selfLearningRelatedPaper) selfLearningRelatedPaper.value = '';
+      if (selfLearningPaperSelectedText) selfLearningPaperSelectedText.textContent = '请选择配套题目';
+      if (selfLearningPaperSearch) selfLearningPaperSearch.value = '';
+      selfLearningPaperPage = 1;
+      selfLearningListPage = 1;
+      selfLearningWatchPageState = {};
+      applySelfLearningPaperFilter();
+      renderSelfLearningPaperSelector();
+      await renderSelfLearningList();
     }
     
     async function renderPaperList(container, papers, allAnswers) { // 🚀 接收传入的数据，不再重复请求
         container.innerHTML = ''; 
         if (papers.length === 0) return container.innerHTML = '<div class="text-center text-gray-500 py-4">暂无套卷</div>'; 
-        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + item.score, 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : '📝 测试'); const redoEnabled = !!paper.allowRedo; const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
+        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + item.score, 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试')); const redoEnabled = !!paper.allowRedo; const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
     paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
     paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
             paperItem.querySelector('.view-analysis').addEventListener('click', function () { showPaperAnalysis(this.dataset.id); });
