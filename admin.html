@@ -126,7 +126,7 @@
           <div class="grid md:grid-cols-5 gap-4">
             <div><label class="block text-sm font-medium text-gray-600 mb-1">标题</label><input type="text" id="selfLearningTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：指数函数基础"></div>
             <div><label class="block text-sm font-medium text-gray-600 mb-1">年级</label><select id="selfLearningGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="all">全部年级</option><option value="grade1">高一</option><option value="grade2">高二</option><option value="grade3">高三</option></select></div>
-            <div><label class="block text-sm font-medium text-gray-600 mb-1">视频文件路径</label><div class="relative"><input type="text" id="selfLearningVideo" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg" placeholder="如：video/lesson1.mp4"><label class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 cursor-pointer transition-colors" title="浏览选择本地视频"><i class="fa fa-folder-open text-lg"></i><input type="file" id="selfLearningVideoPicker" accept="video/*" class="hidden"></label></div></div>
+            <div><label class="block text-sm font-medium text-gray-600 mb-1">视频文件路径</label><div class="relative"><input type="text" id="selfLearningVideo" class="w-full px-3 py-2 pr-24 border border-gray-300 rounded-lg" placeholder="如：video/lesson1.mp4"><button type="button" id="selfLearningVideoSelectBtn" class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"><i class="fa fa-folder-open mr-1"></i>选择视频</button></div><div id="selfLearningVideoUploadStatus" class="mt-1 text-xs text-gray-400">从视频库选择文件</div></div>
             <div class="relative">
               <label class="block text-sm font-medium text-gray-600 mb-1">配套题目 <span class="text-red-500">*</span></label>
               <input type="hidden" id="selfLearningRelatedPaper" value="">
@@ -157,6 +157,21 @@
               <div id="selfLearningListPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div>
             </div>
           </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
+          <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center"><i class="fa fa-film text-blue-500 mr-2"></i> 视频资源管理</h2>
+          <div class="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+            <button id="videoUploadBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center"><i class="fa fa-upload mr-2"></i> 上传视频</button>
+            <input type="file" id="videoUploadInput" accept="video/*" multiple class="hidden">
+            <div id="videoUploadStatus" class="text-sm text-gray-500">上传后可在下方选择并应用到配置中</div>
+          </div>
+          <div class="flex items-center gap-3 mb-3">
+            <input type="text" id="videoManagerSearch" class="w-full md:w-72 px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="搜索视频文件名">
+            <button id="refreshVideoListBtn" class="px-3 py-2 text-sm border rounded-lg text-gray-600 hover:bg-gray-50">刷新列表</button>
+          </div>
+          <div id="videoManagerList" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
+          <div id="videoManagerPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div>
         </div>
 
         <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
@@ -268,6 +283,7 @@
   
   <div id="fbGradingModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[70] backdrop-blur-sm"><div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="fbGradingModalContent"><div class="flex justify-between items-center mb-4 pb-4 border-b"><h3 class="text-xl font-bold text-gray-800"><i class="fa fa-check-square-o text-primary mr-2"></i> 详细判分面板</h3><button id="closeFbGradingModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="mb-4 bg-blue-50 p-3 rounded text-sm text-blue-700"><p><i class="fa fa-info-circle mr-1"></i> 请对照学生答卷和参考答案，判定对错。</p><p class="mt-1 font-bold" id="fbGradingScoreDisplay">当前得分: 0分</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="border rounded p-2 bg-gray-50"><p class="text-xs text-center text-gray-500 mb-1">学生答卷</p><div id="fbGradingStudentImageContainer" class="space-y-2 max-h-48 overflow-y-auto"></div></div><div class="border rounded p-2 bg-green-50"><p class="text-xs text-center text-green-600 mb-1">参考答案</p><div id="fbGradingAnswerImageContainer" class="space-y-2 max-h-48 overflow-y-auto p-1"></div></div></div><div id="fbGradingList" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-1"></div><div class="mt-6 flex justify-end space-x-3 pt-4 border-t"><button id="cancelFbGradingBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">取消</button><button id="saveFbGradingBtn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"><i class="fa fa-save mr-1"></i> 保存判分</button></div></div></div>
   <div id="answerConfigModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all scale-95 opacity-0" id="answerConfigModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fa fa-cog text-blue-600 mr-2"></i><span id="configAnswerPaperTitle">配置答案</span></h3><button id="closeAnswerConfigModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="answersConfigList" class="space-y-3"></div><div class="flex justify-end space-x-3 mt-6 pt-4 border-t"><button id="cancelAnswerConfigBtn" class="px-4 py-2 bg-gray-200 rounded-lg">取消</button><button id="saveAnswerConfigBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg">保存并判分</button></div></div></div>
+  <div id="videoSelectModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[65] backdrop-blur-sm"><div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="videoSelectModalContent"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-gray-800">选择视频文件</h3><button id="closeVideoSelectModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="flex items-center gap-2 mb-3"><input type="text" id="videoSelectSearch" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="搜索视频文件名"><button id="videoSelectRefreshBtn" class="px-3 py-2 text-sm border rounded-lg text-gray-600 hover:bg-gray-50">刷新</button></div><div id="videoSelectList" class="space-y-2 max-h-[50vh] overflow-y-auto pr-2"></div><div id="videoSelectPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div></div>
   <div id="selfLearningInteractionModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[65] backdrop-blur-sm"><div id="selfLearningInteractionModalContent" class="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-4"><h3 id="selfLearningInteractionModalTitle" class="text-lg font-bold text-gray-800">互动详情</h3><button id="closeSelfLearningInteractionModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="selfLearningInteractionModalList" class="space-y-2 max-h-[55vh] overflow-y-auto"></div><div id="selfLearningInteractionModalPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div></div>
 
   <script>
@@ -289,8 +305,10 @@
     let currentViewingPaperId = null; 
     const studentList = document.getElementById('studentList'), exportStudentsBtn = document.getElementById('exportStudentsBtn');
     const rankingTableBody = document.getElementById('rankingTableBody'), exchangeHistoryTableBody = document.getElementById('exchangeHistoryTableBody'), exportRankingBtn = document.getElementById('exportRankingBtn'), exportExchangeBtn = document.getElementById('exportExchangeBtn');
-    const selfLearningTitle = document.getElementById('selfLearningTitle'), selfLearningSummary = document.getElementById('selfLearningSummary'), selfLearningVideo = document.getElementById('selfLearningVideo'), selfLearningVideoPicker = document.getElementById('selfLearningVideoPicker'), selfLearningGrade = document.getElementById('selfLearningGrade'), selfLearningRelatedPaper = document.getElementById('selfLearningRelatedPaper'), selfLearningPaperTrigger = document.getElementById('selfLearningPaperTrigger'), selfLearningPaperSelectedText = document.getElementById('selfLearningPaperSelectedText'), selfLearningPaperDropdown = document.getElementById('selfLearningPaperDropdown'), selfLearningPaperSearch = document.getElementById('selfLearningPaperSearch'), selfLearningPaperOptions = document.getElementById('selfLearningPaperOptions'), selfLearningPaperPrev = document.getElementById('selfLearningPaperPrev'), selfLearningPaperNext = document.getElementById('selfLearningPaperNext'), selfLearningPaperPageInfo = document.getElementById('selfLearningPaperPageInfo'), addSelfLearningBtn = document.getElementById('addSelfLearningBtn'), selfLearningList = document.getElementById('selfLearningList'), selfLearningListWrap = document.getElementById('selfLearningListWrap'), selfLearningListToggleBtn = document.getElementById('selfLearningListToggleBtn'), selfLearningListToggleIcon = document.getElementById('selfLearningListToggleIcon');
+    const selfLearningTitle = document.getElementById('selfLearningTitle'), selfLearningSummary = document.getElementById('selfLearningSummary'), selfLearningVideo = document.getElementById('selfLearningVideo'), selfLearningVideoSelectBtn = document.getElementById('selfLearningVideoSelectBtn'), selfLearningVideoUploadStatus = document.getElementById('selfLearningVideoUploadStatus'), selfLearningGrade = document.getElementById('selfLearningGrade'), selfLearningRelatedPaper = document.getElementById('selfLearningRelatedPaper'), selfLearningPaperTrigger = document.getElementById('selfLearningPaperTrigger'), selfLearningPaperSelectedText = document.getElementById('selfLearningPaperSelectedText'), selfLearningPaperDropdown = document.getElementById('selfLearningPaperDropdown'), selfLearningPaperSearch = document.getElementById('selfLearningPaperSearch'), selfLearningPaperOptions = document.getElementById('selfLearningPaperOptions'), selfLearningPaperPrev = document.getElementById('selfLearningPaperPrev'), selfLearningPaperNext = document.getElementById('selfLearningPaperNext'), selfLearningPaperPageInfo = document.getElementById('selfLearningPaperPageInfo'), addSelfLearningBtn = document.getElementById('addSelfLearningBtn'), selfLearningList = document.getElementById('selfLearningList'), selfLearningListWrap = document.getElementById('selfLearningListWrap'), selfLearningListToggleBtn = document.getElementById('selfLearningListToggleBtn'), selfLearningListToggleIcon = document.getElementById('selfLearningListToggleIcon');
     const selfLearningInteractionModal = document.getElementById('selfLearningInteractionModal'), selfLearningInteractionModalContent = document.getElementById('selfLearningInteractionModalContent'), selfLearningInteractionModalTitle = document.getElementById('selfLearningInteractionModalTitle'), selfLearningInteractionModalList = document.getElementById('selfLearningInteractionModalList'), selfLearningInteractionModalPagination = document.getElementById('selfLearningInteractionModalPagination'), closeSelfLearningInteractionModalBtn = document.getElementById('closeSelfLearningInteractionModalBtn');
+    const videoUploadBtn = document.getElementById('videoUploadBtn'), videoUploadInput = document.getElementById('videoUploadInput'), videoUploadStatus = document.getElementById('videoUploadStatus'), videoManagerSearch = document.getElementById('videoManagerSearch'), videoManagerList = document.getElementById('videoManagerList'), refreshVideoListBtn = document.getElementById('refreshVideoListBtn'), videoManagerPagination = document.getElementById('videoManagerPagination');
+    const videoSelectModal = document.getElementById('videoSelectModal'), videoSelectModalContent = document.getElementById('videoSelectModalContent'), closeVideoSelectModalBtn = document.getElementById('closeVideoSelectModalBtn'), videoSelectSearch = document.getElementById('videoSelectSearch'), videoSelectRefreshBtn = document.getElementById('videoSelectRefreshBtn'), videoSelectList = document.getElementById('videoSelectList'), videoSelectPagination = document.getElementById('videoSelectPagination');
     const SELF_LEARNING_PAPER_PAGE_SIZE = 8;
     const SELF_LEARNING_LIST_PAGE_SIZE = 5;
     const SELF_LEARNING_WATCH_PAGE_SIZE = 5;
@@ -299,6 +317,9 @@
     let selfLearningListPage = 1, selfLearningListExpanded = false;
     let selfLearningWatchPageState = {};
     let selfLearningInteractionModalState = { contentId: '', type: 'likes', page: 1, title: '' };
+    let cachedVideoLibrary = [];
+    let videoSelectState = { targetInputId: '', mode: 'path', page: 1, keyword: '' };
+    let videoManagerPage = 1;
 
     async function init() { if (await getData(ADMIN_SESSION_KEY) === 'true') { showMainContent(); } else { loginBtn.addEventListener('click', handleLogin); [adminName, adminPassword].forEach(el => { el.addEventListener('keyup', e => e.key === 'Enter' && handleLogin()); }); } }
     async function handleLogin() { const name = adminName.value.trim(), password = adminPassword.value.trim(); loginError.classList.add('hidden'); if (!name || !password) return showLoginError('请输入完整的用户名和密码'); if (name === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) { await saveData(ADMIN_SESSION_KEY, 'true'); showMainContent(); } else { showLoginError('用户名或密码错误，请重试'); adminPassword.value = ''; } }
@@ -341,6 +362,8 @@
       answerDetailModal.addEventListener('click', e => e.target === answerDetailModal && closeDetailModal()); 
       if (closeSelfLearningInteractionModalBtn) closeSelfLearningInteractionModalBtn.addEventListener('click', closeSelfLearningInteractionModal);
       if (selfLearningInteractionModal) selfLearningInteractionModal.addEventListener('click', (e) => { if (e.target === selfLearningInteractionModal) closeSelfLearningInteractionModal(); });
+      if (closeVideoSelectModalBtn) closeVideoSelectModalBtn.addEventListener('click', closeVideoSelectModal);
+      if (videoSelectModal) videoSelectModal.addEventListener('click', (e) => { if (e.target === videoSelectModal) closeVideoSelectModal(); });
       logoutBtn.addEventListener('click', handleLogout);
       tabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
       initPrizeManagement(); 
@@ -350,6 +373,22 @@
       selectImportFileBtn.addEventListener('click', () => importFileInput.click()); 
       importFileInput.addEventListener('change', importAllData);
       initDailyRecords();
+      if (videoUploadBtn && videoUploadInput) {
+        videoUploadBtn.addEventListener('click', () => videoUploadInput.click());
+        videoUploadInput.addEventListener('change', async function () {
+          if (!this.files || this.files.length === 0) return;
+          for (let i = 0; i < this.files.length; i++) {
+            await uploadVideoFile(this.files[i]);
+          }
+          this.value = '';
+          await fetchVideoLibrary();
+        });
+      }
+      if (videoManagerSearch) videoManagerSearch.addEventListener('input', () => { videoManagerPage = 1; renderVideoManagerList(); });
+      if (refreshVideoListBtn) refreshVideoListBtn.addEventListener('click', fetchVideoLibrary);
+      if (videoSelectSearch) videoSelectSearch.addEventListener('input', () => { videoSelectState.page = 1; renderVideoSelectList(); });
+      if (videoSelectRefreshBtn) videoSelectRefreshBtn.addEventListener('click', fetchVideoLibrary);
+      fetchVideoLibrary();
     }
 
     function handleAdminPreview(input) {
@@ -534,14 +573,15 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           if (selfLearningListToggleIcon) selfLearningListToggleIcon.className = `fa ${selfLearningListExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-gray-400`;
         });
       }
-      if (selfLearningVideoPicker) {
-        selfLearningVideoPicker.addEventListener('click', function () {
-          this.value = '';
+      if (selfLearningVideoSelectBtn) {
+        selfLearningVideoSelectBtn.addEventListener('click', function () {
+          openVideoSelectModal('selfLearningVideo', 'path');
         });
-        selfLearningVideoPicker.addEventListener('change', function () {
-          const file = this.files && this.files[0];
-          if (!file || !selfLearningVideo) return;
-          selfLearningVideo.value = `video/${file.name}`;
+      }
+      if (selfLearningVideo) {
+        selfLearningVideo.addEventListener('input', function () {
+          if (this.value && this.value.trim()) setSelfLearningVideoStatus('已选择视频路径', 'text-gray-500');
+          else setSelfLearningVideoStatus('从视频库选择文件', 'text-gray-400');
         });
       }
       if (selfLearningPaperTrigger) {
@@ -695,6 +735,214 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       selfLearningPaperPage = 1;
       applySelfLearningPaperFilter();
       renderSelfLearningPaperSelector();
+    }
+
+    function setSelfLearningVideoStatus(message, colorClass) {
+      if (!selfLearningVideoUploadStatus) return;
+      selfLearningVideoUploadStatus.textContent = message;
+      selfLearningVideoUploadStatus.className = `mt-1 text-xs ${colorClass || 'text-gray-400'}`;
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes <= 0) return '0 B';
+      const units = ['B', 'KB', 'MB', 'GB'];
+      let idx = 0;
+      let val = bytes;
+      while (val >= 1024 && idx < units.length - 1) {
+        val /= 1024;
+        idx += 1;
+      }
+      return `${val.toFixed(val >= 10 || idx === 0 ? 0 : 1)} ${units[idx]}`;
+    }
+
+    async function fetchVideoLibrary() {
+      try {
+        const res = await fetch('/api/videos');
+        if (!res.ok) throw new Error('fetch failed');
+        cachedVideoLibrary = await res.json() || [];
+      } catch (e) {
+        cachedVideoLibrary = [];
+      }
+      renderVideoManagerList();
+      renderVideoSelectList();
+    }
+
+    function renderVideoManagerList() {
+      if (!videoManagerList) return;
+      const keyword = (videoManagerSearch && videoManagerSearch.value.trim().toLowerCase()) || '';
+      const filtered = (cachedVideoLibrary || []).filter((v) => !keyword || (v.name || '').toLowerCase().includes(keyword));
+      if (filtered.length === 0) {
+        videoManagerList.innerHTML = '<div class="text-center text-gray-400 py-6">暂无视频文件</div>';
+        if (videoManagerPagination) { videoManagerPagination.classList.add('hidden'); videoManagerPagination.innerHTML = ''; }
+        return;
+      }
+      const pageSize = 8;
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      if (videoManagerPage > totalPages) videoManagerPage = totalPages;
+      if (videoManagerPage < 1) videoManagerPage = 1;
+      const startIndex = (videoManagerPage - 1) * pageSize;
+      const pageItems = filtered.slice(startIndex, startIndex + pageSize);
+      videoManagerList.innerHTML = pageItems.map((v) => {
+        const sizeText = formatBytes(v.size || 0);
+        const timeText = v.mtime ? new Date(v.mtime * 1000).toLocaleString() : '';
+        return `<div class="border rounded-lg p-3 bg-gray-50 flex items-center justify-between gap-3"><div class="min-w-0"><p class="font-medium text-gray-800 truncate">${v.name}</p><p class="text-xs text-gray-500 mt-1">${sizeText}${timeText ? ` · ${timeText}` : ''}</p></div><div class="shrink-0 flex items-center gap-2"><button class="copy-video-path text-xs px-2 py-1 rounded border text-gray-600 hover:bg-gray-100" data-name="${v.name}">复制路径</button></div></div>`;
+      }).join('');
+      videoManagerList.querySelectorAll('.copy-video-path').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const name = this.dataset.name || '';
+          if (!name) return;
+          const path = `video/${name}`;
+          navigator.clipboard?.writeText(path);
+          if (videoUploadStatus) {
+            videoUploadStatus.textContent = `已复制路径：${path}`;
+          }
+        });
+      });
+      if (!videoManagerPagination) return;
+      if (filtered.length <= pageSize) {
+        videoManagerPagination.classList.add('hidden');
+        videoManagerPagination.innerHTML = '';
+        return;
+      }
+      const pageButtons = buildCompactPageItems(videoManagerPage, totalPages);
+      videoManagerPagination.classList.remove('hidden');
+      videoManagerPagination.innerHTML = `
+        <button class="video-manager-prev px-2.5 py-1 rounded border text-sm ${videoManagerPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${videoManagerPage === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageButtons.map((item) => {
+          if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+          const active = item === videoManagerPage;
+          return `<button class="video-manager-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`;
+        }).join('')}
+        <button class="video-manager-next px-2.5 py-1 rounded border text-sm ${videoManagerPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${videoManagerPage === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      const prevBtn = videoManagerPagination.querySelector('.video-manager-prev');
+      const nextBtn = videoManagerPagination.querySelector('.video-manager-next');
+      if (prevBtn) prevBtn.addEventListener('click', function () { if (videoManagerPage > 1) { videoManagerPage -= 1; renderVideoManagerList(); } });
+      if (nextBtn) nextBtn.addEventListener('click', function () { videoManagerPage += 1; renderVideoManagerList(); });
+      videoManagerPagination.querySelectorAll('.video-manager-page').forEach((btn) => {
+        btn.addEventListener('click', function () { const page = parseInt(this.dataset.page, 10); if (!Number.isNaN(page)) { videoManagerPage = page; renderVideoManagerList(); } });
+      });
+    }
+
+    function openVideoSelectModal(targetInputId, mode) {
+      if (!videoSelectModal || !videoSelectModalContent) return;
+      videoSelectState = { targetInputId: targetInputId || '', mode: mode || 'path', page: 1, keyword: '' };
+      if (videoSelectSearch) videoSelectSearch.value = '';
+      renderVideoSelectList();
+      videoSelectModal.classList.remove('hidden');
+      setTimeout(() => {
+        videoSelectModalContent.classList.remove('scale-95', 'opacity-0');
+        videoSelectModalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    function closeVideoSelectModal() {
+      if (!videoSelectModal || !videoSelectModalContent) return;
+      videoSelectModalContent.classList.remove('scale-100', 'opacity-100');
+      videoSelectModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => { videoSelectModal.classList.add('hidden'); }, 220);
+    }
+
+    function renderVideoSelectList() {
+      if (!videoSelectList || !videoSelectPagination) return;
+      const keyword = (videoSelectSearch && videoSelectSearch.value.trim().toLowerCase()) || '';
+      videoSelectState.keyword = keyword;
+      const filtered = (cachedVideoLibrary || []).filter((v) => !keyword || (v.name || '').toLowerCase().includes(keyword));
+      const pageSize = 8;
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      if (videoSelectState.page > totalPages) videoSelectState.page = totalPages;
+      if (videoSelectState.page < 1) videoSelectState.page = 1;
+      const startIndex = (videoSelectState.page - 1) * pageSize;
+      const pageItems = filtered.slice(startIndex, startIndex + pageSize);
+      if (pageItems.length === 0) {
+        videoSelectList.innerHTML = '<div class="text-center text-gray-400 py-6">暂无匹配视频</div>';
+      } else {
+        videoSelectList.innerHTML = pageItems.map((v) => {
+          const sizeText = formatBytes(v.size || 0);
+          return `<div class="border rounded-lg p-3 bg-white flex items-center justify-between gap-3"><div class="min-w-0"><p class="font-medium text-gray-800 truncate">${v.name}</p><p class="text-xs text-gray-400 mt-1">${sizeText}</p></div><button class="choose-video-btn text-xs px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600" data-name="${v.name}">选择</button></div>`;
+        }).join('');
+      }
+      if (filtered.length <= pageSize) {
+        videoSelectPagination.classList.add('hidden');
+        videoSelectPagination.innerHTML = '';
+      } else {
+        const pageItems = buildCompactPageItems(videoSelectState.page, totalPages);
+        videoSelectPagination.classList.remove('hidden');
+        videoSelectPagination.innerHTML = `
+          <button class="video-select-prev px-2.5 py-1 rounded border text-sm ${videoSelectState.page === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${videoSelectState.page === 1 ? 'disabled' : ''}>上一页</button>
+          ${pageItems.map((item) => {
+            if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+            const active = item === videoSelectState.page;
+            return `<button class="video-select-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`;
+          }).join('')}
+          <button class="video-select-next px-2.5 py-1 rounded border text-sm ${videoSelectState.page === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${videoSelectState.page === totalPages ? 'disabled' : ''}>下一页</button>
+        `;
+      }
+      const prevBtn = videoSelectPagination.querySelector('.video-select-prev');
+      const nextBtn = videoSelectPagination.querySelector('.video-select-next');
+      if (prevBtn) prevBtn.addEventListener('click', function () { if (videoSelectState.page > 1) { videoSelectState.page -= 1; renderVideoSelectList(); } });
+      if (nextBtn) nextBtn.addEventListener('click', function () { videoSelectState.page += 1; renderVideoSelectList(); });
+      videoSelectPagination.querySelectorAll('.video-select-page').forEach((btn) => {
+        btn.addEventListener('click', function () { const page = parseInt(this.dataset.page, 10); if (!Number.isNaN(page)) { videoSelectState.page = page; renderVideoSelectList(); } });
+      });
+      videoSelectList.querySelectorAll('.choose-video-btn').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const name = this.dataset.name || '';
+          if (!name || !videoSelectState.targetInputId) return;
+          const target = document.getElementById(videoSelectState.targetInputId);
+          if (!target) return;
+          target.value = videoSelectState.mode === 'filename' ? name : `video/${name}`;
+          if (videoSelectState.targetInputId === 'selfLearningVideo') setSelfLearningVideoStatus('已选择视频路径', 'text-gray-500');
+          closeVideoSelectModal();
+        });
+      });
+    }
+
+    async function uploadVideoFile(file) {
+      if (!file) return '';
+      const maxBytes = 200 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        alert('视频过大，请控制在 200MB 以内');
+        return '';
+      }
+      return new Promise((resolve) => {
+        const formData = new FormData();
+        formData.append('video', file);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/upload_video', true);
+        if (videoUploadBtn) videoUploadBtn.disabled = true;
+        if (videoUploadStatus) videoUploadStatus.textContent = '开始上传...';
+        xhr.upload.onprogress = function (e) {
+          if (!e.lengthComputable) return;
+          const percent = Math.round((e.loaded / e.total) * 100);
+          if (videoUploadStatus) videoUploadStatus.textContent = `上传中... ${percent}%`;
+        };
+        xhr.onerror = function () {
+          if (videoUploadBtn) videoUploadBtn.disabled = false;
+          if (videoUploadStatus) videoUploadStatus.textContent = '上传失败，请重试';
+          resolve('');
+        };
+        xhr.onload = function () {
+          if (videoUploadBtn) videoUploadBtn.disabled = false;
+          try {
+            if (xhr.status !== 200) {
+              if (videoUploadStatus) videoUploadStatus.textContent = '上传失败，请重试';
+              return resolve('');
+            }
+            const resp = JSON.parse(xhr.responseText || '{}');
+            if (!resp.url) {
+              if (videoUploadStatus) videoUploadStatus.textContent = '上传失败，请重试';
+              return resolve('');
+            }
+            if (videoUploadStatus) videoUploadStatus.textContent = '上传成功';
+            resolve(resp.url.startsWith('/') ? resp.url.slice(1) : resp.url);
+          } catch (err) {
+            if (videoUploadStatus) videoUploadStatus.textContent = '上传失败，请重试';
+            resolve('');
+          }
+        };
+        xhr.send(formData);
+      });
     }
 
     function getSelfLearningInteractionTypeLabel(type) {
@@ -942,7 +1190,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const grade = selfLearningGrade ? selfLearningGrade.value : 'all';
       const relatedPaperId = selfLearningRelatedPaper ? selfLearningRelatedPaper.value : '';
       if (!title) return alert('请填写内容标题');
-      if (!videoFile) return alert('请填写视频文件路径');
+      if (!videoFile) return alert('请选择视频文件');
       if (!relatedPaperId) return alert('请绑定配套题目');
       let contents = await getData(SELF_LEARNING_STORAGE_KEY) || [];
       contents.push({ id: `sl_${Date.now()}`, title, summary, videoFile, grade, relatedPaperId, createTime: Date.now() });
@@ -950,7 +1198,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       if (selfLearningTitle) selfLearningTitle.value = '';
       if (selfLearningSummary) selfLearningSummary.value = '';
       if (selfLearningVideo) selfLearningVideo.value = '';
-      if (selfLearningVideoPicker) selfLearningVideoPicker.value = '';
+      setSelfLearningVideoStatus('从视频库选择文件', 'text-gray-400');
       if (selfLearningRelatedPaper) selfLearningRelatedPaper.value = '';
       if (selfLearningPaperSelectedText) selfLearningPaperSelectedText.textContent = '请选择配套题目';
       if (selfLearningPaperSearch) selfLearningPaperSearch.value = '';
@@ -1079,11 +1327,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                     </div>
                     <div class="flex-grow flex items-center relative">
                         <i class="fa fa-play-circle absolute left-3 text-gray-400"></i>
-                        <input type="text" id="video_${i}" value="${currentVideo}" placeholder="讲解视频文件名 (如: v1.mp4)" class="w-full pl-8 pr-10 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                        <label class="absolute right-2 text-gray-400 hover:text-blue-600 cursor-pointer transition-colors" title="浏览选择本地视频">
-                            <i class="fa fa-folder-open text-lg"></i>
-                            <input type="file" accept="video/*" class="hidden" onchange="if(this.files.length) document.getElementById('video_${i}').value = this.files[0].name">
-                        </label>
+                        <input type="text" id="video_${i}" value="${currentVideo}" placeholder="讲解视频文件名 (如: v1.mp4)" class="w-full pl-8 pr-24 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <button type="button" class="absolute right-2 text-blue-600 text-xs px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 transition-colors" onclick="openVideoSelectModal('video_${i}', 'filename')"><i class="fa fa-folder-open mr-1"></i>选择</button>
                     </div>
                 </div>`; 
                 answersConfigList.appendChild(questionDiv); 
@@ -1106,11 +1351,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                     <label class="font-bold text-indigo-800 w-24">填空 第 ${i + 1} 题</label>
                     <div class="flex-grow flex items-center relative">
                         <i class="fa fa-file-video-o absolute left-3 text-indigo-300"></i>
-                        <input type="text" id="fb_video_${i}" value="${currentFbVideo}" placeholder="填空题讲解视频文件名 (如: fb1.mp4)" class="w-full pl-8 pr-10 py-1.5 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white">
-                        <label class="absolute right-2 text-indigo-300 hover:text-indigo-600 cursor-pointer transition-colors" title="浏览选择本地视频">
-                            <i class="fa fa-folder-open text-lg"></i>
-                            <input type="file" accept="video/*" class="hidden" onchange="if(this.files.length) document.getElementById('fb_video_${i}').value = this.files[0].name">
-                        </label>
+                        <input type="text" id="fb_video_${i}" value="${currentFbVideo}" placeholder="填空题讲解视频文件名 (如: fb1.mp4)" class="w-full pl-8 pr-24 py-1.5 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white">
+                        <button type="button" class="absolute right-2 text-indigo-600 text-xs px-2 py-1 rounded bg-indigo-50 hover:bg-indigo-100 transition-colors" onclick="openVideoSelectModal('fb_video_${i}', 'filename')"><i class="fa fa-folder-open mr-1"></i>选择</button>
                     </div>`;
                 answersConfigList.appendChild(questionDiv);
             }
