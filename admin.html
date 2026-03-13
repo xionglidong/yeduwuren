@@ -93,7 +93,10 @@
                   <div id="dynamicFbPointsContainer" class="grid grid-cols-3 md:grid-cols-6 gap-3"></div>
               </div>
               <div class="space-y-2 border-t pt-4">
-                  <label class="block text-sm font-medium text-gray-600">填空题参考答案 (可多选)</label>
+                  <div class="flex items-center justify-between">
+                    <label class="block text-sm font-medium text-gray-600">填空题参考答案 (可多选)</label>
+                    <button type="button" id="clearFillBlankAnswersBtn" class="text-xs text-red-500 hover:text-red-600">清空已选</button>
+                  </div>
                   <label for="paperFillBlankAnswerImage" class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
                       <i id="teacherUploadIcon" class="fa fa-upload text-blue-500 text-3xl mb-1"></i>
                       <span class="text-xs text-gray-500">点击选择多张参考图片</span>
@@ -295,7 +298,8 @@
     const loginScreen = document.getElementById('loginScreen'), mainContent = document.getElementById('mainContent'), adminName = document.getElementById('adminName'), adminPassword = document.getElementById('adminPassword'), loginBtn = document.getElementById('loginBtn'), loginError = document.getElementById('loginError'), logoutBtn = document.getElementById('logoutBtn');
     const tabButtons = document.querySelectorAll('.bg-white.rounded-xl.shadow-md.p-4.mb-8 button'), tabPanes = document.querySelectorAll('.tab-pane');
     const paperGrade = document.getElementById('paperGrade'), paperGradeWrap = document.getElementById('paperGradeWrap'), paperType = document.getElementById('paperType'), paperName = document.getElementById('paperName'), paperQuestionCount = document.getElementById('paperQuestionCount'), paperQuestionPoints = document.getElementById('paperQuestionPoints'), paperAllowRedo = document.getElementById('paperAllowRedo');
-    const paperFillBlankCount = document.getElementById('paperFillBlankCount'), paperFillBlankPoints = document.getElementById('paperFillBlankPoints'), paperFillBlankAnswerImage = document.getElementById('paperFillBlankAnswerImage'), previewContainer = document.getElementById('previewContainer'), answerImagePreview = document.getElementById('answerImagePreview'), imagePreviewModal = document.getElementById('imagePreviewModal'), fullScreenPreviewImage = document.getElementById('fullScreenPreviewImage');
+    const paperFillBlankCount = document.getElementById('paperFillBlankCount'), paperFillBlankPoints = document.getElementById('paperFillBlankPoints'), paperFillBlankAnswerImage = document.getElementById('paperFillBlankAnswerImage'), previewContainer = document.getElementById('previewContainer'), answerImagePreview = document.getElementById('answerImagePreview'), imagePreviewModal = document.getElementById('imagePreviewModal'), fullScreenPreviewImage = document.getElementById('fullScreenPreviewImage'), clearFillBlankAnswersBtn = document.getElementById('clearFillBlankAnswersBtn');
+    let adminFillBlankAnswerFiles = [];
     const optionA = document.getElementById('optionA'), optionB = document.getElementById('optionB'), optionC = document.getElementById('optionC'), optionD = document.getElementById('optionD'), dynamicAnswers = document.getElementById('dynamicAnswers'), addPaperBtn = document.getElementById('addPaperBtn');
     const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade3AddBtn = document.getElementById('grade3AddBtn'), customPaperManageList = document.getElementById('customPaperManageList'), customPaperAddBtn = document.getElementById('customPaperAddBtn');
     const dailyRecordList = document.getElementById('dailyRecordList'), recordDateFilter = document.getElementById('recordDateFilter'), noRecordsHint = document.getElementById('noRecordsHint');
@@ -373,6 +377,14 @@
       selectImportFileBtn.addEventListener('click', () => importFileInput.click()); 
       importFileInput.addEventListener('change', importAllData);
       initDailyRecords();
+      if (clearFillBlankAnswersBtn) {
+        clearFillBlankAnswersBtn.addEventListener('click', () => {
+          adminFillBlankAnswerFiles = [];
+          if (paperFillBlankAnswerImage) paperFillBlankAnswerImage.value = '';
+          const grid = document.getElementById('adminPreviewGrid');
+          if (grid) grid.innerHTML = '';
+        });
+      }
       if (videoUploadBtn && videoUploadInput) {
         videoUploadBtn.addEventListener('click', () => videoUploadInput.click());
         videoUploadInput.addEventListener('change', async function () {
@@ -393,19 +405,21 @@
 
     function handleAdminPreview(input) {
       const grid = document.getElementById('adminPreviewGrid');
-      if(grid) grid.innerHTML = ''; 
-      if (input.files && input.files.length > 0) {
-        Array.from(input.files).forEach(file => {
-          const reader = new FileReader();
-          reader.onload = e => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = "w-16 h-16 object-cover rounded border shadow-sm";
-            grid.appendChild(img);
-          };
-          reader.readAsDataURL(file);
-        });
-      }
+      if (!input.files || input.files.length === 0) return;
+      if (grid && adminFillBlankAnswerFiles.length === 0) grid.innerHTML = '';
+      Array.from(input.files).forEach(file => {
+        adminFillBlankAnswerFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = e => {
+          if (!grid) return;
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = "w-16 h-16 object-cover rounded border shadow-sm";
+          grid.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = '';
     }
 
     function generateFbPointsConfig() {
@@ -513,11 +527,11 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       
       let fillBlankImageBase64 = []; 
       if (fillBlankCount > 0) {
-        if (!paperFillBlankAnswerImage.files || paperFillBlankAnswerImage.files.length === 0) return alert('设置了填空题，必须上传填空题答案图片！');
+        const files = adminFillBlankAnswerFiles.length > 0 ? adminFillBlankAnswerFiles : (paperFillBlankAnswerImage.files || []);
+        if (!files || files.length === 0) return alert('设置了填空题，必须上传填空题答案图片！');
         try { 
             const icon = document.getElementById('teacherUploadIcon');
             if(icon) icon.className = 'fa fa-spinner fa-spin text-blue-500 text-4xl';
-            const files = paperFillBlankAnswerImage.files;
             for (let i = 0; i < files.length; i++) {
                 const rawBase64 = await getBase64(files[i]);
                 const uploadRes = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: rawBase64 }) });
@@ -538,6 +552,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const pContainer = document.getElementById('previewContainer'); if(pContainer) pContainer.classList.add('hidden'); 
       const aImgPreview = document.getElementById('answerImagePreview'); if(aImgPreview) aImgPreview.src = ''; 
       const adminPreviewGrid = document.getElementById('adminPreviewGrid'); if(adminPreviewGrid) adminPreviewGrid.innerHTML = '';
+      adminFillBlankAnswerFiles = [];
 
       generateAnswerSelects(); 
       if (typeof generateFbPointsConfig === 'function') generateFbPointsConfig();
