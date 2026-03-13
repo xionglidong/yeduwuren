@@ -858,6 +858,10 @@
           uploadedFbImages = [];
           uploadedDraftImages = []; // 🚀 初始化草稿纸
       }
+      // 防止上一套题的填空自评分数泄漏到本套题
+      fbSelfScore = 0;
+      fbJudgments = null;
+      fbIsConfirmed = false;
       currentQuestionIndex = 0; startTimer();
       modalPaperTitle.textContent = currentPaper.name; 
       const mcContainer = document.getElementById('questionContent'), navContainer = document.getElementById('questionNav'), prevBtn = document.getElementById('prevQuestionBtn'), nextBtn = document.getElementById('nextQuestionBtn');
@@ -878,7 +882,14 @@
 
     function renderFillBlankSection() {
       const fbSection = document.getElementById('fillBlankSection'), count = currentPaper.fillInBlankCount || 0;
-      if (count === 0) return fbSection.classList.add('hidden');
+      if (count === 0) {
+        fbSection.classList.add('hidden');
+        uploadedFbImages = [];
+        fbSelfScore = 0;
+        fbJudgments = null;
+        fbIsConfirmed = false;
+        return;
+      }
       fbSection.classList.remove('hidden'); const totalFbPoints = currentPaper.fbPointsArray ? currentPaper.fbPointsArray.reduce((a,b)=>a+b,0) : (count * parseInt(currentPaper.fillInBlankPoints || 0));
       
       // 🚀 核心升级：开启 multiple 连拍，添加照片瀑布流容器
@@ -982,7 +993,7 @@ submitAllBtn.disabled =
           studentAnswers.forEach((answer, index) => { const isCorrect = answer === currentPaper.answers[index]; if (isCorrect) score += currentPaper.singlePoints; scoreDetails.push({ questionNumber: index + 1, isCorrect: isCorrect, correctAnswer: currentPaper.answers[index], yourAnswer: answer }); }); 
       }
       // 👆 加上了一对大括号闭合 👆
-      score += (fbSelfScore || 0);
+      if (currentPaper.fillInBlankCount > 0) score += (fbSelfScore || 0);
       let allAnswers = await getData(ANSWER_STORAGE_KEY) || [];
       const previousRecords = allAnswers.filter(a => a.paperId === currentPaper.id && a.studentId === userId);
       const isFirstSubmission = previousRecords.length === 0;
