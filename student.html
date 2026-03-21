@@ -948,10 +948,11 @@
       
       const judgmentsContainer = document.getElementById('fbQuestionJudgments');
       fbJudgments = new Array(count).fill(null);
+      const offset = parseInt(currentPaper.questionCount) || 0;
       for (let i = 0; i < count; i++) {
         const pointsPerQuestion = currentPaper.fbPointsArray ? currentPaper.fbPointsArray[i] : parseInt(currentPaper.fillInBlankPoints || 0);
         const item = document.createElement('div'); item.className = 'border rounded p-3 bg-gray-50';
-        item.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="font-medium text-gray-700">第 ${i + 1} 题 (满分${pointsPerQuestion}分)</span></div><div class="flex items-center space-x-2"><input type="number" class="fb-score-input w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 text-center font-bold text-gray-700" min="0" max="${pointsPerQuestion}" step="0.5" value="0" data-index="${i}"></div>`;
+        item.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="font-medium text-gray-700">第 ${offset + i + 1} 题 (满分${pointsPerQuestion}分)</span></div><div class="flex items-center space-x-2"><input type="number" class="fb-score-input w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 text-center font-bold text-gray-700" min="0" max="${pointsPerQuestion}" step="0.5" value="0" data-index="${i}"></div>`;
         judgmentsContainer.appendChild(item); fbJudgments[i] = 0;
       }
       judgmentsContainer.addEventListener('input', function (e) {
@@ -1000,7 +1001,7 @@ submitAllBtn.disabled =
       const isFirstSubmission = previousRecords.length === 0;
       const previousBestScore = previousRecords.reduce((best, item) => Math.max(best, parseFloat(item.score) || 0), 0);
       // 🚀 核心升级：将多图数组传给服务器
-      const answerRecord = { paperId: currentPaper.id, studentId: userId, studentName: userName, answers: studentAnswers, score: score, totalPoints: currentPaper.totalPoints, submitTime: new Date().toLocaleString(), timeElapsed: secondsElapsed, isFirstSubmission: isFirstSubmission, fillInBlankStudentImage: uploadedFbImages, fillInBlankScore: fbSelfScore || 0, fillInBlankDetails: fbJudgments, draftImages: uploadedDraftImages };
+      const answerRecord = { paperId: currentPaper.id, studentId: userId, studentName: userName, answers: studentAnswers, score: score, totalPoints: currentPaper.totalPoints, timeElapsed: secondsElapsed, isFirstSubmission: isFirstSubmission, fillInBlankStudentImage: uploadedFbImages, fillInBlankScore: fbSelfScore || 0, fillInBlankDetails: fbJudgments, draftImages: uploadedDraftImages };
       allAnswers.push(answerRecord); 
       try {
           await saveData(ANSWER_STORAGE_KEY, allAnswers);

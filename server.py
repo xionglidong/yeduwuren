@@ -200,6 +200,9 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                         # 🚀 核心修复：安全追加模式，防止百人并发互相覆盖
                         if 'studentAnswers' not in db or not isinstance(db['studentAnswers'], list):
                             db['studentAnswers'] = []
+                        if isinstance(new_data, dict):
+                            new_data = dict(new_data)
+                            new_data['submitTime'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
                         db['studentAnswers'].append(new_data)
                     else:
                         # 正常覆盖模式 (后台修改配置用)

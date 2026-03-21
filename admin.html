@@ -1832,8 +1832,14 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         for (let i = 0; i < paper.questionCount; i++) {
             mcqStats.push({ A: [], B: [], C: [], D: [], correct: 0 }); // 改为存放学生姓名的数组
         }
+        const fbCount = parseInt(paper.fillInBlankCount) || 0;
+        const fbStats = [];
+        for (let i = 0; i < fbCount; i++) {
+            fbStats.push({ correct: 0 });
+        }
 
         let studentChartData = []; // 用于收集学生得分图表的数据
+        let totalCorrectQuestions = 0;
 
         paperAnswers.forEach(ans => {
             const currentScore = (ans.score || 0);
@@ -1842,16 +1848,26 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             
             studentChartData.push({ name: ans.studentName, score: currentScore });
 
+            let correctCount = 0;
             if (ans.answers && ans.answers.length > 0) {
                 ans.answers.forEach((choice, idx) => {
                     if (idx < paper.questionCount) {
                         if (['A', 'B', 'C', 'D'].includes(choice)) {
                             mcqStats[idx][choice].push(ans.studentName); // 记录选该选项的学生姓名
                         }
-                        if (choice === paper.answers[idx]) mcqStats[idx].correct++;
+                        if (choice === paper.answers[idx]) { mcqStats[idx].correct++; correctCount++; }
                     }
                 });
             }
+            if (fbCount > 0) {
+                for (let i = 0; i < fbCount; i++) {
+                    const maxScore = paper.fbPointsArray ? (parseFloat(paper.fbPointsArray[i]) || 0) : (parseFloat(paper.fillInBlankPoints) || 0);
+                    const scoreVal = Array.isArray(ans.fillInBlankDetails) ? ans.fillInBlankDetails[i] : null;
+                    const isFull = (typeof scoreVal === 'boolean') ? scoreVal : (parseFloat(scoreVal) >= maxScore && maxScore > 0);
+                    if (isFull) { fbStats[i].correct++; correctCount++; }
+                }
+            }
+            totalCorrectQuestions += correctCount;
         });
 
         // 整理图表数据 (按得分从高到低排序，图表更好看)
@@ -1860,7 +1876,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         const studentScoresForChart = studentChartData.map(d => d.score);
 
         const avgScore = (totalScore / paperAnswers.length).toFixed(1);
-        const overallAccuracy = totalPossibleScore > 0 ? Math.round((totalScore / totalPossibleScore) * 100) : 0;
+        const totalQuestionsAll = (paper.questionCount + fbCount) * paperAnswers.length;
+        const overallAccuracy = totalQuestionsAll > 0 ? Math.round((totalCorrectQuestions / totalQuestionsAll) * 100) : 0;
 
         // 1. 顶部统计块 (改为 4 列，加入最高分)
         let html = `
@@ -1885,7 +1902,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
         // 2. 醒目的图表区域
         html += `
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 gap-6 mb-8">
                 <div class="border rounded-lg p-4 bg-white shadow-sm">
                     <h4 class="font-bold text-gray-700 mb-4 text-center"><i class="fa fa-bar-chart text-blue-500 mr-2"></i>各题正确率概览</h4>
                     <canvas id="accuracyChart"></canvas>
@@ -1940,6 +1957,28 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             });
             html += `</div>`;
         }
+        if (fbCount > 0) {
+            html += `<h4 class="font-bold text-gray-700 mt-6 mb-3 border-l-4 border-indigo-500 pl-2">填空/简答题详情 (满分才算对)</h4><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+            fbStats.forEach((stat, idx) => {
+                const accuracy = Math.round((stat.correct / paperAnswers.length) * 100);
+                const wrong = paperAnswers.length - stat.correct;
+                html += `
+                <div class="border rounded-lg bg-white shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 ${accuracy >= 80 ? 'bg-green-500' : accuracy >= 60 ? 'bg-yellow-500' : 'bg-red-500'}"></div>
+                    <div class="p-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-gray-800">第 ${paper.questionCount + idx + 1} 题</span>
+                            <span class="text-xs text-gray-500">正确率: <span class="font-bold text-lg ${accuracy >= 60 ? 'text-green-600' : 'text-red-500'}">${accuracy}%</span></span>
+                        </div>
+                        <div class="mt-3 text-xs text-gray-600 space-y-2">
+                            <div class="flex items-center"><span class="w-16 text-green-700 font-bold">满分</span><div class="flex-grow bg-gray-200 h-2 rounded-full mx-2 overflow-hidden"><div class="h-2 rounded-full bg-green-400" style="width: ${accuracy}%"></div></div><span class="w-12 text-right text-green-600 font-bold">${stat.correct}人</span></div>
+                            <div class="flex items-center"><span class="w-16 text-gray-500">未满分</span><div class="flex-grow bg-gray-200 h-2 rounded-full mx-2 overflow-hidden"><div class="h-2 rounded-full bg-red-400" style="width: ${Math.max(0, 100 - accuracy)}%"></div></div><span class="w-12 text-right text-gray-500 font-bold">${wrong}人</span></div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
         
         analysisBody.innerHTML = html;
         openAnalysisModal();
@@ -1948,14 +1987,24 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         setTimeout(() => {
             // 图表一：题目正确率
             const accCtx = document.getElementById('accuracyChart');
-            if (accCtx && paper.questionCount > 0) {
+            if (accCtx && (paper.questionCount + fbCount) > 0) {
+                const accLabels = [];
+                const accData = [];
+                for (let i = 0; i < paper.questionCount; i++) {
+                    accLabels.push(`第${i + 1}题`);
+                    accData.push(Math.round((mcqStats[i].correct / paperAnswers.length) * 100));
+                }
+                for (let i = 0; i < fbCount; i++) {
+                    accLabels.push(`第${paper.questionCount + i + 1}题(填空)`);
+                    accData.push(Math.round((fbStats[i].correct / paperAnswers.length) * 100));
+                }
                 new Chart(accCtx, {
                     type: 'bar',
                     data: {
-                        labels: Array.from({length: paper.questionCount}, (_, i) => `第${i+1}题`),
+                        labels: accLabels,
                         datasets: [{
                             label: '正确率 (%)',
-                            data: mcqStats.map(s => Math.round((s.correct / paperAnswers.length) * 100)),
+                            data: accData,
                             backgroundColor: 'rgba(54, 162, 235, 0.6)',
                             borderRadius: 4
                         }]
