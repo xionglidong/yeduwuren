@@ -509,7 +509,7 @@
         } catch(e) { return false; }
     }); filteredRecords.sort((a, b) => { let timeA = new Date(a.submitTime.replace(/-/g, '/')).getTime(), timeB = new Date(b.submitTime.replace(/-/g, '/')).getTime(); if(isNaN(timeA)) timeA = new Date(a.submitTime).getTime(); if(isNaN(timeB)) timeB = new Date(b.submitTime).getTime(); return timeB - timeA; }); dailyRecordList.innerHTML = ''; if (filteredRecords.length === 0) return noRecordsHint.classList.remove('hidden'); noRecordsHint.classList.add('hidden'); filteredRecords.forEach(record => { const paper = papers.find(p => p.id === record.paperId), paperName = paper ? paper.name : '未知套卷 (可能已删除)'; let timeStr = record.submitTime; try { let rDate = new Date(record.submitTime.replace(/-/g, '/')); if (isNaN(rDate.getTime())) rDate = new Date(record.submitTime); if (!isNaN(rDate.getTime())) timeStr = String(rDate.getHours()).padStart(2, '0') + ':' + String(rDate.getMinutes()).padStart(2, '0') + ':' + String(rDate.getSeconds()).padStart(2, '0'); } catch(e) {} const tr = document.createElement('tr'); 
 tr.className = 'hover:bg-gray-50 transition-colors'; 
-tr.innerHTML = `<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${record.studentId}</td><td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-medium">${record.studentName}</td><td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${paperName}</td><td class="px-4 py-3 whitespace-nowrap text-sm"><span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full font-bold">${record.score}分</span></td><td class="px-4 py-3 whitespace-nowrap text-sm text-gray-400">${timeStr}</td><td class="px-4 py-3 whitespace-nowrap text-sm"><button class="text-blue-500 hover:text-blue-700 font-bold view-record-detail" data-paper="${record.paperId}" data-student="${record.studentId}"><i class="fa fa-eye"></i> 查看详情</button></td>`; 
+const displayScore = paper ? getRecordTotalScore(record, paper) : (parseFloat(record.score) || 0); tr.innerHTML = `<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${record.studentId}</td><td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-medium">${record.studentName}</td><td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${paperName}</td><td class="px-4 py-3 whitespace-nowrap text-sm"><span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full font-bold">${displayScore}分</span></td><td class="px-4 py-3 whitespace-nowrap text-sm text-gray-400">${timeStr}</td><td class="px-4 py-3 whitespace-nowrap text-sm"><button class="text-blue-500 hover:text-blue-700 font-bold view-record-detail" data-paper="${record.paperId}" data-student="${record.studentId}"><i class="fa fa-eye"></i> 查看详情</button></td>`; 
 dailyRecordList.appendChild(tr);
 tr.querySelector('.view-record-detail').addEventListener('click', function() { 
     showAnswerDetails(this.dataset.paper, this.dataset.student); 
@@ -517,8 +517,49 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 }); 
     }
     async function exportAllData() { if (!confirm('确定要导出全部系统数据吗？')) return; try { const keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY, SELF_LEARNING_STORAGE_KEY, SELF_LEARNING_WATCH_STORAGE_KEY, SELF_LEARNING_INTERACTION_STORAGE_KEY], allData = {}; for (const key of keys) allData[key] = await getData(key); const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `quiz_system_backup_${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); alert('数据导出成功！'); } catch (error) { alert('导出数据失败。'); } }
-    async function importAllData(event) { const file = event.target.files[0]; if (!file) return; importFileName.textContent = file.name; if (!confirm(`确定要导入文件 "${file.name}" 吗？这将会覆盖当前系统中的所有数据！`)) { importFileInput.value = ''; importFileName.textContent = '未选择文件'; return; } const reader = new FileReader(); reader.onload = async function (e) { try { const importedData = JSON.parse(e.target.result), keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY, SELF_LEARNING_STORAGE_KEY, SELF_LEARNING_WATCH_STORAGE_KEY, SELF_LEARNING_INTERACTION_STORAGE_KEY]; let importCount = 0; for (const key of keys) { if (importedData.hasOwnProperty(key)) { await saveData(key, importedData[key]); importCount++; } } alert(`数据导入成功！页面即将刷新。`); window.location.reload(); } catch (error) { alert('导入数据失败。文件格式不正确。'); } finally { importFileInput.value = ''; importFileName.textContent = '未选择文件'; } }; reader.readAsText(file); }
+    async function importAllData(event) { const file = event.target.files[0]; if (!file) return; importFileName.textContent = file.name; if (!confirm(`确定要导入文件 "${file.name}" 吗？这将会覆盖当前系统中的所有数据！`)) { importFileInput.value = ''; importFileName.textContent = '未选择文件'; return; } const reader = new FileReader(); reader.onload = async function (e) { try { const importedData = JSON.parse(e.target.result), keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY, SELF_LEARNING_STORAGE_KEY, SELF_LEARNING_WATCH_STORAGE_KEY, SELF_LEARNING_INTERACTION_STORAGE_KEY]; if (importedData[PAPER_STORAGE_KEY] && importedData[ANSWER_STORAGE_KEY]) importedData[ANSWER_STORAGE_KEY] = normalizeImportedAnswerScores(importedData[ANSWER_STORAGE_KEY], importedData[PAPER_STORAGE_KEY]); let importCount = 0; for (const key of keys) { if (importedData.hasOwnProperty(key)) { await saveData(key, importedData[key]); importCount++; } } alert(`数据导入成功！页面即将刷新。`); window.location.reload(); } catch (error) { alert('导入数据失败。文件格式不正确。'); } finally { importFileInput.value = ''; importFileName.textContent = '未选择文件'; } }; reader.readAsText(file); }
     async function initStorageData() { if (!await getData(PAPER_STORAGE_KEY)) await saveData(PAPER_STORAGE_KEY, []); if (!await getData(ANSWER_STORAGE_KEY)) await saveData(ANSWER_STORAGE_KEY, []); if (!await getData(PRIZES_STORAGE_KEY)) await saveData(PRIZES_STORAGE_KEY, []); if (!await getData(STUDENT_POINTS_KEY)) await saveData(STUDENT_POINTS_KEY, {}); if (!await getData(EXCHANGE_RECORDS_KEY)) await saveData(EXCHANGE_RECORDS_KEY, []); if (!await getData(SELF_LEARNING_STORAGE_KEY)) await saveData(SELF_LEARNING_STORAGE_KEY, []); if (!await getData(SELF_LEARNING_WATCH_STORAGE_KEY)) await saveData(SELF_LEARNING_WATCH_STORAGE_KEY, {}); if (!await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY)) await saveData(SELF_LEARNING_INTERACTION_STORAGE_KEY, {}); }
+
+    function getRecordFillBlankScore(record, paper) {
+      if (record && record.fillInBlankScore !== undefined && record.fillInBlankScore !== null && record.fillInBlankScore !== '') {
+        return parseFloat(record.fillInBlankScore) || 0;
+      }
+      if (!record || !paper || !Array.isArray(record.fillInBlankDetails)) return 0;
+      return record.fillInBlankDetails.reduce((sum, item, idx) => {
+        if (typeof item === 'boolean') {
+          const fullScore = paper.fbPointsArray ? (parseFloat(paper.fbPointsArray[idx]) || 0) : (parseFloat(paper.fillInBlankPoints) || 0);
+          return sum + (item ? fullScore : 0);
+        }
+        return sum + (parseFloat(item) || 0);
+      }, 0);
+    }
+
+    function getRecordTotalScore(record, paper) {
+      if (!record || !paper) return parseFloat(record && record.score) || 0;
+      let total = 0;
+      const answers = Array.isArray(record.answers) ? record.answers : [];
+      const standardAnswers = Array.isArray(paper.answers) ? paper.answers : [];
+      const singlePoints = parseFloat(paper.singlePoints) || 0;
+      answers.forEach((answer, index) => {
+        if (answer === standardAnswers[index]) total += singlePoints;
+      });
+      total += getRecordFillBlankScore(record, paper);
+      return total;
+    }
+
+    function normalizeImportedAnswerScores(answerList, paperList) {
+      const papersById = new Map((paperList || []).map((paper) => [paper.id, paper]));
+      return (answerList || []).map((record) => {
+        const paper = papersById.get(record.paperId);
+        if (!paper) return record;
+        return {
+          ...record,
+          totalPoints: paper.totalPoints,
+          fillInBlankScore: getRecordFillBlankScore(record, paper),
+          score: getRecordTotalScore(record, paper)
+        };
+      });
+    }
     function generateAnswerSelects() { 
         const count = parseInt(paperQuestionCount.value) || 0; 
         const optionsPanel = document.getElementById('optionA').parentNode.parentNode;
@@ -1471,7 +1512,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     async function renderPaperList(container, papers, allAnswers) { // 🚀 接收传入的数据，不再重复请求
         container.innerHTML = ''; 
         if (papers.length === 0) return container.innerHTML = '<div class="text-center text-gray-500 py-4">暂无套卷</div>'; 
-        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + item.score, 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试')); const redoEnabled = !!paper.allowRedo; const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
+        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试')); const redoEnabled = !!paper.allowRedo; const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
     paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
     paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
             paperItem.querySelector('.view-analysis').addEventListener('click', function () { showPaperAnalysis(this.dataset.id); });
@@ -1491,7 +1532,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         if (paperAnswers.length === 0) {
             content = '<div class="text-center text-gray-500 py-6">暂无答题记录</div>'; 
         } else { 
-            const avgScore = (paperAnswers.reduce((sum, item) => sum + item.score, 0) / paperAnswers.length).toFixed(1); 
+            const avgScore = (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / paperAnswers.length).toFixed(1); 
             content = `<div class="bg-blue-50 p-4 rounded-lg mb-6"><div class="flex justify-between"><p><strong>参与人数：</strong>${paperAnswers.length}人</p><p><strong>平均分：</strong>${avgScore}/${paper.totalPoints}分</p></div></div><div class="space-y-4">`; 
             paperAnswers.forEach((answer, index) => { 
                 const timeDisplay = `${String(Math.floor((answer.timeElapsed || 0) / 60)).padStart(2, '0')}:${String((answer.timeElapsed || 0) % 60).padStart(2, '0')}`; 
@@ -1520,7 +1561,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                 }
                 // 👆 【新增完毕】👆
 
-                content += `<div class="border rounded-lg bg-white overflow-hidden transition-all duration-200"><div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="document.getElementById('detail-body-${index}').classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-4"><div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold text-sm">${index + 1}</div><div><p class="font-bold text-gray-800">${answer.studentName}</p><p class="text-xs text-gray-500">学号: ${answer.studentId}</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${answer.score === paper.totalPoints ? 'text-green-500' : 'text-purple-500'}">${answer.score} <span class="text-sm text-gray-400 font-normal">/${paper.totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div id="detail-body-${index}" class="hidden p-4 border-t border-gray-100 bg-white"><div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => { const isCorrect = ans === paper.answers[i]; return `<div class="flex items-center ${isCorrect ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'} p-2 rounded"><span class="w-16 font-bold">第${i + 1}题</span><span class="flex-1">你的答案：<span class="font-bold">${ans}</span></span><span class="mx-2 text-gray-300">|</span><span class="flex-1">正确答案：<span class="font-bold">${paper.answers[i]}</span></span></div>`; }).join('')}</div>${draftHtml}${fillBlankHtml}<div class="mt-3 text-right"><p class="text-xs text-gray-400">提交时间: ${answer.submitTime}</p></div></div></div>`;
+                const displayScore = getRecordTotalScore(answer, paper); content += `<div class="border rounded-lg bg-white overflow-hidden transition-all duration-200"><div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="document.getElementById('detail-body-${index}').classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-4"><div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold text-sm">${index + 1}</div><div><p class="font-bold text-gray-800">${answer.studentName}</p><p class="text-xs text-gray-500">学号: ${answer.studentId}</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${displayScore === paper.totalPoints ? 'text-green-500' : 'text-purple-500'}">${displayScore} <span class="text-sm text-gray-400 font-normal">/${paper.totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div id="detail-body-${index}" class="hidden p-4 border-t border-gray-100 bg-white"><div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => { const isCorrect = ans === paper.answers[i]; return `<div class="flex items-center ${isCorrect ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'} p-2 rounded"><span class="w-16 font-bold">第${i + 1}题</span><span class="flex-1">你的答案：<span class="font-bold">${ans}</span></span><span class="mx-2 text-gray-300">|</span><span class="flex-1">正确答案：<span class="font-bold">${paper.answers[i]}</span></span></div>`; }).join('')}</div>${draftHtml}${fillBlankHtml}<div class="mt-3 text-right"><p class="text-xs text-gray-400">提交时间: ${answer.submitTime}</p></div></div></div>`;
             }); 
             content += `</div>`; 
         } 
@@ -1750,7 +1791,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         let btnBindings = []; // 保存实体按钮与数据的绑定关系
 
         studentAnswers.forEach((answer, index) => { 
-            const paper = allPapers.find(p => p.id === answer.paperId), paperName = paper ? paper.name : '未知套卷', totalPoints = paper ? paper.totalPoints : '?', isPerfect = paper && answer.score === paper.totalPoints, timeElapsed = answer.timeElapsed || 0, timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; 
+            const paper = allPapers.find(p => p.id === answer.paperId), paperName = paper ? paper.name : '未知套卷', totalPoints = paper ? paper.totalPoints : '?', displayScore = paper ? getRecordTotalScore(answer, paper) : (parseFloat(answer.score) || 0), isPerfect = paper && displayScore === paper.totalPoints, timeElapsed = answer.timeElapsed || 0, timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; 
             let fillBlankHtml = ''; 
             if (paper && paper.fillInBlankCount > 0 && answer.fillInBlankStudentImage) { 
                 let stuImgHtml = '';
@@ -1766,7 +1807,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                 fillBlankHtml = `<div class="mt-4 pt-4 border-t border-gray-100"><div class="flex justify-between items-center mb-3"><h5 class="font-bold text-gray-700">填空题详情</h5><div class="flex items-center space-x-2"><span class="text-sm font-medium text-gray-600">得分: ${answer.fillInBlankScore || 0}分</span><button type="button" id="${btnId}" class="text-xs bg-primary text-white px-3 py-1.5 rounded shadow-md hover:bg-primary/90 transition-all font-bold cursor-pointer relative z-50"><i class="fa fa-pencil pointer-events-none"></i> 详细判分</button></div></div><div class="grid grid-cols-2 gap-4"><div class="border rounded p-2"><p class="text-xs text-center text-gray-500 mb-1">学生答卷</p><div class="max-h-48 overflow-y-auto p-1 space-y-2">${stuImgHtml}</div></div><div class="border rounded p-2 bg-green-50"><p class="text-xs text-center text-green-600 mb-1">参考答案</p><img src="${paper.fillInBlankAnswerImage || ''}" class="w-full h-32 object-contain cursor-zoom-in hover:opacity-90" onclick="showAdminImagePreview(this.src)"></div></div></div>`; 
             } 
             let questionsHtml = ''; if (paper) questionsHtml = `<div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => { const isCorrect = ans === paper.answers[i]; return `<div class="flex items-center ${isCorrect ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'} p-2 rounded"><span class="w-16 font-bold">第${i + 1}题</span><span class="flex-1">你的答案：<span class="font-bold">${ans}</span></span><span class="mx-2 text-gray-300">|</span><span class="flex-1">正确答案：<span class="font-bold">${paper.answers[i]}</span></span></div>`; }).join('')}</div>`; 
-            const card = document.createElement('div'); card.className = 'border rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md'; card.innerHTML = `<div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-3"><div class="w-2 h-12 rounded-full ${isPerfect ? 'bg-green-500' : 'bg-primary'}"></div><div><h4 class="font-bold text-gray-800">${paperName}</h4><p class="text-xs text-gray-500">${answer.submitTime} 提交</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${isPerfect ? 'text-green-600' : 'text-primary'}">${answer.score} <span class="text-xs text-gray-400 font-normal">/${totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div class="hidden p-4 border-t border-gray-100 bg-white">${questionsHtml}${fillBlankHtml}</div>`; studentHistoryList.appendChild(card); 
+            const card = document.createElement('div'); card.className = 'border rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md'; card.innerHTML = `<div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-3"><div class="w-2 h-12 rounded-full ${isPerfect ? 'bg-green-500' : 'bg-primary'}"></div><div><h4 class="font-bold text-gray-800">${paperName}</h4><p class="text-xs text-gray-500">${answer.submitTime} 提交</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${isPerfect ? 'text-green-600' : 'text-primary'}">${displayScore} <span class="text-xs text-gray-400 font-normal">/${totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div class="hidden p-4 border-t border-gray-100 bg-white">${questionsHtml}${fillBlankHtml}</div>`; studentHistoryList.appendChild(card); 
         }); 
         
         // 渲染完 HTML 后，立刻手动把事件装在按钮上
@@ -1842,7 +1883,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         let totalCorrectQuestions = 0;
 
         paperAnswers.forEach(ans => {
-            const currentScore = (ans.score || 0);
+            const currentScore = getRecordTotalScore(ans, paper);
             totalScore += currentScore;
             if (currentScore > highestScore) highestScore = currentScore;
             
@@ -2182,9 +2223,10 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             if (!allAnswers[recordIndex]) return alert('记录同步错误，请重新打开'); 
             
             const record = allAnswers[recordIndex];
+            const currentPaper = currentGradingContext.paperId ? ((await getData(PAPER_STORAGE_KEY)) || []).find(p => String(p.id) === String(currentGradingContext.paperId)) : null;
             const beforeBestScore = allAnswers
               .filter(a => String(a.paperId) === String(currentGradingContext.paperId) && String(a.studentId) === String(studentId))
-              .reduce((best, item) => Math.max(best, parseFloat(item.score) || 0), 0);
+              .reduce((best, item) => Math.max(best, currentPaper ? getRecordTotalScore(item, currentPaper) : (parseFloat(item.score) || 0)), 0);
             const newFbScore = tempJudgments.reduce((acc, curr) => acc + (typeof curr === 'number' ? curr : 0), 0);
             const oldFbScore = parseFloat(record.fillInBlankScore) || 0;
             const diff = newFbScore - oldFbScore; 
@@ -2197,7 +2239,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             
             const afterBestScore = allAnswers
               .filter(a => String(a.paperId) === String(currentGradingContext.paperId) && String(a.studentId) === String(studentId))
-              .reduce((best, item) => Math.max(best, parseFloat(item.score) || 0), 0);
+              .reduce((best, item) => Math.max(best, currentPaper ? getRecordTotalScore(item, currentPaper) : (parseFloat(item.score) || 0)), 0);
             const pointsDelta = afterBestScore - beforeBestScore;
             if (pointsDelta !== 0) {
                 const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
