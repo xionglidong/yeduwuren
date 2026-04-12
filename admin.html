@@ -17,7 +17,48 @@
     }
   </script>
   <style>
-    @media print { body * { visibility: hidden; } #wrongReportPrintArea, #wrongReportPrintArea * { visibility: visible; } #wrongReportPrintArea { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; } .print-hide { display: none !important; } }
+@media print {
+      /* 1. 彻底隐藏所有非目标层级的元素，让它们不占用任何高度，消灭空白页 */
+      body > *:not(#wrongReportModal) { display: none !important; }
+      
+      /* 2. 释放弹窗的固定定位，让它回归正常的文档流 */
+      body > #wrongReportModal { 
+        display: block !important; 
+        position: static !important; 
+        opacity: 1 !important;
+      }
+      
+      /* 3. 清除所有动画和高度限制，允许错题本自然延伸打印多页 */
+      #wrongReportContent { 
+        display: block !important; 
+        position: static !important; 
+        transform: none !important; /* 核心：解除 transform 对排版的劫持 */
+        max-height: none !important; 
+        overflow: visible !important; 
+        width: 100% !important; 
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        opacity: 1 !important;
+        box-shadow: none !important;
+      }
+      
+      /* 4. 隐藏不需要打印的按钮和顶栏 */
+      .print-hide { display: none !important; }
+      
+      /* 5. 确保错题列表占满 100% 宽度 */
+      #wrongReportPrintArea { 
+        display: block !important;
+        visibility: visible !important; 
+        position: static !important; /* 回归普通布局，不再使用绝对定位 */
+        width: 100% !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+      }
+      
+      /* 6. 优雅降级：防止表格里的错题在换页时被生硬截断 */
+      tr { page-break-inside: avoid; }
+    }
     .fade-in { animation: fadeIn 0.3s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .option-input { resize: none; height: 60px; }
@@ -306,6 +347,56 @@
   <div id="studentModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="studentModalContent"><h3 class="text-xl font-bold text-gray-800 mb-4" id="studentModalTitle">添加学生</h3><div class="space-y-4"><div><label class="block text-gray-700 mb-1">姓名</label><input type="text" id="studentNameInput" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-gray-700 mb-1">学号</label><input type="text" id="studentIdInput" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-gray-700 mb-1">年级</label><select id="studentGradeInput" class="w-full px-4 py-2 border rounded-lg"><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option></select></div><div><label class="block text-gray-700 mb-1">积分</label><input type="number" id="studentPointsInput" min="0" value="0" class="w-full px-4 py-2 border rounded-lg"></div></div><div class="flex justify-end space-x-3 mt-6"><button id="cancelStudentModal" class="px-4 py-2 bg-gray-200 rounded-lg">取消</button><button id="saveStudentBtn" class="px-4 py-2 bg-primary text-white rounded-lg">保存</button></div></div></div>
   <div id="imagePreviewModal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[60] backdrop-blur-sm cursor-zoom-out"><img id="fullScreenPreviewImage" src="" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl transform transition-transform scale-95 opacity-0"></div>
   <div id="studentHistoryModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="studentHistoryModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="studentHistoryModalTitle">记录</h3><button id="closeStudentHistoryModal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="max-h-[60vh] overflow-y-auto pr-2" id="studentHistoryList"></div></div></div>
+  <div id="schoolScoreModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[55] backdrop-blur-sm">
+    <div class="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="schoolScoreModalContent">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h3 id="schoolScoreModalTitle" class="text-xl font-bold text-gray-800">校内成绩</h3>
+          <p class="text-sm text-gray-500 mt-1">支持添加、修改、删除，列表分页展示，每页 5 条。</p>
+        </div>
+        <button id="closeSchoolScoreModal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button>
+      </div>
+
+      <div class="border border-indigo-100 bg-indigo-50/60 rounded-xl p-4 mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-bold text-indigo-800 flex items-center"><i class="fa fa-bar-chart mr-2"></i><span id="schoolScoreFormTitle">新增成绩</span></h4>
+          <button id="cancelSchoolScoreEditBtn" class="hidden px-3 py-1.5 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50">取消编辑</button>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">名称</label>
+            <input type="text" id="schoolScoreNameInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：期中考试">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">分数</label>
+            <input type="number" id="schoolScoreValueInput" min="0" step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：86">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">总分</label>
+            <input type="number" id="schoolScoreTotalInput" min="0" step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：100">
+          </div>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button id="saveSchoolScoreBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"><i class="fa fa-save mr-2"></i>保存成绩</button>
+        </div>
+      </div>
+
+      <div class="border border-gray-200 rounded-xl overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名称</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分数</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总分</th>
+              <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody id="schoolScoreList" class="bg-white divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+      <div id="schoolScorePagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
+    </div>
+  </div>
   
   <div id="fbGradingModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[70] backdrop-blur-sm"><div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="fbGradingModalContent"><div class="flex justify-between items-center mb-4 pb-4 border-b"><h3 class="text-xl font-bold text-gray-800"><i class="fa fa-check-square-o text-primary mr-2"></i> 详细判分面板</h3><button id="closeFbGradingModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="mb-4 bg-blue-50 p-3 rounded text-sm text-blue-700"><p><i class="fa fa-info-circle mr-1"></i> 请对照学生答卷和参考答案，判定对错。</p><p class="mt-1 font-bold" id="fbGradingScoreDisplay">当前得分: 0分</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="border rounded p-2 bg-gray-50"><p class="text-xs text-center text-gray-500 mb-1">学生答卷</p><div id="fbGradingStudentImageContainer" class="space-y-2 max-h-48 overflow-y-auto"></div></div><div class="border rounded p-2 bg-green-50"><p class="text-xs text-center text-green-600 mb-1">参考答案</p><div id="fbGradingAnswerImageContainer" class="space-y-2 max-h-48 overflow-y-auto p-1"></div></div></div><div id="fbGradingList" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-1"></div><div class="mt-6 flex justify-end space-x-3 pt-4 border-t"><button id="cancelFbGradingBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">取消</button><button id="saveFbGradingBtn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"><i class="fa fa-save mr-1"></i> 保存判分</button></div></div></div>
   <div id="answerConfigModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all scale-95 opacity-0" id="answerConfigModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fa fa-cog text-blue-600 mr-2"></i><span id="configAnswerPaperTitle">配置答案</span></h3><button id="closeAnswerConfigModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="answersConfigList" class="space-y-3"></div><div class="flex justify-end space-x-3 mt-6 pt-4 border-t"><button id="cancelAnswerConfigBtn" class="px-4 py-2 bg-gray-200 rounded-lg">取消</button><button id="saveAnswerConfigBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg">保存并判分</button></div></div></div>
@@ -340,14 +431,17 @@
     const pdfUploadBtn = document.getElementById('pdfUploadBtn'), pdfUploadInput = document.getElementById('pdfUploadInput'), pdfUploadStatus = document.getElementById('pdfUploadStatus'), pdfManagerSearch = document.getElementById('pdfManagerSearch'), pdfManagerList = document.getElementById('pdfManagerList'), refreshPdfListBtn = document.getElementById('refreshPdfListBtn'), pdfManagerPagination = document.getElementById('pdfManagerPagination');
     const pdfSelectModal = document.getElementById('pdfSelectModal'), pdfSelectModalContent = document.getElementById('pdfSelectModalContent'), closePdfSelectModalBtn = document.getElementById('closePdfSelectModalBtn'), pdfSelectSearch = document.getElementById('pdfSelectSearch'), pdfSelectRefreshBtn = document.getElementById('pdfSelectRefreshBtn'), pdfSelectList = document.getElementById('pdfSelectList'), pdfSelectPagination = document.getElementById('pdfSelectPagination');
     const paperPdfFile = document.getElementById('paperPdfFile'), paperPdfSelectBtn = document.getElementById('paperPdfSelectBtn');
+    const schoolScoreModal = document.getElementById('schoolScoreModal'), schoolScoreModalContent = document.getElementById('schoolScoreModalContent'), schoolScoreModalTitle = document.getElementById('schoolScoreModalTitle'), closeSchoolScoreModal = document.getElementById('closeSchoolScoreModal'), schoolScoreFormTitle = document.getElementById('schoolScoreFormTitle'), schoolScoreNameInput = document.getElementById('schoolScoreNameInput'), schoolScoreValueInput = document.getElementById('schoolScoreValueInput'), schoolScoreTotalInput = document.getElementById('schoolScoreTotalInput'), saveSchoolScoreBtn = document.getElementById('saveSchoolScoreBtn'), cancelSchoolScoreEditBtn = document.getElementById('cancelSchoolScoreEditBtn'), schoolScoreList = document.getElementById('schoolScoreList'), schoolScorePagination = document.getElementById('schoolScorePagination');
     const SELF_LEARNING_PAPER_PAGE_SIZE = 8;
     const SELF_LEARNING_LIST_PAGE_SIZE = 5;
     const SELF_LEARNING_WATCH_PAGE_SIZE = 5;
     const SELF_LEARNING_INTERACTION_MODAL_PAGE_SIZE = 5;
+    const SCHOOL_SCORE_PAGE_SIZE = 5;
     let selfLearningPaperCandidates = [], selfLearningPaperFiltered = [], selfLearningPaperPage = 1;
     let selfLearningListPage = 1, selfLearningListExpanded = false;
     let selfLearningWatchPageState = {};
     let selfLearningInteractionModalState = { contentId: '', type: 'likes', page: 1, title: '' };
+    let currentSchoolScoreStudentId = '', currentSchoolScoreStudentName = '', currentEditingSchoolScoreId = null, schoolScorePage = 1;
     let cachedVideoLibrary = [];
     let videoSelectState = { targetInputId: '', mode: 'path', page: 1, keyword: '' };
     let videoManagerPage = 1;
@@ -376,7 +470,7 @@
     }
     
     function initSystem() {
-      initStorageData(); 
+      //initStorageData(); 
       generateAnswerSelects(); 
       renderAllPaperLists();
       initSelfLearningManagement();
@@ -518,7 +612,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     }
     async function exportAllData() { if (!confirm('确定要导出全部系统数据吗？')) return; try { const keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY, SELF_LEARNING_STORAGE_KEY, SELF_LEARNING_WATCH_STORAGE_KEY, SELF_LEARNING_INTERACTION_STORAGE_KEY], allData = {}; for (const key of keys) allData[key] = await getData(key); const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `quiz_system_backup_${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); alert('数据导出成功！'); } catch (error) { alert('导出数据失败。'); } }
     async function importAllData(event) { const file = event.target.files[0]; if (!file) return; importFileName.textContent = file.name; if (!confirm(`确定要导入文件 "${file.name}" 吗？这将会覆盖当前系统中的所有数据！`)) { importFileInput.value = ''; importFileName.textContent = '未选择文件'; return; } const reader = new FileReader(); reader.onload = async function (e) { try { const importedData = JSON.parse(e.target.result), keys = [PAPER_STORAGE_KEY, ANSWER_STORAGE_KEY, PRIZES_STORAGE_KEY, STUDENT_POINTS_KEY, EXCHANGE_RECORDS_KEY, SELF_LEARNING_STORAGE_KEY, SELF_LEARNING_WATCH_STORAGE_KEY, SELF_LEARNING_INTERACTION_STORAGE_KEY]; if (importedData[PAPER_STORAGE_KEY] && importedData[ANSWER_STORAGE_KEY]) importedData[ANSWER_STORAGE_KEY] = normalizeImportedAnswerScores(importedData[ANSWER_STORAGE_KEY], importedData[PAPER_STORAGE_KEY]); let importCount = 0; for (const key of keys) { if (importedData.hasOwnProperty(key)) { await saveData(key, importedData[key]); importCount++; } } alert(`数据导入成功！页面即将刷新。`); window.location.reload(); } catch (error) { alert('导入数据失败。文件格式不正确。'); } finally { importFileInput.value = ''; importFileName.textContent = '未选择文件'; } }; reader.readAsText(file); }
-    async function initStorageData() { if (!await getData(PAPER_STORAGE_KEY)) await saveData(PAPER_STORAGE_KEY, []); if (!await getData(ANSWER_STORAGE_KEY)) await saveData(ANSWER_STORAGE_KEY, []); if (!await getData(PRIZES_STORAGE_KEY)) await saveData(PRIZES_STORAGE_KEY, []); if (!await getData(STUDENT_POINTS_KEY)) await saveData(STUDENT_POINTS_KEY, {}); if (!await getData(EXCHANGE_RECORDS_KEY)) await saveData(EXCHANGE_RECORDS_KEY, []); if (!await getData(SELF_LEARNING_STORAGE_KEY)) await saveData(SELF_LEARNING_STORAGE_KEY, []); if (!await getData(SELF_LEARNING_WATCH_STORAGE_KEY)) await saveData(SELF_LEARNING_WATCH_STORAGE_KEY, {}); if (!await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY)) await saveData(SELF_LEARNING_INTERACTION_STORAGE_KEY, {}); }
+    //async function initStorageData() { if (!await getData(PAPER_STORAGE_KEY)) await saveData(PAPER_STORAGE_KEY, []); if (!await getData(ANSWER_STORAGE_KEY)) await saveData(ANSWER_STORAGE_KEY, []); if (!await getData(PRIZES_STORAGE_KEY)) await saveData(PRIZES_STORAGE_KEY, []); if (!await getData(STUDENT_POINTS_KEY)) await saveData(STUDENT_POINTS_KEY, {}); if (!await getData(EXCHANGE_RECORDS_KEY)) await saveData(EXCHANGE_RECORDS_KEY, []); if (!await getData(SELF_LEARNING_STORAGE_KEY)) await saveData(SELF_LEARNING_STORAGE_KEY, []); if (!await getData(SELF_LEARNING_WATCH_STORAGE_KEY)) await saveData(SELF_LEARNING_WATCH_STORAGE_KEY, {}); if (!await getData(SELF_LEARNING_INTERACTION_STORAGE_KEY)) await saveData(SELF_LEARNING_INTERACTION_STORAGE_KEY, {}); }
 
     function getRecordFillBlankScore(record, paper) {
       if (record && record.fillInBlankScore !== undefined && record.fillInBlankScore !== null && record.fillInBlankScore !== '') {
@@ -1748,7 +1842,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilter = document.getElementById('studentGradeFilter'), studentModal = document.getElementById('studentModal'), studentModalContent = document.getElementById('studentModalContent'), studentNameInput = document.getElementById('studentNameInput'), studentIdInput = document.getElementById('studentIdInput'), studentGradeInput = document.getElementById('studentGradeInput'), studentPointsInput = document.getElementById('studentPointsInput'), cancelStudentModal = document.getElementById('cancelStudentModal'), saveStudentBtn = document.getElementById('saveStudentBtn');
     let isEditingStudent = false, studentSortField = 'points', studentSortDirection = 'desc';
 
-    function initStudentManagement() { loadStudentPointsList(); exportStudentsBtn.addEventListener('click', exportStudentData); addStudentBtn.addEventListener('click', openAddStudentModal); cancelStudentModal.addEventListener('click', closeStudentModal); saveStudentBtn.addEventListener('click', handleSaveStudent); studentModal.addEventListener('click', e => e.target === studentModal && closeStudentModal()); if (studentGradeFilter) studentGradeFilter.addEventListener('change', loadStudentPointsList); document.getElementById('sortByIdBtn').addEventListener('click', () => handleStudentSort('id')); document.getElementById('sortByPointsBtn').addEventListener('click', () => handleStudentSort('points')); }
+    function initStudentManagement() { loadStudentPointsList(); exportStudentsBtn.addEventListener('click', exportStudentData); addStudentBtn.addEventListener('click', openAddStudentModal); cancelStudentModal.addEventListener('click', closeStudentModal); saveStudentBtn.addEventListener('click', handleSaveStudent); studentModal.addEventListener('click', e => e.target === studentModal && closeStudentModal()); if (studentGradeFilter) studentGradeFilter.addEventListener('change', loadStudentPointsList); document.getElementById('sortByIdBtn').addEventListener('click', () => handleStudentSort('id')); document.getElementById('sortByPointsBtn').addEventListener('click', () => handleStudentSort('points')); if (closeSchoolScoreModal) closeSchoolScoreModal.addEventListener('click', closeSchoolScoreModalPanel); if (schoolScoreModal) schoolScoreModal.addEventListener('click', e => e.target === schoolScoreModal && closeSchoolScoreModalPanel()); if (saveSchoolScoreBtn) saveSchoolScoreBtn.addEventListener('click', handleSaveSchoolScore); if (cancelSchoolScoreEditBtn) cancelSchoolScoreEditBtn.addEventListener('click', resetSchoolScoreForm); }
     function handleStudentSort(field) { if (studentSortField === field) studentSortDirection = studentSortDirection === 'asc' ? 'desc' : 'asc'; else { studentSortField = field; studentSortDirection = 'desc'; } loadStudentPointsList(); }
     
    async function loadStudentPointsList() {
@@ -1767,14 +1861,175 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
      studentsArray.forEach(student => {
         const row = document.createElement('tr');
         // 🚀 核心修复：将flex加在内部的div盒子上，而不是直接加在td上，彻底防止被浏览器挤压隐藏！
-        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${student.isArchived ? 'text-gray-400 line-through' : 'text-gray-900'}">${student.name}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.grade || '未设置'}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">${student.points}分</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.lastUpdate || '未知'}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex items-center space-x-3"><button class="text-blue-500 hover:text-blue-700 view-student-history-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-history mr-1"></i> 记录</button><button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 ml-2 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || '高一'}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
+        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${student.isArchived ? 'text-gray-400 line-through' : 'text-gray-900'}">${student.name}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.grade || '未设置'}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">${student.points}分</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.lastUpdate || '未知'}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex flex-wrap items-center gap-2"><button class="text-blue-500 hover:text-blue-700 view-student-history-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-history mr-1"></i> 记录</button><button class="text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 transition-transform hover:scale-105 school-score-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-bar-chart mr-1"></i> 校内成绩</button><button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || '高一'}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
         studentList.appendChild(row);
       });
       document.querySelectorAll('.edit-student-btn').forEach(btn => btn.addEventListener('click', openEditStudentModal));
       document.querySelectorAll('.view-student-history-btn').forEach(btn => btn.addEventListener('click', function () { showStudentHistory(this.dataset.id, this.dataset.name); }));
+      document.querySelectorAll('.school-score-btn').forEach(btn => btn.addEventListener('click', function () { openSchoolScoreModal(this.dataset.id, this.dataset.name); }));
       document.querySelectorAll('.generate-wrong-btn').forEach(btn => btn.addEventListener('click', function () { window.generateCoordinatePaper(this.dataset.id, this.dataset.name); }));
       document.querySelectorAll('.archive-student-btn').forEach(btn => btn.addEventListener('click', function () { toggleArchiveStudent(this.dataset.id, this.dataset.name); }));
       document.querySelectorAll('.delete-student-btn').forEach(btn => btn.addEventListener('click', function () { deleteStudent(this.dataset.id, this.dataset.name); }));
+    }
+
+    function getSchoolScorePageItems(currentPage, totalPages) {
+      if (totalPages <= 1) return [1];
+      const items = [1];
+      if (currentPage > 3) items.push('ellipsis-left');
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) items.push(i);
+      if (currentPage < totalPages - 2) items.push('ellipsis-right');
+      if (totalPages > 1) items.push(totalPages);
+      return [...new Set(items)];
+    }
+
+    function resetSchoolScoreForm() {
+      currentEditingSchoolScoreId = null;
+      schoolScoreFormTitle.textContent = '新增成绩';
+      schoolScoreNameInput.value = '';
+      schoolScoreValueInput.value = '';
+      schoolScoreTotalInput.value = '';
+      cancelSchoolScoreEditBtn.classList.add('hidden');
+      saveSchoolScoreBtn.innerHTML = '<i class="fa fa-save mr-2"></i>保存成绩';
+    }
+
+    function closeSchoolScoreModalPanel() {
+      schoolScoreModalContent.classList.remove('scale-100', 'opacity-100');
+      schoolScoreModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => schoolScoreModal.classList.add('hidden'), 300);
+      resetSchoolScoreForm();
+      schoolScorePage = 1;
+      currentSchoolScoreStudentId = '';
+      currentSchoolScoreStudentName = '';
+    }
+
+    async function openSchoolScoreModal(studentId, studentName) {
+      currentSchoolScoreStudentId = studentId;
+      currentSchoolScoreStudentName = studentName;
+      schoolScoreModalTitle.textContent = `${studentName} - 校内成绩`;
+      schoolScoreList.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400"><i class="fa fa-spinner fa-spin mr-2"></i>加载中...</td></tr>';
+      resetSchoolScoreForm();
+      schoolScoreModal.classList.remove('hidden');
+      setTimeout(() => {
+        schoolScoreModalContent.classList.remove('scale-95', 'opacity-0');
+        schoolScoreModalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+      await renderSchoolScoreList();
+    }
+
+    async function renderSchoolScoreList() {
+      if (!currentSchoolScoreStudentId) return;
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+      const student = studentPoints[currentSchoolScoreStudentId];
+      const scores = student && Array.isArray(student.schoolScores) ? student.schoolScores : [];
+      const totalPages = Math.max(1, Math.ceil(scores.length / SCHOOL_SCORE_PAGE_SIZE));
+      if (schoolScorePage > totalPages) schoolScorePage = totalPages;
+      if (schoolScorePage < 1) schoolScorePage = 1;
+      const startIndex = (schoolScorePage - 1) * SCHOOL_SCORE_PAGE_SIZE;
+      const pageItems = scores.slice(startIndex, startIndex + SCHOOL_SCORE_PAGE_SIZE);
+
+      schoolScoreList.innerHTML = '';
+      if (pageItems.length === 0) {
+        schoolScoreList.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">暂无校内成绩记录</td></tr>';
+      } else {
+        pageItems.forEach((item) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td class="px-5 py-4 text-sm font-medium text-gray-800">${item.name}</td><td class="px-5 py-4 text-sm text-indigo-600 font-bold">${item.score}</td><td class="px-5 py-4 text-sm text-gray-600 font-medium">${item.totalScore}</td><td class="px-5 py-4 text-right text-sm"><button class="text-indigo-600 hover:text-indigo-800 font-medium mr-4 edit-school-score-btn" data-score-id="${item.id}"><i class="fa fa-edit mr-1"></i>修改</button><button class="text-red-500 hover:text-red-700 font-medium delete-school-score-btn" data-score-id="${item.id}"><i class="fa fa-trash mr-1"></i>删除</button></td>`;
+          schoolScoreList.appendChild(row);
+        });
+      }
+
+      schoolScoreList.querySelectorAll('.edit-school-score-btn').forEach((btn) => btn.addEventListener('click', () => startEditSchoolScore(btn.dataset.scoreId)));
+      schoolScoreList.querySelectorAll('.delete-school-score-btn').forEach((btn) => btn.addEventListener('click', () => deleteSchoolScore(btn.dataset.scoreId)));
+
+      if (totalPages <= 1) {
+        schoolScorePagination.classList.add('hidden');
+        schoolScorePagination.innerHTML = '';
+        return;
+      }
+
+      const pageItemsUi = getSchoolScorePageItems(schoolScorePage, totalPages);
+      schoolScorePagination.classList.remove('hidden');
+      schoolScorePagination.innerHTML = `
+        <button id="schoolScorePrevBtn" class="px-3 py-1.5 rounded border text-sm ${schoolScorePage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${schoolScorePage === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageItemsUi.map((item) => item.toString().startsWith('ellipsis') ? '<span class="px-2 text-gray-400">...</span>' : `<button class="school-score-page-btn min-w-[34px] px-3 py-1.5 rounded border text-sm ${item === schoolScorePage ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`).join('')}
+        <button id="schoolScoreNextBtn" class="px-3 py-1.5 rounded border text-sm ${schoolScorePage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${schoolScorePage === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      document.getElementById('schoolScorePrevBtn').addEventListener('click', async () => { if (schoolScorePage > 1) { schoolScorePage -= 1; await renderSchoolScoreList(); } });
+      document.getElementById('schoolScoreNextBtn').addEventListener('click', async () => { if (schoolScorePage < totalPages) { schoolScorePage += 1; await renderSchoolScoreList(); } });
+      schoolScorePagination.querySelectorAll('.school-score-page-btn').forEach((btn) => btn.addEventListener('click', async () => { schoolScorePage = parseInt(btn.dataset.page, 10) || 1; await renderSchoolScoreList(); }));
+    }
+
+    async function startEditSchoolScore(scoreId) {
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+      const student = studentPoints[currentSchoolScoreStudentId];
+      const scores = student && Array.isArray(student.schoolScores) ? student.schoolScores : [];
+      const item = scores.find((entry) => entry.id === scoreId);
+      if (!item) return;
+      currentEditingSchoolScoreId = scoreId;
+      schoolScoreFormTitle.textContent = '编辑成绩';
+      schoolScoreNameInput.value = item.name || '';
+      schoolScoreValueInput.value = item.score ?? '';
+      schoolScoreTotalInput.value = item.totalScore ?? '';
+      cancelSchoolScoreEditBtn.classList.remove('hidden');
+      saveSchoolScoreBtn.innerHTML = '<i class="fa fa-save mr-2"></i>更新成绩';
+      schoolScoreNameInput.focus();
+    }
+
+    async function handleSaveSchoolScore() {
+      if (!currentSchoolScoreStudentId) return;
+      const name = schoolScoreNameInput.value.trim();
+      const score = parseFloat(schoolScoreValueInput.value);
+      const totalScore = parseFloat(schoolScoreTotalInput.value);
+      if (!name) return alert('请填写成绩名称');
+      if (Number.isNaN(score) || score < 0) return alert('请输入有效分数');
+      if (Number.isNaN(totalScore) || totalScore <= 0) return alert('请输入有效总分');
+      if (score > totalScore) return alert('分数不能大于总分');
+
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+      const student = studentPoints[currentSchoolScoreStudentId];
+      if (!student) return alert('未找到学生信息');
+      if (!Array.isArray(student.schoolScores)) student.schoolScores = [];
+
+      if (currentEditingSchoolScoreId) {
+        const target = student.schoolScores.find((item) => item.id === currentEditingSchoolScoreId);
+        if (!target) return alert('未找到要修改的成绩记录');
+        target.name = name;
+        target.score = score;
+        target.totalScore = totalScore;
+        target.updateTime = new Date().toLocaleString();
+      } else {
+        student.schoolScores.unshift({
+          id: `school_score_${Date.now()}`,
+          name,
+          score,
+          totalScore,
+          createTime: new Date().toLocaleString(),
+          updateTime: new Date().toLocaleString()
+        });
+      }
+
+      student.lastUpdate = new Date().toLocaleString() + ' (校内成绩更新)';
+      await saveData(STUDENT_POINTS_KEY, studentPoints);
+      resetSchoolScoreForm();
+      schoolScorePage = 1;
+      await renderSchoolScoreList();
+      await loadStudentPointsList();
+    }
+
+    async function deleteSchoolScore(scoreId) {
+      if (!currentSchoolScoreStudentId) return;
+      if (!confirm('确定要删除这条校内成绩吗？')) return;
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+      const student = studentPoints[currentSchoolScoreStudentId];
+      if (!student || !Array.isArray(student.schoolScores)) return;
+      student.schoolScores = student.schoolScores.filter((item) => item.id !== scoreId);
+      student.lastUpdate = new Date().toLocaleString() + ' (校内成绩更新)';
+      await saveData(STUDENT_POINTS_KEY, studentPoints);
+      await renderSchoolScoreList();
+      await loadStudentPointsList();
+      resetSchoolScoreForm();
     }
 
     async function toggleArchiveStudent(id, name) { if (!confirm(`确定要更改学生状态吗？`)) return; const studentPoints = await getData(STUDENT_POINTS_KEY) || {}; if (studentPoints[id]) { studentPoints[id].isArchived = !studentPoints[id].isArchived; await saveData(STUDENT_POINTS_KEY, studentPoints); loadStudentPointsList(); loadRankingData(); } }
@@ -2366,7 +2621,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
               <th class="px-4 py-3 text-center text-sm font-bold text-gray-800 border-r border-gray-300 w-16">序号</th>
               <th class="px-4 py-3 text-left text-sm font-bold text-gray-800 border-r border-gray-300">📚 错题出处 (原套卷名称)</th>
               <th class="px-4 py-3 text-center text-sm font-bold text-gray-800 border-r border-gray-300 w-32">🔍 原题号</th>
-              <th class="px-4 py-3 text-center text-sm font-bold text-gray-800 w-32">✅ 正确答案</th>
+              <th class="px-4 py-3 text-center text-sm font-bold text-gray-800 border-r border-gray-300 w-32">✅ 正确答案</th>
+              <th class="px-4 py-3 text-center text-sm font-bold text-gray-800 w-40">🎬 解析视频</th>
             </tr>
           </thead>
           <tbody id="wrongReportList" class="bg-white divide-y divide-gray-300">
@@ -2417,7 +2673,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     window.queryWrongQuestions = async function() {
         if (!currentWrongStudentId) return;
         const tbody = document.getElementById('wrongReportList');
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-500"><i class="fa fa-spinner fa-spin mr-2"></i>正在根据时间区间提取错题...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-500"><i class="fa fa-spinner fa-spin mr-2"></i>正在根据时间区间提取错题...</td></tr>';
 
         const startDateStr = document.getElementById('wrongStartDate').value;
         const endDateStr = document.getElementById('wrongEndDate').value;
@@ -2443,11 +2699,11 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         document.getElementById('wrongReportTimeRange').textContent = `${startDateStr} 至 ${endDateStr}`;
 
         if(studentRecords.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-500">该时间区间内，该生暂无答题记录。</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-500">该时间区间内，该生暂无答题记录。</td></tr>';
             return;
         }
 
-     let wrongQuestions = [];
+        let wrongQuestions = [];
         for(let record of studentRecords) {
             const paper = allPapers.find(p => p.id === record.paperId);
             if(!paper) continue;
@@ -2465,7 +2721,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                                 originalPaperName: paper.name,
                                 questionLabel: `选择 第 ${idx + 1} 题`, 
                                 correctAnswer: correctAns,
-                                errorDate: errorDate
+                                errorDate: errorDate,
+                                videoFile: Array.isArray(paper.videos) ? (paper.videos[idx] || '') : ''
                             });
                         }
                     }
@@ -2497,7 +2754,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                                 originalPaperName: paper.name,
                                 questionLabel: `填空/大题 第 ${idx + 1} 题`, 
                                 correctAnswer: "详见原解析",
-                                errorDate: errorDate
+                                errorDate: errorDate,
+                                videoFile: Array.isArray(paper.fillBlankVideos) ? (paper.fillBlankVideos[idx] || '') : ''
                             });
                         }
                     }
@@ -2509,18 +2767,23 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
         tbody.innerHTML = '';
         if(wrongQuestions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-green-600 font-bold">🎉 完美！该生在所选时间段内，所有做过的选择题全对，没有产生错题！</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-green-600 font-bold">🎉 完美！该生在所选时间段内没有产生错题！</td></tr>';
             return;
         }
 
      // 🚀 修复版：直接读取 wq.questionLabel，彻底告别 NaN
         wrongQuestions.forEach((wq, index) => {
+            const safeVideoFile = String(wq.videoFile || '').trim();
+            const videoCellHtml = safeVideoFile
+              ? `<a href="${window.location.origin}/video_player.html?file=${encodeURIComponent(safeVideoFile)}&title=${encodeURIComponent(`${wq.originalPaperName} - ${wq.questionLabel}`)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition font-bold text-sm underline underline-offset-2">播放视频</a>`
+              : '<span class="text-sm text-gray-400">暂无</span>';
             tbody.innerHTML += `
               <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-4 py-3 text-sm text-gray-900 border-r border-gray-300 text-center font-bold">${index + 1}</td>
                 <td class="px-4 py-3 text-sm text-gray-800 border-r border-gray-300 font-medium">《${wq.originalPaperName}》<span class="text-xs text-gray-400 ml-2">(${wq.errorDate} 产生)</span></td>
                 <td class="px-4 py-3 text-sm text-red-600 border-r border-gray-300 text-center font-bold text-lg">${wq.questionLabel}</td>
-                <td class="px-4 py-3 text-sm text-green-600 text-center font-bold text-lg">${wq.correctAnswer}</td>
+                <td class="px-4 py-3 text-sm text-green-600 border-r border-gray-300 text-center font-bold text-lg">${wq.correctAnswer}</td>
+                <td class="px-4 py-3 text-center">${videoCellHtml}</td>
               </tr>
             `;
         });  

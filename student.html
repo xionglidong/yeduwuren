@@ -44,7 +44,7 @@
     <div class="text-center mb-10"><h2 class="text-3xl font-bold mb-4">学生答题入口</h2><p class="text-gray-600">请填写个人信息并查看积分相关信息</p></div>
     <div id="login-card" class="bg-white rounded-xl shadow-md p-6 mb-8"><div class="grid md:grid-cols-3 gap-4 items-end"><div><label class="block text-gray-700 mb-2">姓名</label><input type="text" id="student-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入姓名"></div><div><label class="block text-gray-700 mb-2">学号</label><input type="text" id="student-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入学号"></div><div><button id="login-btn" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition-all w-full">登录 <i class="fa fa-sign-in ml-1"></i></button></div></div></div>
     <div id="user-points-card" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden"><div class="flex items-center justify-between"><div><h3 class="text-xl font-bold flex items-center"><i class="fa fa-user-circle text-primary mr-2"></i><span id="user-name-display"></span><span class="text-sm text-gray-500 ml-2" id="user-id-display"></span></h3><p class="text-gray-600 mt-1">当前排名: <span id="user-rank"></span></p></div><div class="text-right"><p class="text-3xl font-bold text-accent" id="user-points">0分</p></div></div><div class="mt-4 pt-4 border-t"><p class="text-gray-600 mt-1 mb-1">当前称号: <span id="currentRankSpan" class="text-sm text-gray-500 mr-5" style="font-size: 18px;"></span> 距离: <span id="nextRankSpan" class="text-sm text-gray-500" style="font-size: 18px;"></span> </p><div class="flex items-center"><div class="w-full bg-gray-200 rounded-full h-2.5"><div id="points-progress" class="bg-accent h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div>
-    <div id="stats-dashboard" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 hidden fade-in"><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">已做任务</p><p class="text-3xl font-bold text-gray-800 mt-1" id="stat-papers">0</p></div><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-xl shadow-sm"><i class="fa fa-book"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">做题总数</p><p class="text-3xl font-bold text-indigo-600 mt-1" id="stat-total-questions">0</p></div><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500 text-xl shadow-sm"><i class="fa fa-pencil"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">累计错题</p><p class="text-3xl font-bold text-red-500 mt-1" id="stat-wrong-questions">0</p></div><div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500 text-xl shadow-sm"><i class="fa fa-times-circle"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">正确率</p><p class="text-3xl font-bold text-green-600 mt-1" id="stat-accuracy">0%</p></div><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-500 text-xl shadow-sm"><i class="fa fa-pie-chart"></i></div></div></div>
+    <div id="stats-dashboard" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 hidden fade-in"><div id="statPapersCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200 cursor-pointer"><div><p class="text-sm text-gray-500 font-medium">已做任务</p><p class="text-3xl font-bold text-gray-800 mt-1" id="stat-papers">0</p></div><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-xl shadow-sm"><i class="fa fa-book"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">做题总数</p><p class="text-3xl font-bold text-indigo-600 mt-1" id="stat-total-questions">0</p><p class="text-xs text-indigo-500 mt-1 font-medium" id="stat-total-questions-rank">排名：暂无</p></div><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500 text-xl shadow-sm"><i class="fa fa-pencil"></i></div></div><div id="statWrongQuestionsCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200 cursor-pointer"><div><p class="text-sm text-gray-500 font-medium">累计错题</p><p class="text-3xl font-bold text-red-500 mt-1" id="stat-wrong-questions">0</p></div><div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500 text-xl shadow-sm"><i class="fa fa-times-circle"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">正确率</p><p class="text-3xl font-bold text-green-600 mt-1" id="stat-accuracy">0%</p><p class="text-xs text-green-600 mt-1 font-medium" id="stat-accuracy-rank">排名：暂无</p></div><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-500 text-xl shadow-sm"><i class="fa fa-pie-chart"></i></div></div></div>
     
     <div id="learning-custom-section" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 hidden fade-in">
       <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden">
@@ -123,6 +123,7 @@
     <div id="answerCardModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div style="height: 800px;overflow: scroll;padding: 20px;" class="bg-white rounded-xl p-8 max-w-lg w-full mx-4 transform transition-all scale-95 opacity-0" id="modalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="modalPaperTitle"></h3><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="mb-6 space-y-3"><div class="flex justify-between items-center text-sm font-medium"><span class="flex items-center text-primary"><i class="fa fa-clock-o mr-2"></i> 耗时: <span id="timerDisplay">00:00</span></span><span id="progressText" class="text-gray-600">0 / 0 题</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div id="progressBar" class="bg-secondary h-2 rounded-full" style="width: 0%"></div></div></div><div class="mb-6 flex items-center"><span id="modalPaperInfo" class="bg-blue-100 text-blue-500 px-4 py-2 rounded-full text-sm font-medium"></span></div><div class="flex flex-wrap gap-2 mb-6" id="questionNav"></div><div class="answer-card p-6 mb-4 border border-gray-200" id="questionContent"><div class="text-center text-gray-500 py-6">请选择左侧题目开始作答</div></div><div class="flex justify-evenly"><button id="prevQuestionBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>上一题</button><button id="nextQuestionBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>下一题</button></div><div id="draftUploadSection" class="mt-4 mb-4 hidden bg-white rounded-xl border border-gray-200 p-6"></div><div id="fillBlankSection" class="mt-4 mb-4 hidden bg-white rounded-xl border border-gray-200 p-6"></div><button id="submitAllBtn" style="display: block;margin: 40px auto 0;" class="px-8 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>提交所有答案</button></div></div>
     
     <div id="historyDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 transform transition-all scale-95 opacity-0" id="historyDetailContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="historyModalTitle">历史作答详情</h3><button id="closeHistoryDetailModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="historySummary" class="bg-primary/5 p-4 rounded-lg mb-6"><p class="text-lg font-bold text-primary mb-1">得分: <span id="historyScoreDisplay">0/0分</span></p><p class="text-sm text-gray-600">耗时: <span id="historyTimeDisplay">00:00</span> | 提交时间: <span id="historySubmitTime"></span></p><button id="historyViewPdfBtn" class="mt-3 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-sm hidden"><i class="fa fa-file-pdf-o mr-1.5"></i>查看解析</button></div><div class="max-h-96 overflow-y-auto pr-2"><h4 class="font-bold text-gray-700 mb-3">题目对错详情与解析：</h4><div id="historyDetailsList" class="space-y-3"></div></div></div></div>
+    <div id="statsListModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[55] backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="statsListContent"><div class="flex justify-between items-start mb-6"><div><h3 class="text-xl font-bold text-gray-800" id="statsListTitle">统计详情</h3><p class="text-sm text-gray-500 mt-1" id="statsListSummary"></p></div><button id="closeStatsListModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="statsListSearchWrap" class="mb-4 hidden"><label for="statsListSearchInput" class="block text-sm font-medium text-gray-600 mb-1">按套题名称搜索</label><input id="statsListSearchInput" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="输入套题名称关键词"></div><div class="border border-gray-200 rounded-xl overflow-hidden"><table class="min-w-full divide-y divide-gray-200"><thead id="statsListHead" class="bg-gray-50"></thead><tbody id="statsListBody" class="bg-white divide-y divide-gray-200"></tbody></table></div><div id="statsListPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div></div></div>
     <div id="scoreDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 text-center transform transition-all scale-95 opacity-0" id="scoreDetailContent"><div class="text-green-500 text-4xl mb-4"><i class="fa fa-trophy"></i></div><h3 class="text-xl font-bold text-gray-800 mb-2" id="scoreModalTitle">作答提交成功！</h3><p class="text-3xl font-bold mb-4 text-primary" id="finalScoreDisplay">0分</p><p class="text-gray-600 mb-6" id="scoreMessage"></p><div class="bg-gray-50 p-4 rounded-lg max-h-40 overflow-y-auto mb-6 text-left"><h4 class="font-bold mb-2">得分详情：</h4><div id="scoreDetailList" class="space-y-1 text-sm"></div></div><div class="flex items-center justify-center gap-3"><button id="viewPdfBtn" class="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors hidden"><i class="fa fa-file-pdf-o mr-2"></i>查看解析</button><button id="closeScoreDetailModalBtn" class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">确定</button></div></div></div>
     <div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"><div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modal-general-content"><div class="text-center"><div id="modal-icon" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa fa-check text-secondary text-2xl"></i></div><h3 id="modal-title" class="text-xl font-bold mb-2"></h3><p id="modal-message" class="text-gray-600 mb-6"></p><button id="modal-close" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90">确定</button></div></div></div>
     <div id="new-paper-modal" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-lg p-4 z-40 hidden animate-fadeIn"><div class="flex items-center"><i class="fa fa-bell text-accent text-xl mr-2"></i><p class="text-gray-700 mr-4">有新的套卷发布啦！</p><button id="refresh-papers-btn" class="text-primary font-medium">立即查看</button></div></div>
@@ -148,6 +149,7 @@
     let pendingChatImageBase64 = null;
     let currentPaper = null, currentQuestionIndex = 0, studentAnswers = [], studentInfo = {}, studentPointsData = {}, exchangeRecords = [], prizes = [], timerInterval = null, secondsElapsed = 0;
     let uploadedFbImages = [], fbSelfScore = 0, fbIsConfirmed = false, allAnswerRecords = [], fbJudgments = null;
+    let statsListModalState = { type: '', page: 1, items: [], keyword: '' };
     let growthQuestionChartInstance = null, growthAccuracyChartInstance = null, growthPeriod = 'week';
     let uploadedDraftImages = []; // 🚀 新增：草稿纸多图数组
     let currentModuleTab = 'test';
@@ -182,6 +184,7 @@
     const timerDisplay = document.getElementById('timerDisplay'), progressBar = document.getElementById('progressBar'), progressText = document.getElementById('progressText');
     const scoreDetailModal = document.getElementById('scoreDetailModal'), scoreDetailContent = document.getElementById('scoreDetailContent'), finalScoreDisplay = document.getElementById('finalScoreDisplay'), scoreDetailList = document.getElementById('scoreDetailList'), scoreMessage = document.getElementById('scoreMessage'), closeScoreDetailModalBtn = document.getElementById('closeScoreDetailModalBtn'), viewPdfBtn = document.getElementById('viewPdfBtn');
     const historyDetailModal = document.getElementById('historyDetailModal'), historyDetailContent = document.getElementById('historyDetailContent'), historyModalTitle = document.getElementById('historyModalTitle'), historyScoreDisplay = document.getElementById('historyScoreDisplay'), historyTimeDisplay = document.getElementById('historyTimeDisplay'), historySubmitTime = document.getElementById('historySubmitTime'), historyDetailsList = document.getElementById('historyDetailsList'), closeHistoryDetailModalBtn = document.getElementById('closeHistoryDetailModalBtn'), historyViewPdfBtn = document.getElementById('historyViewPdfBtn');
+    const statPapersCard = document.getElementById('statPapersCard'), statWrongQuestionsCard = document.getElementById('statWrongQuestionsCard'), statsListModal = document.getElementById('statsListModal'), statsListContent = document.getElementById('statsListContent'), statsListTitle = document.getElementById('statsListTitle'), statsListSummary = document.getElementById('statsListSummary'), statsListHead = document.getElementById('statsListHead'), statsListBody = document.getElementById('statsListBody'), statsListPagination = document.getElementById('statsListPagination'), closeStatsListModalBtn = document.getElementById('closeStatsListModalBtn'), statsListSearchWrap = document.getElementById('statsListSearchWrap'), statsListSearchInput = document.getElementById('statsListSearchInput');
     const newPaperModal = document.getElementById('new-paper-modal'), refreshPapersBtn = document.getElementById('refresh-papers-btn');
 
     async function init() {
@@ -231,6 +234,15 @@
       closeScoreDetailModalBtn.addEventListener('click', closeScoreDetailModal);
       closeHistoryDetailModalBtn.addEventListener('click', closeHistoryDetailModal);
       historyDetailModal.addEventListener('click', e => e.target === historyDetailModal && closeHistoryDetailModal());
+      if (statPapersCard) statPapersCard.addEventListener('click', () => openCompletedTasksModal());
+      if (statWrongQuestionsCard) statWrongQuestionsCard.addEventListener('click', () => openWrongQuestionsModal());
+      if (closeStatsListModalBtn) closeStatsListModalBtn.addEventListener('click', closeStatsListModal);
+      if (statsListModal) statsListModal.addEventListener('click', e => e.target === statsListModal && closeStatsListModal());
+      if (statsListSearchInput) statsListSearchInput.addEventListener('input', () => {
+        statsListModalState.keyword = statsListSearchInput.value.trim();
+        statsListModalState.page = 1;
+        renderStatsListModal();
+      });
       document.querySelectorAll('a').forEach(link => { link.addEventListener('click', function (e) { if (this.id === 'logout-btn' || this.id === 'mobile-logout-btn') e.preventDefault(); }); });
       closeSelfLearningModalBtn.addEventListener('click', closeSelfLearningModal);
       selfLearningModal.addEventListener('click', (e) => { if (e.target === selfLearningModal) closeSelfLearningModal(); });
@@ -292,7 +304,266 @@
     function buildAverageGrowthData(allRecords, papers, period, totalStudents) { const now = new Date(); const buckets = buildBuckets(period, now); const bucketStats = {}; buckets.forEach((bucket) => { bucketStats[bucket.key] = { questions: 0, correct: 0 }; }); const paperMap = {}; papers.forEach((paper) => { paperMap[paper.id] = paper; }); allRecords.forEach((record) => { const submitDate = parseSubmitTime(record.submitTime); if (!submitDate) return; const bucket = buckets.find((item) => submitDate >= item.start && submitDate <= item.end); if (!bucket) return; const result = calcRecordCorrectness(record, paperMap[record.paperId]); bucketStats[bucket.key].questions += result.totalQuestions; bucketStats[bucket.key].correct += result.correctQuestions; }); const denom = Math.max(1, totalStudents || 1); return { labels: buckets.map((b) => b.label), averageQuestionCount: buckets.map((b) => Number((bucketStats[b.key].questions / denom).toFixed(2))), averageAccuracy: buckets.map((b) => { const q = bucketStats[b.key].questions; const c = bucketStats[b.key].correct; return q > 0 ? Number(((c / q) * 100).toFixed(2)) : 0; }) }; }
     function renderGrowthPeriodButtons(activePeriod) { growthPeriodButtons.forEach((btn) => { const isActive = btn.dataset.period === activePeriod; btn.classList.toggle('bg-primary', isActive); btn.classList.toggle('text-white', isActive); btn.classList.toggle('text-gray-600', !isActive); }); }
     async function renderGrowthTrend(userRecords, papers, period) { if (!growthTrendCard || !growthQuestionChart || !growthAccuracyChart || !window.Chart) return; growthTrendCard.classList.remove('hidden'); renderGrowthPeriodButtons(period); const trendData = buildGrowthTrendData(userRecords, papers, period); const labels = trendData.map((item) => item.label); const questionCounts = trendData.map((item) => item.questionCount); const accuracies = trendData.map((item) => item.accuracy); const totalStudents = Object.keys(studentPointsData || {}).length || 1; const avgData = buildAverageGrowthData(allAnswerRecords || [], papers, period, totalStudents); const avgQuestions = avgData.labels && avgData.labels.length === labels.length ? avgData.averageQuestionCount : new Array(labels.length).fill(0); const avgAccuracies = avgData.labels && avgData.labels.length === labels.length ? avgData.averageAccuracy : new Array(labels.length).fill(0); if (growthQuestionChartInstance) growthQuestionChartInstance.destroy(); if (growthAccuracyChartInstance) growthAccuracyChartInstance.destroy(); growthQuestionChartInstance = new Chart(growthQuestionChart.getContext('2d'), { type: 'line', data: { labels, datasets: [ { label: '我的做题数', data: questionCounts, borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.15)', borderWidth: 2, tension: 0.3 }, { label: '全体平均做题数', data: avgQuestions, borderColor: '#F59E0B', backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 2, borderDash: [6, 4], tension: 0.3 } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: '' }, ticks: { precision: 0 } } } } }); growthAccuracyChartInstance = new Chart(growthAccuracyChart.getContext('2d'), { type: 'line', data: { labels, datasets: [ { label: '我的正确率(%)', data: accuracies, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.15)', borderWidth: 2, tension: 0.3 }, { label: '全体平均正确率(%)', data: avgAccuracies, borderColor: '#EF4444', backgroundColor: 'rgba(239,68,68,0.15)', borderWidth: 2, borderDash: [6, 4], tension: 0.3 } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '' } } } } }); }
-    async function renderStudentStats() { if (!userId) return; const statsDashboard = document.getElementById('stats-dashboard'), statPapers = document.getElementById('stat-papers'), statTotalQuestions = document.getElementById('stat-total-questions'), statWrongQuestions = document.getElementById('stat-wrong-questions'), statAccuracy = document.getElementById('stat-accuracy'); allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || []; const papers = await getData(PAPER_STORAGE_KEY) || []; const userRecords = allAnswerRecords.filter(r => r.studentId === userId); if (userRecords.length === 0) { statsDashboard.classList.remove('hidden'); statPapers.textContent = '0'; statTotalQuestions.textContent = '0'; statWrongQuestions.textContent = '0'; statAccuracy.textContent = '0%'; return; } const uniquePaperIds = new Set(userRecords.map(r => r.paperId)); const papersCount = uniquePaperIds.size; let totalQuestions = 0, correctQuestions = 0, wrongQuestions = 0; userRecords.forEach(record => { const paper = papers.find(p => p.id === record.paperId); if (!paper) return; if (record.answers && paper.answers) record.answers.forEach((ans, index) => { if (paper.answers[index]) { totalQuestions++; if (ans === paper.answers[index]) correctQuestions++; else wrongQuestions++; } }); if (paper.fillInBlankCount > 0 && record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) record.fillInBlankDetails.forEach(isCorrect => { totalQuestions++; if (isCorrect) correctQuestions++; else wrongQuestions++; }); }); let accuracy = totalQuestions > 0 ? Math.round((correctQuestions / totalQuestions) * 100) : 0; statPapers.textContent = papersCount; statTotalQuestions.textContent = totalQuestions; statWrongQuestions.textContent = wrongQuestions; statAccuracy.textContent = `${accuracy}%`; statsDashboard.classList.remove('hidden'); }
+    function summarizeStudentStats(records, papers) {
+      let totalQuestions = 0, correctQuestions = 0, wrongQuestions = 0;
+      records.forEach(record => {
+        const paper = papers.find(p => p.id === record.paperId);
+        if (!paper) return;
+        if (record.answers && paper.answers) record.answers.forEach((ans, index) => {
+          if (paper.answers[index]) {
+            totalQuestions++;
+            if (ans === paper.answers[index]) correctQuestions++;
+            else wrongQuestions++;
+          }
+        });
+        if (paper.fillInBlankCount > 0 && record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) record.fillInBlankDetails.forEach(isCorrect => {
+          totalQuestions++;
+          if (isCorrect) correctQuestions++;
+          else wrongQuestions++;
+        });
+      });
+      const uniquePaperIds = new Set(records.map(r => r.paperId));
+      const papersCount = uniquePaperIds.size;
+      const accuracy = totalQuestions > 0 ? Math.round((correctQuestions / totalQuestions) * 100) : 0;
+      return { papersCount, totalQuestions, correctQuestions, wrongQuestions, accuracy };
+    }
+    function calculateMetricRank(metricMap, targetStudentId) {
+      if (!metricMap.has(targetStudentId)) return null;
+      const targetValue = metricMap.get(targetStudentId);
+      const higherCount = Array.from(metricMap.values()).filter((value) => value > targetValue).length;
+      return higherCount + 1;
+    }
+    async function renderStudentStats() {
+      if (!userId) return;
+      const statsDashboard = document.getElementById('stats-dashboard'), statPapers = document.getElementById('stat-papers'), statTotalQuestions = document.getElementById('stat-total-questions'), statWrongQuestions = document.getElementById('stat-wrong-questions'), statAccuracy = document.getElementById('stat-accuracy'), statTotalQuestionsRank = document.getElementById('stat-total-questions-rank'), statAccuracyRank = document.getElementById('stat-accuracy-rank');
+      allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || [];
+      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const userRecords = allAnswerRecords.filter(r => r.studentId === userId);
+      if (userRecords.length === 0) {
+        statsDashboard.classList.remove('hidden');
+        statPapers.textContent = '0';
+        statTotalQuestions.textContent = '0';
+        statWrongQuestions.textContent = '0';
+        statAccuracy.textContent = '0%';
+        if (statTotalQuestionsRank) statTotalQuestionsRank.textContent = '排名：暂无';
+        if (statAccuracyRank) statAccuracyRank.textContent = '排名：暂无';
+        return;
+      }
+      const userSummary = summarizeStudentStats(userRecords, papers);
+      const questionCountMap = new Map();
+      const accuracyMap = new Map();
+      const studentRecordMap = new Map();
+      allAnswerRecords.forEach((record) => {
+        if (!studentRecordMap.has(record.studentId)) studentRecordMap.set(record.studentId, []);
+        studentRecordMap.get(record.studentId).push(record);
+      });
+      studentRecordMap.forEach((records, studentIdKey) => {
+        const summary = summarizeStudentStats(records, papers);
+        questionCountMap.set(studentIdKey, summary.totalQuestions);
+        accuracyMap.set(studentIdKey, summary.accuracy);
+      });
+      const totalQuestionsRank = calculateMetricRank(questionCountMap, userId);
+      const accuracyRank = calculateMetricRank(accuracyMap, userId);
+      statPapers.textContent = userSummary.papersCount;
+      statTotalQuestions.textContent = userSummary.totalQuestions;
+      statWrongQuestions.textContent = userSummary.wrongQuestions;
+      statAccuracy.textContent = `${userSummary.accuracy}%`;
+      if (statTotalQuestionsRank) statTotalQuestionsRank.textContent = totalQuestionsRank ? `排名：第${totalQuestionsRank}名` : '排名：暂无';
+      if (statAccuracyRank) statAccuracyRank.textContent = accuracyRank ? `排名：第${accuracyRank}名` : '排名：暂无';
+      statsDashboard.classList.remove('hidden');
+    }
+    function parseSubmitTimeValue(value) {
+      if (!value) return 0;
+      let parsed = new Date(String(value).replace(/-/g, '/')).getTime();
+      if (Number.isNaN(parsed)) parsed = new Date(value).getTime();
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+    function calculatePaperRank(paper, targetStudentId, targetScore) {
+      if (!paper) return null;
+      const bestScores = new Map();
+      allAnswerRecords.filter((record) => record.paperId === paper.id).forEach((record) => {
+        const score = getRecordTotalScore(record, paper);
+        const prev = bestScores.get(record.studentId);
+        if (prev === undefined || score > prev) bestScores.set(record.studentId, score);
+      });
+      if (!bestScores.has(targetStudentId)) return null;
+      const higherCount = Array.from(bestScores.values()).filter((score) => score > targetScore).length;
+      return higherCount + 1;
+    }
+    function closeStatsListModal() {
+      statsListContent.classList.remove('scale-100', 'opacity-100');
+      statsListContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => statsListModal.classList.add('hidden'), 300);
+      statsListModalState = { type: '', page: 1, items: [], keyword: '' };
+      statsListHead.innerHTML = '';
+      statsListBody.innerHTML = '';
+      statsListPagination.innerHTML = '';
+      statsListPagination.classList.add('hidden');
+      if (statsListSearchInput) statsListSearchInput.value = '';
+      if (statsListSearchWrap) statsListSearchWrap.classList.add('hidden');
+    }
+    function renderStatsListPagination(totalPages) {
+      if (totalPages <= 1) {
+        statsListPagination.innerHTML = '';
+        statsListPagination.classList.add('hidden');
+        return;
+      }
+      const pageItems = buildPaperPageItems(statsListModalState.page, totalPages);
+      statsListPagination.classList.remove('hidden');
+      statsListPagination.innerHTML = `
+        <button data-role="prev" class="px-2.5 py-1 rounded border text-sm ${statsListModalState.page === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${statsListModalState.page === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageItems.map((item) => item === 'ellipsis' ? '<span class="px-2 text-gray-400 select-none">...</span>' : `<button data-role="page" data-page="${item}" class="min-w-[32px] px-2.5 py-1 rounded border text-sm ${item === statsListModalState.page ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">${item}</button>`).join('')}
+        <button data-role="next" class="px-2.5 py-1 rounded border text-sm ${statsListModalState.page === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${statsListModalState.page === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      const prevBtn = statsListPagination.querySelector('button[data-role="prev"]');
+      const nextBtn = statsListPagination.querySelector('button[data-role="next"]');
+      if (prevBtn) prevBtn.addEventListener('click', () => { if (statsListModalState.page > 1) { statsListModalState.page -= 1; renderStatsListModal(); } });
+      if (nextBtn) nextBtn.addEventListener('click', () => { if (statsListModalState.page < totalPages) { statsListModalState.page += 1; renderStatsListModal(); } });
+      statsListPagination.querySelectorAll('button[data-role="page"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = parseInt(btn.dataset.page, 10);
+          if (!Number.isNaN(target) && target !== statsListModalState.page) {
+            statsListModalState.page = target;
+            renderStatsListModal();
+          }
+        });
+      });
+    }
+    function renderStatsListModal() {
+      const rawItems = Array.isArray(statsListModalState.items) ? statsListModalState.items : [];
+      const keyword = String(statsListModalState.keyword || '').trim().toLowerCase();
+      const items = statsListModalState.type === 'wrong' && keyword
+        ? rawItems.filter((item) => String(item.originalPaperName || '').toLowerCase().includes(keyword))
+        : rawItems;
+      if (statsListSearchWrap) statsListSearchWrap.classList.toggle('hidden', statsListModalState.type !== 'wrong');
+      const pageSize = 5;
+      const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+      if (statsListModalState.page > totalPages) statsListModalState.page = totalPages;
+      if (statsListModalState.page < 1) statsListModalState.page = 1;
+      const start = (statsListModalState.page - 1) * pageSize;
+      const pageItems = items.slice(start, start + pageSize);
+      statsListBody.innerHTML = '';
+      if (statsListModalState.type === 'completed') {
+        statsListHead.innerHTML = '<tr><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">任务名称</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成日期</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">成绩</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排名</th></tr>';
+        if (pageItems.length === 0) {
+          statsListBody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">暂无已完成任务</td></tr>';
+        } else {
+          pageItems.forEach((item) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td class="px-5 py-4 text-sm font-medium text-gray-800">${item.paperName}</td><td class="px-5 py-4 text-sm text-gray-500">${item.completeDate}</td><td class="px-5 py-4 text-sm font-bold text-primary">${item.scoreText}</td><td class="px-5 py-4 text-sm text-indigo-600 font-bold">${item.rankText}</td>`;
+            statsListBody.appendChild(row);
+          });
+        }
+      } else if (statsListModalState.type === 'wrong') {
+        statsListHead.innerHTML = '<tr><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">错题出处</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">原题号</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">正确答案</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">解析视频</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产生日期</th></tr>';
+        if (pageItems.length === 0) {
+          statsListBody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center ${keyword ? 'text-gray-400' : 'text-green-600 font-bold'}">${keyword ? '未找到匹配的错题套题' : '🎉 暂无累计错题'}</td></tr>`;
+        } else {
+          pageItems.forEach((item) => {
+            const row = document.createElement('tr');
+            const safeVideoFile = String(item.videoFile || '').trim();
+            const videoCellHtml = safeVideoFile
+              ? `<button type="button" onclick="playExplanationVideo('./video/${safeVideoFile}', '${`${item.originalPaperName} - ${item.questionLabel}`.replace(/'/g, "\\'")}')" class="inline-flex items-center px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition font-bold text-xs whitespace-nowrap">播放视频</button>`
+              : '<span class="text-xs text-gray-400">暂无</span>';
+            row.innerHTML = `<td class="px-5 py-4 text-sm text-gray-800 font-medium">《${item.originalPaperName}》</td><td class="px-5 py-4 text-sm text-red-600 font-bold">${item.questionLabel}</td><td class="px-5 py-4 text-sm text-green-600 font-bold">${item.correctAnswer}</td><td class="px-5 py-4 text-sm">${videoCellHtml}</td><td class="px-5 py-4 text-sm text-gray-500">${item.errorDate}</td>`;
+            statsListBody.appendChild(row);
+          });
+        }
+      }
+      renderStatsListPagination(totalPages);
+    }
+    async function openCompletedTasksModal() {
+      if (!userId) return;
+      allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || [];
+      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const userRecords = allAnswerRecords.filter((record) => record.studentId === userId).sort((a, b) => parseSubmitTimeValue(b.submitTime) - parseSubmitTimeValue(a.submitTime));
+      const latestByPaper = new Map();
+      userRecords.forEach((record) => {
+        if (!latestByPaper.has(record.paperId)) latestByPaper.set(record.paperId, record);
+      });
+      const items = Array.from(latestByPaper.values()).map((latestRecord) => {
+        const paper = papers.find((item) => item.id === latestRecord.paperId);
+        const paperName = paper ? paper.name : '未知任务';
+        const bestScore = paper ? userRecords.filter((item) => item.paperId === latestRecord.paperId).reduce((best, item) => Math.max(best, getRecordTotalScore(item, paper)), 0) : (parseFloat(latestRecord.score) || 0);
+        const rank = paper ? calculatePaperRank(paper, userId, bestScore) : null;
+        return {
+          paperName,
+          completeDate: latestRecord.submitTime || '未知',
+          scoreText: paper ? `${bestScore}/${paper.totalPoints}分` : `${bestScore}分`,
+          rankText: rank ? `第${rank}名` : '暂无',
+          sortValue: parseSubmitTimeValue(latestRecord.submitTime)
+        };
+      }).sort((a, b) => b.sortValue - a.sortValue);
+      statsListModalState = { type: 'completed', page: 1, items, keyword: '' };
+      statsListTitle.textContent = '已完成任务';
+      statsListSummary.textContent = `共 ${items.length} 项任务，展示每套题的最近完成日期、最高成绩与当前排名。`;
+      if (statsListSearchInput) statsListSearchInput.value = '';
+      statsListModal.classList.remove('hidden');
+      setTimeout(() => {
+        statsListContent.classList.remove('scale-95', 'opacity-0');
+        statsListContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+      renderStatsListModal();
+    }
+    async function openWrongQuestionsModal() {
+      if (!userId) return;
+      allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || [];
+      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const userRecords = allAnswerRecords.filter((record) => record.studentId === userId).sort((a, b) => parseSubmitTimeValue(b.submitTime) - parseSubmitTimeValue(a.submitTime));
+      const wrongQuestions = [];
+      userRecords.forEach((record) => {
+        const paper = papers.find((item) => item.id === record.paperId);
+        if (!paper) return;
+        if (record.answers && paper.answers) {
+          record.answers.forEach((ans, idx) => {
+            if (ans !== paper.answers[idx]) {
+              const key = `${paper.id}_mc_${idx}`;
+              if (!wrongQuestions.some((item) => item.key === key)) {
+                wrongQuestions.push({
+                  key,
+                  originalPaperName: paper.name,
+                  questionLabel: `选择 第 ${idx + 1} 题`,
+                  correctAnswer: paper.answers[idx],
+                  errorDate: record.submitTime ? String(record.submitTime).split(' ')[0] : '未知',
+                  videoFile: Array.isArray(paper.videos) ? (paper.videos[idx] || '') : ''
+                });
+              }
+            }
+          });
+        }
+        if (record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) {
+          record.fillInBlankDetails.forEach((score, idx) => {
+            const maxScore = paper.fbPointsArray ? (parseFloat(paper.fbPointsArray[idx]) || 0) : (parseFloat(paper.fillInBlankPoints) || 0);
+            let isWrong = false;
+            if (typeof score === 'boolean') isWrong = !score;
+            else isWrong = (parseFloat(score) || 0) < (maxScore * 0.8);
+            if (isWrong) {
+              const key = `${paper.id}_fb_${idx}`;
+              if (!wrongQuestions.some((item) => item.key === key)) {
+                wrongQuestions.push({
+                  key,
+                  originalPaperName: paper.name,
+                  questionLabel: `填空/大题 第 ${idx + 1} 题`,
+                  correctAnswer: '详见原解析',
+                  errorDate: record.submitTime ? String(record.submitTime).split(' ')[0] : '未知',
+                  videoFile: Array.isArray(paper.fillBlankVideos) ? (paper.fillBlankVideos[idx] || '') : ''
+                });
+              }
+            }
+          });
+        }
+      });
+      statsListModalState = { type: 'wrong', page: 1, items: wrongQuestions, keyword: '' };
+      statsListTitle.textContent = '累计错题';
+      statsListSummary.textContent = `共 ${wrongQuestions.length} 条错题，可按套题名称搜索。`;
+      if (statsListSearchInput) statsListSearchInput.value = '';
+      statsListModal.classList.remove('hidden');
+      setTimeout(() => {
+        statsListContent.classList.remove('scale-95', 'opacity-0');
+        statsListContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+      renderStatsListModal();
+    }
     function updateUserPointsDisplay() { document.getElementById('user-points').textContent = `${userPoints}分`; let currentRankObj = RANK_SYSTEM[0], nextRankObj = null; for (let i = 0; i < RANK_SYSTEM.length; i++) { if (userPoints >= RANK_SYSTEM[i].threshold) { currentRankObj = RANK_SYSTEM[i]; nextRankObj = RANK_SYSTEM[i + 1] || null; } else break; } let progress = 0, nextLevelText = '已达最高段位'; if (nextRankObj) { const pointsNeeded = nextRankObj.threshold - currentRankObj.threshold, currentProgress = userPoints - currentRankObj.threshold; progress = pointsNeeded > 0 ? (currentProgress / pointsNeeded) * 100 : 100; nextLevelText = `${nextRankObj.name}`; } else progress = 100; document.getElementById('points-progress').style.width = `${progress}%`; document.querySelector('#currentRankSpan').innerHTML = `<span class="font-bold mr-2 transition-colors duration-500" style="color: ${currentRankObj.color}">${currentRankObj.name}</span>`; document.querySelector('#nextRankSpan').innerHTML = `<span class="font-bold mr-2 transition-colors duration-500" style="color: ${nextRankObj?.color || '#999'}">${nextLevelText}</span>${nextRankObj ? nextRankObj.threshold - userPoints + '分' : ''}`; }
     async function calculateUserRank() { studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; const studentsArray = Object.values(studentPointsData); studentsArray.sort((a, b) => b.points - a.points); userRank = studentsArray.findIndex(s => s.id === userId) + 1; document.getElementById('user-rank').textContent = `第${userRank}名`; }
     async function loadRankingList() { rankingList.innerHTML = ''; studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; const studentsArray = Object.values(studentPointsData); studentsArray.sort((a, b) => b.points - a.points); const topStudents = studentsArray.slice(0, 10); if (topStudents.length === 0) return rankingList.innerHTML = '<div class="md:col-span-2 text-center text-gray-500 py-6">暂无排名数据</div>'; topStudents.forEach((student, index) => { let rankStyle = index === 0 ? 'bg-yellow-500 text-white' : index === 1 ? 'bg-gray-300 text-gray-700' : index === 2 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'; const rankItem = document.createElement('div'); rankItem.className = 'flex items-center p-3 border rounded-lg'; rankItem.innerHTML = `<div class="w-8 h-8 rounded-full ${rankStyle} flex items-center justify-center font-bold mr-3">${index + 1}</div><div class="flex-1"><p class="font-medium">${student.name}</p><p class="text-sm text-gray-500">学号: ${student.id || '未知'}</p></div><div class="text-right"><p class="font-bold text-accent">${student.points}分</p></div>`; rankingList.appendChild(rankItem); }); }

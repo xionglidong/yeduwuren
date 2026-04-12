@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>解析视频播放</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-5xl rounded-3xl border border-white/10 bg-slate-900/90 shadow-2xl overflow-hidden">
+      <div class="px-6 py-5 border-b border-white/10 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
+        <p class="text-xs uppercase tracking-[0.35em] text-indigo-300">Explanation Video</p>
+        <h1 id="videoTitle" class="mt-2 text-2xl md:text-3xl font-black text-white">解析视频</h1>
+        <p id="videoFileText" class="mt-2 text-sm text-slate-300 break-all"></p>
+      </div>
+      <div class="p-4 md:p-6">
+        <div class="rounded-2xl overflow-hidden bg-black border border-white/10">
+          <video id="videoPlayer" controls playsinline preload="metadata" class="w-full max-h-[75vh] bg-black">
+            <source id="videoSource" src="" type="video/mp4">
+          </video>
+        </div>
+        <div id="videoTips" class="mt-4 text-sm text-slate-300 leading-6">
+          如果没有自动播放，请点击播放器中央的播放按钮。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const file = (params.get('file') || '').trim();
+    const title = (params.get('title') || '解析视频').trim();
+    const videoTitle = document.getElementById('videoTitle');
+    const videoFileText = document.getElementById('videoFileText');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const videoSource = document.getElementById('videoSource');
+    const videoTips = document.getElementById('videoTips');
+
+    videoTitle.textContent = title || '解析视频';
+
+    if (!file) {
+      videoFileText.textContent = '未提供视频文件。';
+      videoTips.textContent = '链接缺少视频文件参数，无法播放。';
+    } else {
+      const src = `./video/${encodeURIComponent(file)}`;
+      videoSource.src = src;
+      videoFileText.textContent = `当前文件：${file}`;
+      videoPlayer.load();
+      videoPlayer.play().catch(() => {});
+    }
+  </script>
+</body>
+</html>
