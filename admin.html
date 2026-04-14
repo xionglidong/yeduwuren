@@ -180,7 +180,7 @@
             <div><label class="block text-sm font-medium text-gray-600 mb-1">年级</label><select id="selfLearningGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="all">全部年级</option><option value="grade1">高一</option><option value="grade2">高二</option><option value="grade3">高三</option></select></div>
             <div><label class="block text-sm font-medium text-gray-600 mb-1">视频文件路径</label><div class="relative"><input type="text" id="selfLearningVideo" class="w-full px-3 py-2 pr-24 border border-gray-300 rounded-lg" placeholder="如：video/lesson1.mp4"><button type="button" id="selfLearningVideoSelectBtn" class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"><i class="fa fa-folder-open mr-1"></i>选择视频</button></div><div id="selfLearningVideoUploadStatus" class="mt-1 text-xs text-gray-400">从视频库选择文件</div></div>
             <div class="relative">
-              <label class="block text-sm font-medium text-gray-600 mb-1">配套题目 <span class="text-red-500">*</span></label>
+              <label class="block text-sm font-medium text-gray-600 mb-1">配套题目</label>
               <input type="hidden" id="selfLearningRelatedPaper" value="">
               <button type="button" id="selfLearningPaperTrigger" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-left bg-white hover:border-indigo-400 transition-colors">
                 <span id="selfLearningPaperSelectedText" class="text-gray-500">请选择配套题目</span>
@@ -1584,7 +1584,6 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const relatedPaperId = selfLearningRelatedPaper ? selfLearningRelatedPaper.value : '';
       if (!title) return alert('请填写内容标题');
       if (!videoFile) return alert('请选择视频文件');
-      if (!relatedPaperId) return alert('请绑定配套题目');
       let contents = await getData(SELF_LEARNING_STORAGE_KEY) || [];
       contents.push({ id: `sl_${Date.now()}`, title, summary, videoFile, grade, relatedPaperId, createTime: Date.now() });
       await saveData(SELF_LEARNING_STORAGE_KEY, contents);
@@ -1601,6 +1600,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       applySelfLearningPaperFilter();
       renderSelfLearningPaperSelector();
       await renderSelfLearningList();
+      alert('自学内容添加成功');
     }
     
     async function renderPaperList(container, papers, allAnswers) { // 🚀 接收传入的数据，不再重复请求
