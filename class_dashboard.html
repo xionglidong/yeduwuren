@@ -82,6 +82,33 @@
         </div>
     </section>
 
+    <section class="card p-5 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div>
+                <h3 class="font-black text-gray-800 text-lg"><i class="fa fa-exclamation-triangle text-red-500 mr-2"></i>错题排行榜</h3>
+                <p class="text-xs text-gray-500 mt-1">按单题错误率从高到低排序，选择题答错算错，填空/简答题未满分算错。</p>
+            </div>
+            <select id="wrongRankGradeFilter" class="filter-input w-full md:w-44" onchange="changeWrongRankGrade()">
+                <option value="all">全部年级</option>
+            </select>
+        </div>
+        <div class="overflow-x-auto border border-gray-100 rounded-xl">
+            <table class="w-full text-left">
+                <thead class="bg-red-50">
+                    <tr class="text-red-500 text-[11px] uppercase">
+                        <th class="py-3 pl-4 w-20">排名</th>
+                        <th>套题与题号</th>
+                        <th>年级</th>
+                        <th>错误率</th>
+                        <th class="text-right pr-4">错误/作答</th>
+                    </tr>
+                </thead>
+                <tbody id="wrongRankTableBody" class="divide-y divide-gray-50 text-gray-600"></tbody>
+            </table>
+        </div>
+        <div id="wrongRankPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
+    </section>
+
     <section class="grid grid-cols-12 gap-6 pb-10">
         
         <div class="col-span-12 lg:col-span-4 flex flex-col gap-4">
@@ -211,6 +238,7 @@
     const KEYS = { POINTS: 'studentPoints', ANSWERS: 'studentAnswers', PAPERS: 'gradePapers' };
     let g_allAns = [], g_papers = [], g_students = {};
     let g_distChart = null, g_trendChart = null, g_typeChart = null;
+    let g_wrongRankPage = 1, g_wrongRankItems = [];
 
     // 获取数据 (联网)
     async function getData(key) {
@@ -229,6 +257,7 @@
 
             initGlobalStats();
             initFilters();
+            initWrongRateLeaderboard();
         } catch (e) { console.error(e); }
     });
 
@@ -300,6 +329,138 @@
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, display: false }, x: { grid: { display: false } } } }
         });
+    }
+
+    function normalizeStudentGradeLabel(grade) {
+        const map = { grade1: '高一', grade2: '高二', grade3: '高三' };
+        return map[grade] || grade || '未设置';
+    }
+
+    function isFillQuestionWrong(score, maxScore) {
+        if (typeof score === 'boolean') return !score;
+        return (parseFloat(score) || 0) < (parseFloat(maxScore) || 0);
+    }
+
+    function buildWrongRateLeaderboard(allRecords, papers) {
+        const paperMap = {};
+        papers.forEach((paper) => { paperMap[paper.id] = paper; });
+        const questionMap = {};
+        (allRecords || []).forEach((record) => {
+            const paper = paperMap[record.paperId];
+            if (!paper) return;
+            const grade = normalizeStudentGradeLabel(paper.grade);
+            const answers = Array.isArray(record.answers) ? record.answers : [];
+            const standardAnswers = Array.isArray(paper.answers) ? paper.answers : [];
+            const choiceCount = parseInt(paper.questionCount, 10) || standardAnswers.length || answers.length;
+            for (let i = 0; i < choiceCount; i++) {
+                const key = `${paper.id}_choice_${i}`;
+                if (!questionMap[key]) {
+                    questionMap[key] = {
+                        key,
+                        paperName: paper.name || '未知套题',
+                        questionNumber: i + 1,
+                        questionLabel: `《${paper.name || '未知套题'}》第${i + 1}题`,
+                        grade,
+                        total: 0,
+                        wrong: 0
+                    };
+                }
+                questionMap[key].total += 1;
+                if (answers[i] !== standardAnswers[i]) questionMap[key].wrong += 1;
+            }
+            const fillCount = parseInt(paper.fillInBlankCount, 10) || 0;
+            const details = Array.isArray(record.fillInBlankDetails) ? record.fillInBlankDetails : [];
+            for (let i = 0; i < fillCount; i++) {
+                const questionNumber = choiceCount + i + 1;
+                const key = `${paper.id}_fill_${i}`;
+                const maxScore = paper.fbPointsArray ? (parseFloat(paper.fbPointsArray[i]) || 0) : (parseFloat(paper.fillInBlankPoints) || 0);
+                if (!questionMap[key]) {
+                    questionMap[key] = {
+                        key,
+                        paperName: paper.name || '未知套题',
+                        questionNumber,
+                        questionLabel: `《${paper.name || '未知套题'}》第${questionNumber}题`,
+                        grade,
+                        total: 0,
+                        wrong: 0
+                    };
+                }
+                questionMap[key].total += 1;
+                if (isFillQuestionWrong(details[i], maxScore)) questionMap[key].wrong += 1;
+            }
+        });
+        return Object.values(questionMap)
+            .filter((item) => item.total > 0)
+            .map((item) => ({ ...item, wrongRate: item.total > 0 ? item.wrong / item.total : 0 }))
+            .sort((a, b) => (b.wrongRate - a.wrongRate) || (b.wrong - a.wrong) || (b.total - a.total) || String(a.questionLabel).localeCompare(String(b.questionLabel), 'zh-CN'));
+    }
+
+    function getWrongRankPageItems(currentPage, totalPages) {
+        if (totalPages <= 1) return [1];
+        const items = [1];
+        if (currentPage > 3) items.push('ellipsis');
+        const start = Math.max(2, currentPage - 1);
+        const end = Math.min(totalPages - 1, currentPage + 1);
+        for (let i = start; i <= end; i++) items.push(i);
+        if (currentPage < totalPages - 2) items.push('ellipsis');
+        if (totalPages > 1) items.push(totalPages);
+        return items;
+    }
+
+    function initWrongRateLeaderboard() {
+        const gradeSel = document.getElementById('wrongRankGradeFilter');
+        g_wrongRankItems = buildWrongRateLeaderboard(g_allAns, g_papers);
+        const grades = [...new Set(g_wrongRankItems.map((item) => item.grade || '未设置').filter(Boolean))];
+        gradeSel.innerHTML = '<option value="all">全部年级</option>';
+        grades.sort().forEach((grade) => { gradeSel.innerHTML += `<option value="${grade}">${grade}</option>`; });
+        renderWrongRateLeaderboard();
+    }
+
+    function changeWrongRankGrade() {
+        g_wrongRankPage = 1;
+        renderWrongRateLeaderboard();
+    }
+
+    function renderWrongRateLeaderboard() {
+        const tbody = document.getElementById('wrongRankTableBody');
+        const pagination = document.getElementById('wrongRankPagination');
+        const grade = document.getElementById('wrongRankGradeFilter').value || 'all';
+        const items = g_wrongRankItems.filter((item) => grade === 'all' || item.grade === grade);
+        const pageSize = 5;
+        const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+        if (g_wrongRankPage > totalPages) g_wrongRankPage = totalPages;
+        if (g_wrongRankPage < 1) g_wrongRankPage = 1;
+        const start = (g_wrongRankPage - 1) * pageSize;
+        const pageItems = items.slice(start, start + pageSize);
+        if (pageItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-400">暂无错题排行数据</td></tr>';
+        } else {
+            tbody.innerHTML = pageItems.map((item, index) => {
+                const rank = start + index + 1;
+                const rateText = `${Math.round(item.wrongRate * 100)}%`;
+                return `<tr class="hover:bg-red-50/50 transition"><td class="py-3 pl-4 font-black text-red-500">#${rank}</td><td class="py-3 font-bold text-gray-800 text-sm">${item.questionLabel}</td><td class="py-3 text-sm text-gray-500">${item.grade}</td><td class="py-3 font-black text-red-600">${rateText}</td><td class="py-3 text-right pr-4 text-sm text-gray-600">${item.wrong}/${item.total}</td></tr>`;
+            }).join('');
+        }
+        if (totalPages <= 1) {
+            pagination.classList.add('hidden');
+            pagination.innerHTML = '';
+            return;
+        }
+        const pageItemsUi = getWrongRankPageItems(g_wrongRankPage, totalPages);
+        pagination.classList.remove('hidden');
+        pagination.innerHTML = `
+            <button data-role="prev" class="px-2.5 py-1 rounded border text-xs ${g_wrongRankPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${g_wrongRankPage === 1 ? 'disabled' : ''}>上一页</button>
+            ${pageItemsUi.map((item) => item === 'ellipsis' ? '<span class="px-2 text-gray-400 select-none">...</span>' : `<button data-role="page" data-page="${item}" class="min-w-[30px] px-2.5 py-1 rounded border text-xs ${item === g_wrongRankPage ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">${item}</button>`).join('')}
+            <button data-role="next" class="px-2.5 py-1 rounded border text-xs ${g_wrongRankPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${g_wrongRankPage === totalPages ? 'disabled' : ''}>下一页</button>
+        `;
+        const prevBtn = pagination.querySelector('button[data-role="prev"]');
+        const nextBtn = pagination.querySelector('button[data-role="next"]');
+        if (prevBtn) prevBtn.addEventListener('click', () => { if (g_wrongRankPage > 1) { g_wrongRankPage -= 1; renderWrongRateLeaderboard(); } });
+        if (nextBtn) nextBtn.addEventListener('click', () => { if (g_wrongRankPage < totalPages) { g_wrongRankPage += 1; renderWrongRateLeaderboard(); } });
+        pagination.querySelectorAll('button[data-role="page"]').forEach((btn) => btn.addEventListener('click', () => {
+            g_wrongRankPage = parseInt(btn.dataset.page, 10) || 1;
+            renderWrongRateLeaderboard();
+        }));
     }
 
     // ================== 筛选器逻辑 ==================

@@ -83,6 +83,7 @@
     </div> 
     
     <div id="exam-container" class="hidden"><div id="grade1" class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-list text-primary mr-2"></i> 高一年级任务<span id="grade1PaperCount" class="ml-2 text-sm bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0套</span></h3><div class="space-y-4" id="grade1PaperList"><div class="text-center text-gray-500 py-6">加载中...</div></div></div><div id="grade2" class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-list text-primary mr-2"></i> 高二年级任务<span id="grade2PaperCount" class="ml-2 text-sm bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0套</span></h3><div class="space-y-4" id="grade2PaperList"><div class="text-center text-gray-500 py-6">加载中...</div></div></div><div id="grade3" class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-list text-primary mr-2"></i> 高三年级任务<span id="grade3PaperCount" class="ml-2 text-sm bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0套</span></h3><div class="space-y-4" id="grade3PaperList"><div class="text-center text-gray-500 py-6">加载中...</div></div></div></div>
+    <div id="wrongRateLeaderboardCard" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden"><div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4"><div><h3 class="text-xl font-bold flex items-center"><i class="fa fa-exclamation-triangle text-red-500 mr-2"></i> 错题排行榜</h3><p class="text-xs text-gray-500 mt-1">按单题错误率从高到低排序，每页展示 5 题</p></div><select id="wrongRateGradeFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"><option value="all">全部年级</option><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option><option value="未设置">未设置</option></select></div><div class="overflow-x-auto border border-gray-100 rounded-xl"><table class="min-w-full divide-y divide-gray-100"><thead class="bg-red-50"><tr><th class="px-4 py-3 text-left text-xs font-bold text-red-500">排名</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">套题与题号</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">年级</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">错误率</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">错误/作答</th></tr></thead><tbody id="wrongRateLeaderboardBody" class="bg-white divide-y divide-gray-100"></tbody></table></div><div id="wrongRateLeaderboardPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div></div>
     <div class="bg-white rounded-xl shadow-md p-6 mb-8"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-trophy text-accent mr-2"></i> 积分排行榜</h3><div class="grid md:grid-cols-2 gap-3" id="ranking-list"></div></div>
     <div class="bg-white rounded-xl shadow-md p-6 mb-8"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold flex items-center"><i class="fa fa-gift text-primary mr-2"></i> 积分兑换奖品</h3><button id="edit-prizes-btn" class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full hidden"><i class="fa fa-edit mr-1"></i> 编辑奖品</button></div><div class="grid md:grid-cols-3 gap-4" id="prizes-container"></div><div id="prize-edit-form" class="mt-6 hidden"><h4 class="font-bold mb-3">编辑奖品</h4><div class="grid md:grid-cols-3 gap-4"><div><label class="block text-gray-700 mb-2">奖品名称</label><input type="text" id="prize-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-gray-700 mb-2">所需积分</label><input type="number" id="prize-points" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-gray-700 mb-2">描述</label><input type="text" id="prize-desc" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div></div><div class="mt-4 flex justify-end space-x-3"><button id="cancel-edit-prize" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">取消</button><button id="save-prize" class="px-4 py-2 bg-primary text-white rounded-lg">保存</button></div></div></div>
     <div id="exchange-history" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-history text-primary mr-2"></i> 兑换记录</h3><div id="history-list" class="space-y-3"></div></div>
@@ -124,7 +125,7 @@
     
     <div id="historyDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 transform transition-all scale-95 opacity-0" id="historyDetailContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="historyModalTitle">历史作答详情</h3><button id="closeHistoryDetailModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="historySummary" class="bg-primary/5 p-4 rounded-lg mb-6"><p class="text-lg font-bold text-primary mb-1">得分: <span id="historyScoreDisplay">0/0分</span></p><p class="text-sm text-gray-600">耗时: <span id="historyTimeDisplay">00:00</span> | 提交时间: <span id="historySubmitTime"></span></p><button id="historyViewPdfBtn" class="mt-3 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-sm hidden"><i class="fa fa-file-pdf-o mr-1.5"></i>查看解析</button></div><div class="max-h-96 overflow-y-auto pr-2"><h4 class="font-bold text-gray-700 mb-3">题目对错详情与解析：</h4><div id="historyDetailsList" class="space-y-3"></div></div></div></div>
     <div id="statsListModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[55] backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="statsListContent"><div class="flex justify-between items-start mb-6"><div><h3 class="text-xl font-bold text-gray-800" id="statsListTitle">统计详情</h3><p class="text-sm text-gray-500 mt-1" id="statsListSummary"></p></div><button id="closeStatsListModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="statsListSearchWrap" class="mb-4 hidden"><label for="statsListSearchInput" class="block text-sm font-medium text-gray-600 mb-1">按套题名称搜索</label><input id="statsListSearchInput" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="输入套题名称关键词"></div><div class="border border-gray-200 rounded-xl overflow-hidden"><table class="min-w-full divide-y divide-gray-200"><thead id="statsListHead" class="bg-gray-50"></thead><tbody id="statsListBody" class="bg-white divide-y divide-gray-200"></tbody></table></div><div id="statsListPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div></div></div>
-    <div id="scoreDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 text-center transform transition-all scale-95 opacity-0" id="scoreDetailContent"><div class="text-green-500 text-4xl mb-4"><i class="fa fa-trophy"></i></div><h3 class="text-xl font-bold text-gray-800 mb-2" id="scoreModalTitle">作答提交成功！</h3><p class="text-3xl font-bold mb-4 text-primary" id="finalScoreDisplay">0分</p><p class="text-gray-600 mb-6" id="scoreMessage"></p><div class="bg-gray-50 p-4 rounded-lg max-h-40 overflow-y-auto mb-6 text-left"><h4 class="font-bold mb-2">得分详情：</h4><div id="scoreDetailList" class="space-y-1 text-sm"></div></div><div class="flex items-center justify-center gap-3"><button id="viewPdfBtn" class="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors hidden"><i class="fa fa-file-pdf-o mr-2"></i>查看解析</button><button id="closeScoreDetailModalBtn" class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">确定</button></div></div></div>
+    <div id="scoreDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 text-center transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="scoreDetailContent"><div class="text-green-500 text-4xl mb-4"><i class="fa fa-trophy"></i></div><h3 class="text-xl font-bold text-gray-800 mb-2" id="scoreModalTitle">作答提交成功！</h3><p class="text-3xl font-bold mb-2 text-primary" id="finalScoreDisplay">0分</p><p class="text-sm font-bold text-indigo-600 mb-4" id="scoreRankDisplay">得分排名：暂无</p><div id="scoreRankListWrap" class="mb-5 text-left"><div class="flex items-center justify-between mb-2"><h4 class="font-bold text-gray-700 flex items-center"><i class="fa fa-list-ol text-indigo-500 mr-2"></i>最高得分排名</h4><span class="text-xs text-gray-400">每页 5 人</span></div><div class="border border-gray-200 rounded-xl overflow-hidden"><table class="min-w-full divide-y divide-gray-100"><thead class="bg-indigo-50"><tr><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">姓名</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">最高得分</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">最高得分排名</th></tr></thead><tbody id="scoreRankListBody" class="bg-white divide-y divide-gray-100"></tbody></table></div><div id="scoreRankListPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div><p class="text-gray-600 mb-6" id="scoreMessage"></p><div class="bg-gray-50 p-4 rounded-lg max-h-40 overflow-y-auto mb-6 text-left"><h4 class="font-bold mb-2">得分详情：</h4><div id="scoreDetailList" class="space-y-1 text-sm"></div></div><div class="flex items-center justify-center gap-3"><button id="viewPdfBtn" class="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors hidden"><i class="fa fa-file-pdf-o mr-2"></i>查看解析</button><button id="closeScoreDetailModalBtn" class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">确定</button></div></div></div>
     <div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"><div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modal-general-content"><div class="text-center"><div id="modal-icon" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa fa-check text-secondary text-2xl"></i></div><h3 id="modal-title" class="text-xl font-bold mb-2"></h3><p id="modal-message" class="text-gray-600 mb-6"></p><button id="modal-close" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90">确定</button></div></div></div>
     <div id="new-paper-modal" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-lg p-4 z-40 hidden animate-fadeIn"><div class="flex items-center"><i class="fa fa-bell text-accent text-xl mr-2"></i><p class="text-gray-700 mr-4">有新的套卷发布啦！</p><button id="refresh-papers-btn" class="text-primary font-medium">立即查看</button></div></div>
     <div id="videoPlayerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-[60] backdrop-blur-sm"><div class="bg-black rounded-xl p-2 max-w-4xl w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0 relative" id="videoPlayerContent"><button id="closeVideoPlayerBtn" class="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors z-50"><i class="fa fa-times text-2xl"></i></button><div class="aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden"><video id="explanationVideo" controls class="object-contain" style="width: 880px;height: 500px;"><source src="" type="video/mp4"></video></div><div class="mt-2 text-white px-2"><h4 id="videoTitle" class="text-lg font-medium"></h4></div></div></div>
@@ -150,6 +151,8 @@
     let currentPaper = null, currentQuestionIndex = 0, studentAnswers = [], studentInfo = {}, studentPointsData = {}, exchangeRecords = [], prizes = [], timerInterval = null, secondsElapsed = 0;
     let uploadedFbImages = [], fbSelfScore = 0, fbIsConfirmed = false, allAnswerRecords = [], fbJudgments = null;
     let statsListModalState = { type: '', page: 1, items: [], keyword: '' };
+    let scoreRankListPage = 1, scoreRankListItems = [];
+    let wrongRateLeaderboardPage = 1, wrongRateLeaderboardItems = [];
     let growthQuestionChartInstance = null, growthAccuracyChartInstance = null, growthPeriod = 'week';
     let uploadedDraftImages = []; // 🚀 新增：草稿纸多图数组
     let currentModuleTab = 'test';
@@ -161,6 +164,7 @@
     let selfLearningDanmuLastSecond = -1;
     let selfLearningShownDanmuKeys = new Set();
     const LEARNING_PANEL_PAGE_SIZE = 5;
+    const SCORE_RANK_LIST_PAGE_SIZE = 5;
     const learningPanelPageState = {
       selfLearningContentList: 1,
       customPaperList: 1
@@ -182,7 +186,7 @@
     const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade1PaperCount = document.getElementById('grade1PaperCount'), grade2PaperCount = document.getElementById('grade2PaperCount'), grade3PaperCount = document.getElementById('grade3PaperCount');
     const answerCardModal = document.getElementById('answerCardModal'), modalContent = document.getElementById('modalContent'), modalPaperTitle = document.getElementById('modalPaperTitle'), modalPaperInfo = document.getElementById('modalPaperInfo'), questionNav = document.getElementById('questionNav'), questionContent = document.getElementById('questionContent'), prevQuestionBtn = document.getElementById('prevQuestionBtn'), nextQuestionBtn = document.getElementById('nextQuestionBtn'), submitAllBtn = document.getElementById('submitAllBtn'), closeModalBtn = document.getElementById('closeModalBtn');
     const timerDisplay = document.getElementById('timerDisplay'), progressBar = document.getElementById('progressBar'), progressText = document.getElementById('progressText');
-    const scoreDetailModal = document.getElementById('scoreDetailModal'), scoreDetailContent = document.getElementById('scoreDetailContent'), finalScoreDisplay = document.getElementById('finalScoreDisplay'), scoreDetailList = document.getElementById('scoreDetailList'), scoreMessage = document.getElementById('scoreMessage'), closeScoreDetailModalBtn = document.getElementById('closeScoreDetailModalBtn'), viewPdfBtn = document.getElementById('viewPdfBtn');
+    const scoreDetailModal = document.getElementById('scoreDetailModal'), scoreDetailContent = document.getElementById('scoreDetailContent'), finalScoreDisplay = document.getElementById('finalScoreDisplay'), scoreRankDisplay = document.getElementById('scoreRankDisplay'), scoreRankListBody = document.getElementById('scoreRankListBody'), scoreRankListPagination = document.getElementById('scoreRankListPagination'), scoreDetailList = document.getElementById('scoreDetailList'), scoreMessage = document.getElementById('scoreMessage'), closeScoreDetailModalBtn = document.getElementById('closeScoreDetailModalBtn'), viewPdfBtn = document.getElementById('viewPdfBtn');
     const historyDetailModal = document.getElementById('historyDetailModal'), historyDetailContent = document.getElementById('historyDetailContent'), historyModalTitle = document.getElementById('historyModalTitle'), historyScoreDisplay = document.getElementById('historyScoreDisplay'), historyTimeDisplay = document.getElementById('historyTimeDisplay'), historySubmitTime = document.getElementById('historySubmitTime'), historyDetailsList = document.getElementById('historyDetailsList'), closeHistoryDetailModalBtn = document.getElementById('closeHistoryDetailModalBtn'), historyViewPdfBtn = document.getElementById('historyViewPdfBtn');
     const statPapersCard = document.getElementById('statPapersCard'), statWrongQuestionsCard = document.getElementById('statWrongQuestionsCard'), statsListModal = document.getElementById('statsListModal'), statsListContent = document.getElementById('statsListContent'), statsListTitle = document.getElementById('statsListTitle'), statsListSummary = document.getElementById('statsListSummary'), statsListHead = document.getElementById('statsListHead'), statsListBody = document.getElementById('statsListBody'), statsListPagination = document.getElementById('statsListPagination'), closeStatsListModalBtn = document.getElementById('closeStatsListModalBtn'), statsListSearchWrap = document.getElementById('statsListSearchWrap'), statsListSearchInput = document.getElementById('statsListSearchInput');
     const newPaperModal = document.getElementById('new-paper-modal'), refreshPapersBtn = document.getElementById('refresh-papers-btn');
@@ -192,6 +196,7 @@
       exchangeRecords = await getData(EXCHANGE_RECORDS_KEY) || [];
       prizes = await getData(PRIZES_STORAGE_KEY) || [];
       studentInfo = await getData(STUDENT_INFO_KEY) || {};
+      await loadWrongRateLeaderboard();
       if (studentInfo.name) {
         userName = studentInfo.name;
         userId = studentInfo.id;
@@ -242,6 +247,11 @@
         statsListModalState.keyword = statsListSearchInput.value.trim();
         statsListModalState.page = 1;
         renderStatsListModal();
+      });
+      const wrongRateGradeFilter = document.getElementById('wrongRateGradeFilter');
+      if (wrongRateGradeFilter) wrongRateGradeFilter.addEventListener('change', () => {
+        wrongRateLeaderboardPage = 1;
+        renderWrongRateLeaderboardTable();
       });
       document.querySelectorAll('a').forEach(link => { link.addEventListener('click', function (e) { if (this.id === 'logout-btn' || this.id === 'mobile-logout-btn') e.preventDefault(); }); });
       closeSelfLearningModalBtn.addEventListener('click', closeSelfLearningModal);
@@ -333,6 +343,212 @@
       const higherCount = Array.from(metricMap.values()).filter((value) => value > targetValue).length;
       return higherCount + 1;
     }
+    function normalizeStudentGradeLabel(grade) {
+      const map = { grade1: '高一', grade2: '高二', grade3: '高三' };
+      return map[grade] || grade || '未设置';
+    }
+    function isFillQuestionWrong(score, maxScore) {
+      if (typeof score === 'boolean') return !score;
+      return (parseFloat(score) || 0) < (parseFloat(maxScore) || 0);
+    }
+    function buildWrongRateLeaderboard(allRecords, papers) {
+      const paperMap = {};
+      papers.forEach((paper) => { paperMap[paper.id] = paper; });
+      const questionMap = {};
+      (allRecords || []).forEach((record) => {
+        const paper = paperMap[record.paperId];
+        if (!paper) return;
+        const grade = normalizeStudentGradeLabel(paper.grade);
+        const answers = Array.isArray(record.answers) ? record.answers : [];
+        const standardAnswers = Array.isArray(paper.answers) ? paper.answers : [];
+        const choiceCount = parseInt(paper.questionCount, 10) || standardAnswers.length || answers.length;
+        for (let i = 0; i < choiceCount; i++) {
+          const key = `${paper.id}_choice_${i}`;
+          if (!questionMap[key]) {
+            questionMap[key] = {
+              key,
+              paperName: paper.name || '未知套题',
+              questionNumber: i + 1,
+              questionLabel: `《${paper.name || '未知套题'}》第${i + 1}题`,
+              grade,
+              total: 0,
+              wrong: 0
+            };
+          }
+          questionMap[key].total += 1;
+          if (answers[i] !== standardAnswers[i]) questionMap[key].wrong += 1;
+        }
+        const fillCount = parseInt(paper.fillInBlankCount, 10) || 0;
+        const details = Array.isArray(record.fillInBlankDetails) ? record.fillInBlankDetails : [];
+        for (let i = 0; i < fillCount; i++) {
+          const questionNumber = choiceCount + i + 1;
+          const key = `${paper.id}_fill_${i}`;
+          const maxScore = paper.fbPointsArray ? (parseFloat(paper.fbPointsArray[i]) || 0) : (parseFloat(paper.fillInBlankPoints) || 0);
+          if (!questionMap[key]) {
+            questionMap[key] = {
+              key,
+              paperName: paper.name || '未知套题',
+              questionNumber,
+              questionLabel: `《${paper.name || '未知套题'}》第${questionNumber}题`,
+              grade,
+              total: 0,
+              wrong: 0
+            };
+          }
+          questionMap[key].total += 1;
+          if (isFillQuestionWrong(details[i], maxScore)) questionMap[key].wrong += 1;
+        }
+      });
+      return Object.values(questionMap)
+        .filter((item) => item.total > 0)
+        .map((item) => ({ ...item, wrongRate: item.total > 0 ? item.wrong / item.total : 0 }))
+        .sort((a, b) => (b.wrongRate - a.wrongRate) || (b.wrong - a.wrong) || (b.total - a.total) || String(a.questionLabel).localeCompare(String(b.questionLabel), 'zh-CN'));
+    }
+    function renderWrongRateLeaderboardTable() {
+      const card = document.getElementById('wrongRateLeaderboardCard');
+      const tbody = document.getElementById('wrongRateLeaderboardBody');
+      const pagination = document.getElementById('wrongRateLeaderboardPagination');
+      const gradeFilter = document.getElementById('wrongRateGradeFilter');
+      if (!card || !tbody || !pagination || !gradeFilter) return;
+      const grade = gradeFilter.value || 'all';
+      const items = wrongRateLeaderboardItems.filter((item) => grade === 'all' || item.grade === grade);
+      card.classList.remove('hidden');
+      const pageSize = 5;
+      const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+      if (wrongRateLeaderboardPage > totalPages) wrongRateLeaderboardPage = totalPages;
+      if (wrongRateLeaderboardPage < 1) wrongRateLeaderboardPage = 1;
+      const start = (wrongRateLeaderboardPage - 1) * pageSize;
+      const pageItems = items.slice(start, start + pageSize);
+      if (pageItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400">暂无错题排行数据</td></tr>';
+      } else {
+        tbody.innerHTML = pageItems.map((item, index) => {
+          const rank = start + index + 1;
+          const rateText = `${Math.round(item.wrongRate * 100)}%`;
+          return `<tr class="hover:bg-red-50/40 transition-colors"><td class="px-4 py-3 text-sm font-black text-red-500">#${rank}</td><td class="px-4 py-3 text-sm font-bold text-gray-800">${item.questionLabel}</td><td class="px-4 py-3 text-sm text-gray-500">${item.grade}</td><td class="px-4 py-3 text-sm font-black text-red-600">${rateText}</td><td class="px-4 py-3 text-sm text-gray-600">${item.wrong}/${item.total}</td></tr>`;
+        }).join('');
+      }
+      if (totalPages <= 1) {
+        pagination.classList.add('hidden');
+        pagination.innerHTML = '';
+        return;
+      }
+      const pageItemsUi = buildPaperPageItems(wrongRateLeaderboardPage, totalPages);
+      pagination.classList.remove('hidden');
+      pagination.innerHTML = `
+        <button data-role="prev" class="px-2.5 py-1 rounded border text-sm ${wrongRateLeaderboardPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${wrongRateLeaderboardPage === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageItemsUi.map((item) => item === 'ellipsis' ? '<span class="px-2 text-gray-400 select-none">...</span>' : `<button data-role="page" data-page="${item}" class="min-w-[32px] px-2.5 py-1 rounded border text-sm ${item === wrongRateLeaderboardPage ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">${item}</button>`).join('')}
+        <button data-role="next" class="px-2.5 py-1 rounded border text-sm ${wrongRateLeaderboardPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${wrongRateLeaderboardPage === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      const prevBtn = pagination.querySelector('button[data-role="prev"]');
+      const nextBtn = pagination.querySelector('button[data-role="next"]');
+      if (prevBtn) prevBtn.addEventListener('click', () => { if (wrongRateLeaderboardPage > 1) { wrongRateLeaderboardPage -= 1; renderWrongRateLeaderboardTable(); } });
+      if (nextBtn) nextBtn.addEventListener('click', () => { if (wrongRateLeaderboardPage < totalPages) { wrongRateLeaderboardPage += 1; renderWrongRateLeaderboardTable(); } });
+      pagination.querySelectorAll('button[data-role="page"]').forEach((btn) => btn.addEventListener('click', () => {
+        wrongRateLeaderboardPage = parseInt(btn.dataset.page, 10) || 1;
+        renderWrongRateLeaderboardTable();
+      }));
+    }
+    function renderWrongRateLeaderboard(allRecords, papers) {
+      wrongRateLeaderboardItems = buildWrongRateLeaderboard(allRecords, papers);
+      const gradeFilter = document.getElementById('wrongRateGradeFilter');
+      if (gradeFilter) {
+        const currentGrade = gradeFilter.value || 'all';
+        const grades = [...new Set(wrongRateLeaderboardItems.map((item) => item.grade || '未设置'))].sort();
+        gradeFilter.innerHTML = '<option value="all">全部年级</option>' + grades.map((grade) => `<option value="${grade}">${grade}</option>`).join('');
+        gradeFilter.value = grades.includes(currentGrade) ? currentGrade : 'all';
+      }
+      renderWrongRateLeaderboardTable();
+    }
+    async function loadWrongRateLeaderboard() {
+      const [records, papers] = await Promise.all([
+        getData(ANSWER_STORAGE_KEY).then((res) => res || []),
+        getData(PAPER_STORAGE_KEY).then((res) => res || [])
+      ]);
+      renderWrongRateLeaderboard(records, papers);
+    }
+    function getCurrentPaperScoreRankInfo(score) {
+      if (!currentPaper) return null;
+      const userBestScore = (allAnswerRecords || [])
+        .filter((record) => record.paperId === currentPaper.id && record.studentId === userId)
+        .reduce((best, record) => Math.max(best, getRecordTotalScore(record, currentPaper)), score || 0);
+      return { rank: calculatePaperRank(currentPaper, userId, userBestScore), bestScore: userBestScore };
+    }
+    function escapeHtmlText(value) {
+      return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+    function buildCurrentPaperBestScoreRankList() {
+      if (!currentPaper) return [];
+      const bestScoreMap = new Map();
+      (allAnswerRecords || []).filter((record) => record.paperId === currentPaper.id).forEach((record) => {
+        const studentIdKey = record.studentId || '';
+        if (!studentIdKey) return;
+        const currentScore = getRecordTotalScore(record, currentPaper);
+        const studentNameText = record.studentName || (studentPointsData[studentIdKey] && studentPointsData[studentIdKey].name) || studentIdKey || '匿名';
+        const existing = bestScoreMap.get(studentIdKey);
+        if (!existing || currentScore > existing.bestScore) {
+          bestScoreMap.set(studentIdKey, { studentId: studentIdKey, studentName: studentNameText, bestScore: currentScore, rank: 0 });
+        } else if (existing && !existing.studentName && studentNameText) {
+          existing.studentName = studentNameText;
+        }
+      });
+      const items = Array.from(bestScoreMap.values()).sort((a, b) => {
+        if (b.bestScore !== a.bestScore) return b.bestScore - a.bestScore;
+        return String(a.studentName || '').localeCompare(String(b.studentName || ''), 'zh-Hans-CN');
+      });
+      let previousScore = null;
+      let previousRank = 0;
+      items.forEach((item, index) => {
+        if (previousScore === null || item.bestScore !== previousScore) {
+          previousRank = index + 1;
+          previousScore = item.bestScore;
+        }
+        item.rank = previousRank;
+      });
+      return items;
+    }
+    function renderScoreRankList() {
+      if (!scoreRankListBody || !scoreRankListPagination) return;
+      const totalPages = Math.max(1, Math.ceil(scoreRankListItems.length / SCORE_RANK_LIST_PAGE_SIZE));
+      scoreRankListPage = Math.min(Math.max(1, scoreRankListPage), totalPages);
+      const start = (scoreRankListPage - 1) * SCORE_RANK_LIST_PAGE_SIZE;
+      const pageItems = scoreRankListItems.slice(start, start + SCORE_RANK_LIST_PAGE_SIZE);
+      if (pageItems.length === 0) {
+        scoreRankListBody.innerHTML = '<tr><td colspan="3" class="px-3 py-6 text-center text-sm text-gray-400">暂无排名数据</td></tr>';
+      } else {
+        scoreRankListBody.innerHTML = pageItems.map((item) => {
+          const isCurrentUser = item.studentId === userId;
+          return `<tr class="${isCurrentUser ? 'bg-indigo-50' : 'hover:bg-gray-50'}"><td class="px-3 py-2 text-sm font-medium text-gray-700">${escapeHtmlText(item.studentName)}</td><td class="px-3 py-2 text-sm font-black text-primary">${item.bestScore}/${currentPaper.totalPoints || 0}分</td><td class="px-3 py-2 text-sm font-bold text-indigo-600">第${item.rank}名</td></tr>`;
+        }).join('');
+      }
+      if (totalPages <= 1) {
+        scoreRankListPagination.classList.add('hidden');
+        scoreRankListPagination.innerHTML = '';
+        return;
+      }
+      const pageItemsUi = buildPaperPageItems(scoreRankListPage, totalPages);
+      scoreRankListPagination.classList.remove('hidden');
+      scoreRankListPagination.innerHTML = `
+        <button data-role="prev" class="px-2.5 py-1 rounded border text-sm ${scoreRankListPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${scoreRankListPage === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageItemsUi.map((item) => item === 'ellipsis' ? '<span class="px-2 text-gray-400 select-none">...</span>' : `<button data-role="page" data-page="${item}" class="min-w-[32px] px-2.5 py-1 rounded border text-sm ${item === scoreRankListPage ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">${item}</button>`).join('')}
+        <button data-role="next" class="px-2.5 py-1 rounded border text-sm ${scoreRankListPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${scoreRankListPage === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      const prevBtn = scoreRankListPagination.querySelector('button[data-role="prev"]');
+      const nextBtn = scoreRankListPagination.querySelector('button[data-role="next"]');
+      if (prevBtn) prevBtn.addEventListener('click', () => { if (scoreRankListPage > 1) { scoreRankListPage -= 1; renderScoreRankList(); } });
+      if (nextBtn) nextBtn.addEventListener('click', () => { if (scoreRankListPage < totalPages) { scoreRankListPage += 1; renderScoreRankList(); } });
+      scoreRankListPagination.querySelectorAll('button[data-role="page"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          scoreRankListPage = parseInt(btn.dataset.page, 10) || 1;
+          renderScoreRankList();
+        });
+      });
+    }
+    function refreshScoreRankList() {
+      scoreRankListPage = 1;
+      scoreRankListItems = buildCurrentPaperBestScoreRankList();
+      renderScoreRankList();
+    }
     async function renderStudentStats() {
       if (!userId) return;
       const statsDashboard = document.getElementById('stats-dashboard'), statPapers = document.getElementById('stat-papers'), statTotalQuestions = document.getElementById('stat-total-questions'), statWrongQuestions = document.getElementById('stat-wrong-questions'), statAccuracy = document.getElementById('stat-accuracy'), statTotalQuestionsRank = document.getElementById('stat-total-questions-rank'), statAccuracyRank = document.getElementById('stat-accuracy-rank');
@@ -347,6 +563,7 @@
         statAccuracy.textContent = '0%';
         if (statTotalQuestionsRank) statTotalQuestionsRank.textContent = '排名：暂无';
         if (statAccuracyRank) statAccuracyRank.textContent = '排名：暂无';
+        renderWrongRateLeaderboard(allAnswerRecords, papers);
         return;
       }
       const userSummary = summarizeStudentStats(userRecords, papers);
@@ -370,6 +587,7 @@
       statAccuracy.textContent = `${userSummary.accuracy}%`;
       if (statTotalQuestionsRank) statTotalQuestionsRank.textContent = totalQuestionsRank ? `排名：第${totalQuestionsRank}名` : '排名：暂无';
       if (statAccuracyRank) statAccuracyRank.textContent = accuracyRank ? `排名：第${accuracyRank}名` : '排名：暂无';
+      renderWrongRateLeaderboard(allAnswerRecords, papers);
       statsDashboard.classList.remove('hidden');
     }
     function parseSubmitTimeValue(value) {
@@ -1320,10 +1538,10 @@ submitAllBtn.disabled =
               studentPointsData[userId].lastUpdate = new Date().toLocaleString();
               await saveData(STUDENT_POINTS_KEY, studentPointsData);
               userPoints = studentPointsData[userId].points;
-              if (isFirstSubmission) message = `本次答题得分 **${score} 分** 已加入您的总积分！`;
-              else message = `本次刷新该套题历史最高分（${previousBestScore} → ${bestScoreAfterSubmit}），为您增加 **${pointsGain} 分** 积分。`;
+              if (isFirstSubmission) message = `本次答题得分 ${score} 分 已加入您的总积分！`;
+              else message = `本次刷新该套题历史最高分（${previousBestScore} → ${bestScoreAfterSubmit}），为您增加 ${pointsGain} 分 积分。`;
           } else {
-              message = `本次得分 **${score} 分**，未超过历史最高分 **${previousBestScore} 分**，积分不变。`;
+              message = `本次得分 ${score} 分，未超过历史最高分 ${previousBestScore} 分，积分不变。`;
           }
           closeAnswerModal(); showScoreDetailModal(score, currentPaper.totalPoints, scoreDetails, message, secondsElapsed); await calculateUserRank(); await loadRankingList(); await loadAndRenderPapers(); updatePrizeButtons();
       } finally { submitAllBtn.disabled = false; submitAllBtn.innerHTML = '提交所有答案'; }
@@ -1341,7 +1559,7 @@ submitAllBtn.disabled =
       if (!url) return;
       window.open(url, '_blank');
     }
-    function showScoreDetailModal(score, totalPoints, details, message, timeElapsed) { finalScoreDisplay.textContent = `${score}/${totalPoints}分`; scoreMessage.innerHTML = message; scoreDetailList.innerHTML = ''; const timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; scoreDetailList.innerHTML = `<div class="p-2 rounded-lg bg-blue-100 text-blue-700 font-bold"><i class="fa fa-hourglass-half mr-2"></i> 答题耗时：${timeDisplay}</div>`; details.forEach(item => { const detailItem = document.createElement('div'); detailItem.className = `p-2 rounded-lg ${item.isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`; detailItem.innerHTML = `<strong>第${item.questionNumber}题：</strong> ${item.isCorrect ? '正确' : '错误'}<span class="ml-2"> | </span> 正确答案: ${item.correctAnswer}`; scoreDetailList.appendChild(detailItem); });
+    function showScoreDetailModal(score, totalPoints, details, message, timeElapsed) { finalScoreDisplay.textContent = `${score}/${totalPoints}分`; const scoreRankInfo = getCurrentPaperScoreRankInfo(score); if (scoreRankDisplay) scoreRankDisplay.textContent = scoreRankInfo && scoreRankInfo.rank ? `本套题最高分：${scoreRankInfo.bestScore}/${totalPoints}分，排名：第${scoreRankInfo.rank}名` : '本套题最高分排名：暂无'; refreshScoreRankList(); scoreMessage.innerHTML = message; scoreDetailList.innerHTML = ''; const timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; scoreDetailList.innerHTML = `<div class="p-2 rounded-lg bg-blue-100 text-blue-700 font-bold"><i class="fa fa-hourglass-half mr-2"></i> 答题耗时：${timeDisplay}</div>`; details.forEach(item => { const detailItem = document.createElement('div'); detailItem.className = `p-2 rounded-lg ${item.isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`; detailItem.innerHTML = `<strong>第${item.questionNumber}题：</strong> ${item.isCorrect ? '正确' : '错误'}<span class="ml-2"> | </span> 正确答案: ${item.correctAnswer}`; scoreDetailList.appendChild(detailItem); });
       if (currentPaper && currentPaper.fillInBlankCount > 0 && uploadedFbImages && uploadedFbImages.length > 0) {
         let fbVideosHtml = ''; if (currentPaper.fillBlankVideos && currentPaper.fillBlankVideos.some(v => v)) { fbVideosHtml = '<div class="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100"><h5 class="text-sm font-bold text-indigo-800 mb-2">填空题视频讲解</h5><div class="space-y-2">'; currentPaper.fillBlankVideos.forEach((video, i) => { if (video) fbVideosHtml += `<div class="flex items-center space-x-2"><span class="text-xs font-medium text-gray-600 w-16">第 ${i + 1} 题:</span><button onclick="playExplanationVideo('./video/${video}', '第 ${i + 1} 道填空题讲解')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1 rounded-full hover:bg-indigo-50 transition-colors flex items-center shadow-sm"><i class="fa fa-play-circle mr-1.5 text-indigo-600"></i> 观看视频</button></div>`; }); fbVideosHtml += '</div></div>'; } 
         let stuImagesHtml = ''; if (Array.isArray(uploadedFbImages)) { stuImagesHtml = uploadedFbImages.map(url => `<img src="${url}" class="w-full h-auto max-h-[300px] rounded object-contain cursor-pointer hover:opacity-90 mb-2" onclick="showImagePreview(this.src)" />`).join(''); } else { stuImagesHtml = `<img src="${uploadedFbImages}" class="w-full h-auto max-h-[300px] rounded object-contain cursor-pointer hover:opacity-90" onclick="showImagePreview(this.src)" />`; }
