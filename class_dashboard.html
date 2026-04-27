@@ -88,9 +88,14 @@
                 <h3 class="font-black text-gray-800 text-lg"><i class="fa fa-exclamation-triangle text-red-500 mr-2"></i>错题排行榜</h3>
                 <p class="text-xs text-gray-500 mt-1">按单题错误率从高到低排序，选择题答错算错，填空/简答题未满分算错。</p>
             </div>
-            <select id="wrongRankGradeFilter" class="filter-input w-full md:w-44" onchange="changeWrongRankGrade()">
-                <option value="all">全部年级</option>
-            </select>
+            <div class="flex gap-2 w-full md:w-auto items-center">
+                <input type="date" id="wrongRankStartDate" class="filter-input w-full" onchange="changeWrongRankGrade()" title="开始日期">
+                <span class="text-gray-400 text-xs">-</span>
+                <input type="date" id="wrongRankEndDate" class="filter-input w-full" onchange="changeWrongRankGrade()" title="结束日期">
+                <select id="wrongRankGradeFilter" class="filter-input w-full" onchange="changeWrongRankGrade()">
+                    <option value="all">全部年级</option>
+                </select>
+            </div>
         </div>
         <div class="overflow-x-auto border border-gray-100 rounded-xl">
             <table class="w-full text-left">
@@ -101,6 +106,7 @@
                         <th>年级</th>
                         <th>错误率</th>
                         <th class="text-right pr-4">错误/作答</th>
+                        <th class="text-center pr-4 w-16">操作</th>
                     </tr>
                 </thead>
                 <tbody id="wrongRankTableBody" class="divide-y divide-gray-50 text-gray-600"></tbody>
@@ -235,8 +241,9 @@
   </main>
 
   <script>
-    const KEYS = { POINTS: 'studentPoints', ANSWERS: 'studentAnswers', PAPERS: 'gradePapers' };
+    const KEYS = { POINTS: 'studentPoints', ANSWERS: 'studentAnswers', PAPERS: 'gradePapers', HIDDEN_WRONG: 'hiddenWrongQuestions' };
     let g_allAns = [], g_papers = [], g_students = {};
+    let g_hiddenWrong = [];
     let g_distChart = null, g_trendChart = null, g_typeChart = null;
     let g_wrongRankPage = 1, g_wrongRankItems = [];
 
@@ -248,12 +255,13 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
         try {
-            const [pts, ans, pps] = await Promise.all([
+            const [pts, ans, pps, hw] = await Promise.all([
                 getData(KEYS.POINTS).then(res => res || {}),
                 getData(KEYS.ANSWERS).then(res => res || []),
-                getData(KEYS.PAPERS).then(res => res || [])
+                getData(KEYS.PAPERS).then(res => res || []),
+                getData(KEYS.HIDDEN_WRONG).then(res => res || [])
             ]);
-            g_students = pts; g_allAns = ans; g_papers = pps;
+            g_students = pts; g_allAns = ans; g_papers = pps; g_hiddenWrong = hw;
 
             initGlobalStats();
             initFilters();
@@ -341,6 +349,14 @@
         return (parseFloat(score) || 0) < (parseFloat(maxScore) || 0);
     }
 
+    function getNormalizedDateStr(dateStr) {
+        if (!dateStr) return '';
+        let d = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr.split(' ')[0];
+        let parts = d.split(/[/-]/);
+        if (parts.length === 3) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+        return d;
+    }
+
     function buildWrongRateLeaderboard(allRecords, papers) {
         const paperMap = {};
         papers.forEach((paper) => { paperMap[paper.id] = paper; });
@@ -361,6 +377,7 @@
                         questionNumber: i + 1,
                         questionLabel: `《${paper.name || '未知套题'}》第${i + 1}题`,
                         grade,
+                        paperDate: getNormalizedDateStr(paper.createTime),
                         total: 0,
                         wrong: 0
                     };
@@ -381,6 +398,7 @@
                         questionNumber,
                         questionLabel: `《${paper.name || '未知套题'}》第${questionNumber}题`,
                         grade,
+                        paperDate: getNormalizedDateStr(paper.createTime),
                         total: 0,
                         wrong: 0
                     };
@@ -421,24 +439,46 @@
         renderWrongRateLeaderboard();
     }
 
+    async function hideWrongRankRecord(key) {
+        if (!confirm('确定要在学生端和教师端隐藏该错题记录吗？')) return;
+        g_hiddenWrong.push(key);
+        try {
+            await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: KEYS.HIDDEN_WRONG, data: g_hiddenWrong }) });
+            initWrongRateLeaderboard();
+        } catch (e) {
+            alert('隐藏失败');
+        }
+    }
+
     function renderWrongRateLeaderboard() {
         const tbody = document.getElementById('wrongRankTableBody');
         const pagination = document.getElementById('wrongRankPagination');
         const grade = document.getElementById('wrongRankGradeFilter').value || 'all';
-        const items = g_wrongRankItems.filter((item) => grade === 'all' || item.grade === grade);
-        const pageSize = 5;
+        const startDateStr = document.getElementById('wrongRankStartDate') ? document.getElementById('wrongRankStartDate').value : '';
+        const endDateStr = document.getElementById('wrongRankEndDate') ? document.getElementById('wrongRankEndDate').value : '';
+        const items = g_wrongRankItems.filter((item) => {
+            if (g_hiddenWrong.includes(item.key)) return false;
+            if (grade !== 'all' && item.grade !== grade) return false;
+            if (startDateStr || endDateStr) {
+                if (!item.paperDate) return false;
+                if (startDateStr && item.paperDate < startDateStr) return false;
+                if (endDateStr && item.paperDate > endDateStr) return false;
+            }
+            return true;
+        });
+        const pageSize = 8;
         const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
         if (g_wrongRankPage > totalPages) g_wrongRankPage = totalPages;
         if (g_wrongRankPage < 1) g_wrongRankPage = 1;
         const start = (g_wrongRankPage - 1) * pageSize;
         const pageItems = items.slice(start, start + pageSize);
         if (pageItems.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-400">暂无错题排行数据</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-gray-400">暂无错题排行数据</td></tr>';
         } else {
             tbody.innerHTML = pageItems.map((item, index) => {
                 const rank = start + index + 1;
                 const rateText = `${Math.round(item.wrongRate * 100)}%`;
-                return `<tr class="hover:bg-red-50/50 transition"><td class="py-3 pl-4 font-black text-red-500">#${rank}</td><td class="py-3 font-bold text-gray-800 text-sm">${item.questionLabel}</td><td class="py-3 text-sm text-gray-500">${item.grade}</td><td class="py-3 font-black text-red-600">${rateText}</td><td class="py-3 text-right pr-4 text-sm text-gray-600">${item.wrong}/${item.total}</td></tr>`;
+                return `<tr class="hover:bg-red-50/50 transition"><td class="py-3 pl-4 font-black text-red-500">#${rank}</td><td class="py-3 font-bold text-gray-800 text-sm">${item.questionLabel}</td><td class="py-3 text-sm text-gray-500">${item.grade}</td><td class="py-3 font-black text-red-600">${rateText}</td><td class="py-3 text-right pr-4 text-sm text-gray-600">${item.wrong}/${item.total}</td><td class="py-3 text-center pr-4"><button onclick="hideWrongRankRecord('${item.key}')" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded"><i class="fa fa-eye-slash"></i></button></td></tr>`;
             }).join('');
         }
         if (totalPages <= 1) {

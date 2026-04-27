@@ -300,7 +300,7 @@
             <div class="mb-4 space-x-3">
               <select id="studentGradeFilter" class="ml-4 px-3 py-2 border rounded-lg text-sm"><option value="all">全部活跃学生</option><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option><option value="archived">已归档老生</option></select>
               <button id="addStudentBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg"><i class="fa fa-plus mr-2"></i> 添加学生</button>
-            <button onclick="window.open('class_dashboard.html?v=999', '_blank', 'width=1366,height=800')" class="bg-indigo-600 text-white px-4 py-2 rounded ml-3 shadow hover:bg-indigo-700 transition"><i class="fa fa-pie-chart mr-1"></i> 数据总览</button>
+            <button onclick="window.open('class_dashboard.html', '_blank', 'width=1366,height=800')" class="bg-indigo-600 text-white px-4 py-2 rounded ml-3 shadow hover:bg-indigo-700 transition"><i class="fa fa-pie-chart mr-1"></i> 数据总览</button>
               <button id="exportStudentsBtn" class="px-4 py-2 bg-secondary text-white rounded-lg ml-3"><i class="fa fa-download mr-2"></i> 导出数据</button>
               <div class="mt-3 max-h-[60vh] overflow-y-auto pr-2">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -1655,7 +1655,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                 }
                 // 👆 【新增完毕】👆
 
-                const displayScore = getRecordTotalScore(answer, paper); content += `<div class="border rounded-lg bg-white overflow-hidden transition-all duration-200"><div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="document.getElementById('detail-body-${index}').classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-4"><div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold text-sm">${index + 1}</div><div><p class="font-bold text-gray-800">${answer.studentName}</p><p class="text-xs text-gray-500">学号: ${answer.studentId}</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${displayScore === paper.totalPoints ? 'text-green-500' : 'text-purple-500'}">${displayScore} <span class="text-sm text-gray-400 font-normal">/${paper.totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div id="detail-body-${index}" class="hidden p-4 border-t border-gray-100 bg-white"><div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => { const isCorrect = ans === paper.answers[i]; return `<div class="flex items-center ${isCorrect ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'} p-2 rounded"><span class="w-16 font-bold">第${i + 1}题</span><span class="flex-1">你的答案：<span class="font-bold">${ans}</span></span><span class="mx-2 text-gray-300">|</span><span class="flex-1">正确答案：<span class="font-bold">${paper.answers[i]}</span></span></div>`; }).join('')}</div>${draftHtml}${fillBlankHtml}<div class="mt-3 text-right"><p class="text-xs text-gray-400">提交时间: ${answer.submitTime}</p></div></div></div>`;
+                const displayScore = getRecordTotalScore(answer, paper); content += `<div class="border rounded-lg bg-white overflow-hidden transition-all duration-200"><div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="document.getElementById('detail-body-${index}').classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-4"><div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold text-sm">${index + 1}</div><div><p class="font-bold text-gray-800">${answer.studentName}</p><p class="text-xs text-gray-500">学号: ${answer.studentId}</p></div></div><div class="flex items-center space-x-4"><div class="text-right"><span class="block text-lg font-bold ${displayScore === paper.totalPoints ? 'text-green-500' : 'text-purple-500'}">${displayScore} <span class="text-sm text-gray-400 font-normal">/${paper.totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><button type="button" class="text-red-500 hover:text-white bg-red-50 hover:bg-red-500 border border-red-200 px-2 py-1 rounded transition shadow-sm text-xs" data-delete-answer-index="${index}" onclick="event.stopPropagation();"><i class="fa fa-trash"></i> 删除</button><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200 ml-2"></i></div></div><div id="detail-body-${index}" class="hidden p-4 border-t border-gray-100 bg-white"><div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => { const isCorrect = ans === paper.answers[i]; return `<div class="flex items-center ${isCorrect ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'} p-2 rounded"><span class="w-16 font-bold">第${i + 1}题</span><span class="flex-1">你的答案：<span class="font-bold">${ans}</span></span><span class="mx-2 text-gray-300">|</span><span class="flex-1">正确答案：<span class="font-bold">${paper.answers[i]}</span></span></div>`; }).join('')}</div>${draftHtml}${fillBlankHtml}<div class="mt-3 text-right"><p class="text-xs text-gray-400">提交时间: ${answer.submitTime}</p></div></div></div>`;
             }); 
             content += `</div>`; 
         } 
@@ -1671,6 +1671,44 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                     window.openGradingModal(binding.studentId, binding.paperId);
                 };
             }
+        });
+
+        answerDetailContent.querySelectorAll('[data-delete-answer-index]').forEach(btn => {
+            btn.onclick = async function(e) {
+                e.preventDefault(); e.stopPropagation();
+                const idx = parseInt(this.getAttribute('data-delete-answer-index'));
+                const targetAns = paperAnswers[idx];
+                if (!targetAns) return;
+                if (!confirm('确定删除此人的该条作答记录吗？此操作将不可逆转。')) return;
+                let allAnswers = await getData(ANSWER_STORAGE_KEY) || [];
+                const removeIdx = allAnswers.findIndex(a => a.paperId === targetAns.paperId && a.studentId === targetAns.studentId && a.submitTime === targetAns.submitTime && a.timeElapsed === targetAns.timeElapsed);
+                if (removeIdx !== -1) {
+                    const studentId = targetAns.studentId;
+                    const pid = targetAns.paperId;
+                    const oldRecords = allAnswers.filter(a => a.studentId === studentId && a.paperId === pid);
+                    const oldBestScore = oldRecords.reduce((best, item) => Math.max(best, getRecordTotalScore(item, paper)), 0);
+
+                    allAnswers.splice(removeIdx, 1);
+                    await saveData(ANSWER_STORAGE_KEY, allAnswers);
+
+                    const newRecords = allAnswers.filter(a => a.studentId === studentId && a.paperId === pid);
+                    const newBestScore = newRecords.reduce((best, item) => Math.max(best, getRecordTotalScore(item, paper)), 0);
+                    const scoreToRemove = oldBestScore - newBestScore;
+
+                    if (scoreToRemove > 0) {
+                        const studentPointsData = await getData(STUDENT_POINTS_KEY) || {};
+                        if (studentPointsData[studentId]) {
+                            studentPointsData[studentId].points = Math.max(0, (studentPointsData[studentId].points || 0) - scoreToRemove);
+                            await saveData(STUDENT_POINTS_KEY, studentPointsData);
+                            if(typeof loadStudentPointsList === 'function') loadStudentPointsList();
+                        }
+                    }
+                    showAnswerDetails(currentViewingPaperId, targetStudentId);
+                    renderAllPaperLists();
+                } else {
+                    alert('未找到待删除的记录');
+                }
+            };
         });
 
         answerDetailModal.classList.remove('hidden'); setTimeout(() => { detailModalContent.classList.remove('scale-95', 'opacity-0'); detailModalContent.classList.add('scale-100', 'opacity-100'); }, 10); 
