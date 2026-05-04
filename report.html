@@ -29,6 +29,10 @@
   <style>
     body { background: #525659; display: flex; justify-content: center; padding: 20px; font-family: 'Segoe UI', Roboto, sans-serif; }
     .page { background: white; width: 210mm; min-height: 297mm; padding: 15mm 20mm; position: relative; display: flex; flex-direction: column; }
+    .report-module-table { table-layout: fixed; }
+    .report-module-table td, .report-module-table th { word-break: break-word; vertical-align: top; }
+    .report-tag-cell { min-width: 150px; }
+    .report-tag-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-start; }
     
     .rank-badge { 
       font-size: 0.75rem; 
@@ -55,6 +59,9 @@
       textarea { border: none !important; resize: none !important; overflow: hidden !important; background: transparent !important; }
       .comment-box { border-color: transparent !important; background-color: transparent !important; }
       textarea::-webkit-resizer { display: none; }
+      .report-module-table th, .report-module-table td { padding: 8px 6px !important; font-size: 11px !important; }
+      .report-tag-cell { width: 26% !important; }
+      .report-tag-list span { white-space: nowrap; }
     }
   </style>
 </head>
@@ -179,9 +186,9 @@
             <i class="fa fa-pencil-square-o mr-2 text-blue-500"></i> 课上测试
         </h3>
         <div class="overflow-hidden rounded-lg border border-gray-200">
-            <table class="w-full text-sm text-left">
+            <table class="w-full text-sm text-left report-module-table">
                 <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-                    <tr><th class="p-3 pl-4 w-1/4">日期</th><th class="p-3 w-1/2">名称</th><th class="p-3 text-center w-1/8">得分 / 总分</th><th class="p-3 text-center w-1/8">班级排名</th></tr>
+                    <tr><th class="p-3 pl-4 w-[18%]">日期</th><th class="p-3 w-[26%]">名称</th><th class="p-3 w-[24%]">标签</th><th class="p-3 text-center w-[16%]">得分 / 总分</th><th class="p-3 text-center w-[16%]">班级排名</th></tr>
                 </thead>
                 <tbody id="test-list" class="divide-y divide-gray-100 text-gray-700"></tbody>
             </table>
@@ -196,9 +203,9 @@
             <i class="fa fa-book mr-2 text-green-500"></i> 作业提交
         </h3>
         <div class="overflow-hidden rounded-lg border border-gray-200">
-            <table class="w-full text-sm text-left">
+            <table class="w-full text-sm text-left report-module-table">
                 <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-                    <tr><th class="p-3 pl-4 w-1/4">日期</th><th class="p-3 w-1/2">名称</th><th class="p-3 text-center w-1/8">得分 / 总分</th><th class="p-3 text-center w-1/8">班级排名</th></tr>
+                    <tr><th class="p-3 pl-4 w-[18%]">日期</th><th class="p-3 w-[26%]">名称</th><th class="p-3 w-[24%]">标签</th><th class="p-3 text-center w-[16%]">得分 / 总分</th><th class="p-3 text-center w-[16%]">班级排名</th></tr>
                 </thead>
                 <tbody id="hw-list" class="divide-y divide-gray-100 text-gray-700"></tbody>
             </table>
@@ -213,9 +220,9 @@
             <i class="fa fa-camera mr-2 text-orange-500"></i> 整理错题
         </h3>
         <div class="overflow-hidden rounded-lg border border-gray-200">
-            <table class="w-full text-sm text-left">
+            <table class="w-full text-sm text-left report-module-table">
                 <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-                    <tr><th class="p-3 pl-4 w-1/4">日期</th><th class="p-3 w-1/2">名称</th><th class="p-3 text-center w-1/8">得分 / 总分</th><th class="p-3 text-center w-1/8">班级排名</th></tr>
+                    <tr><th class="p-3 pl-4 w-[18%]">日期</th><th class="p-3 w-[26%]">名称</th><th class="p-3 w-[24%]">标签</th><th class="p-3 text-center w-[16%]">得分 / 总分</th><th class="p-3 text-center w-[16%]">班级排名</th></tr>
                 </thead>
                 <tbody id="corr-list" class="divide-y divide-gray-100 text-gray-700"></tbody>
             </table>
@@ -309,6 +316,44 @@
         let d = new Date(dateStr); if (!isNaN(d.getTime())) return d;
         d = new Date(dateStr.replace(/-/g, '/')); if (!isNaN(d.getTime())) return d;
         return new Date(0); 
+    }
+    function escapeHtmlText(value) {
+        return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+    const ANSWER_TAG_COLOR_THEMES = [
+        { wrap: 'bg-rose-100 text-rose-700 border-rose-200' },
+        { wrap: 'bg-amber-100 text-amber-700 border-amber-200' },
+        { wrap: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+        { wrap: 'bg-sky-100 text-sky-700 border-sky-200' },
+        { wrap: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+        { wrap: 'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200' },
+        { wrap: 'bg-teal-100 text-teal-700 border-teal-200' },
+        { wrap: 'bg-orange-100 text-orange-700 border-orange-200' }
+    ];
+    function normalizeAnswerTags(tags) {
+        if (Array.isArray(tags)) return Array.from(new Set(tags.map((item) => String(item || '').trim()).filter(Boolean)));
+        return Array.from(new Set(String(tags || '').split(/[，,]/).map((item) => String(item || '').trim()).filter(Boolean)));
+    }
+    function getAnswerTags(record) {
+        if (!record || typeof record !== 'object') return [];
+        if (Array.isArray(record.tags) && record.tags.length > 0) return normalizeAnswerTags(record.tags);
+        return normalizeAnswerTags(record.tag || '');
+    }
+    function getAnswerTagTheme(tag) {
+        const text = String(tag || '');
+        let hash = 0;
+        for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+        return ANSWER_TAG_COLOR_THEMES[hash % ANSWER_TAG_COLOR_THEMES.length];
+    }
+    function renderAnswerTagBadgeHtml(recordOrTags, emptyText = '暂无') {
+        const tags = Array.isArray(recordOrTags) ? normalizeAnswerTags(recordOrTags) : getAnswerTags(recordOrTags);
+        if (tags.length === 0) {
+            return `<span class="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-400 text-xs">${escapeHtmlText(emptyText)}</span>`;
+        }
+        return tags.map((tag) => {
+            const theme = getAnswerTagTheme(tag);
+            return `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold border mr-1 mb-1 ${theme.wrap}">${escapeHtmlText(tag)}</span>`;
+        }).join('');
     }
 
     function initDatePickers() {
@@ -433,6 +478,7 @@
             const p = g_papers.find(i => i.id === r.paperId);
             const max = p ? p.totalPoints : 100;
             const pName = p ? p.name : '未知任务';
+            const tagHtml = renderAnswerTagBadgeHtml(r);
             const dateDisplay = r.submitTime.split(' ')[0] || r.submitTime;
             
             // 实时计算该学生在此次任务中的班级单次排名
@@ -454,7 +500,8 @@
          html += `
             <tr class="hover:bg-blue-50 transition-colors">
                 <td class="p-3 border-b border-gray-100 pl-4 text-gray-500 text-sm whitespace-nowrap">${dateDisplay}</td>
-                <td class="p-3 border-b border-gray-100 font-bold text-gray-700 max-w-[150px] truncate" title="${pName}">${pName}</td>
+                <td class="p-3 border-b border-gray-100 font-bold text-gray-700" title="${pName}">${pName}</td>
+                <td class="p-3 border-b border-gray-100 text-sm report-tag-cell"><div class="report-tag-list">${tagHtml}</div></td>
                 <td class="p-3 border-b border-gray-100 text-center whitespace-nowrap min-w-[80px]">
                     <span class="font-bold text-gray-800 text-sm">${r.score}</span><span class="text-xs text-gray-400">/${max}</span>
                 </td>
