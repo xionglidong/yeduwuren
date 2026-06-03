@@ -99,6 +99,7 @@
     <div class="bg-white rounded-xl shadow-md p-4 mb-8">
       <div class="flex space-x-6 border-b border-gray-200">
         <button data-tab="paper" class="py-2 px-4 text-gray-600 hover:text-primary tab-active"><i class="fa fa-pencil-square-o mr-1"></i> 题库 & 答题统计</button>
+        <button data-tab="archived" class="py-2 px-4 text-gray-600 hover:text-primary"><i class="fa fa-archive mr-1"></i> 归档套题</button>
         <button data-tab="student" class="py-2 px-4 text-gray-600 hover:text-primary"><i class="fa fa-users mr-1"></i> 学生管理</button>
         <button data-tab="rank" class="py-2 px-4 text-gray-600 hover:text-primary"><i class="fa fa-trophy mr-1"></i> 排行榜 & 兑换记录</button>
         <button data-tab="forum" class="py-2 px-4 text-gray-600 hover:text-primary"><i class="fa fa-comments mr-1"></i> 交流广场</button>
@@ -278,7 +279,7 @@
             <input type="text" id="videoManagerSearch" class="w-full md:w-72 px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="搜索视频文件名">
             <button id="refreshVideoListBtn" class="px-3 py-2 text-sm border rounded-lg text-gray-600 hover:bg-gray-50">刷新列表</button>
           </div>
-          <div id="videoManagerList" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
+          <div id="videoManagerList" class="space-y-2 overflow-y-auto pr-2"></div>
           <div id="videoManagerPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div>
         </div>
 
@@ -351,6 +352,62 @@
         </div>
       </div>
 
+      <div id="archived" class="tab-pane hidden fade-in">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
+          <div class="flex items-start justify-between gap-4 mb-5">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-700 flex items-center"><i class="fa fa-archive text-amber-500 mr-2"></i> 已归档套题</h2>
+              <p class="text-sm text-gray-500 mt-2">归档后的套题不会出现在教师端题库管理，也不会在学生端任务、自学成才配套题、作答记录等区域继续显示。</p>
+            </div>
+            <span id="archivedPaperCountBadge" class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700 border border-amber-100">0 套</span>
+          </div>
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="border border-blue-100 rounded-2xl p-4 bg-blue-50/40">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="font-bold text-blue-800 flex items-center"><i class="fa fa-book mr-2"></i>高一归档</h3>
+                <select id="archivedGrade1TypeFilter" class="px-3 py-1.5 border border-blue-200 rounded-lg text-sm bg-white">
+                  <option value="all">全部类型</option>
+                  <option value="test">课上测试</option>
+                  <option value="homework">课后作业</option>
+                  <option value="correction">改错任务</option>
+                  <option value="custom">自定义题库</option>
+                </select>
+              </div>
+              <div id="archivedGrade1PaperList" class="space-y-3"></div>
+              <div id="archivedGrade1PaperPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
+            </div>
+            <div class="border border-emerald-100 rounded-2xl p-4 bg-emerald-50/40">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="font-bold text-emerald-800 flex items-center"><i class="fa fa-book mr-2"></i>高二归档</h3>
+                <select id="archivedGrade2TypeFilter" class="px-3 py-1.5 border border-emerald-200 rounded-lg text-sm bg-white">
+                  <option value="all">全部类型</option>
+                  <option value="test">课上测试</option>
+                  <option value="homework">课后作业</option>
+                  <option value="correction">改错任务</option>
+                  <option value="custom">自定义题库</option>
+                </select>
+              </div>
+              <div id="archivedGrade2PaperList" class="space-y-3"></div>
+              <div id="archivedGrade2PaperPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
+            </div>
+            <div class="border border-purple-100 rounded-2xl p-4 bg-purple-50/40">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="font-bold text-purple-800 flex items-center"><i class="fa fa-book mr-2"></i>高三归档</h3>
+                <select id="archivedGrade3TypeFilter" class="px-3 py-1.5 border border-purple-200 rounded-lg text-sm bg-white">
+                  <option value="all">全部类型</option>
+                  <option value="test">课上测试</option>
+                  <option value="homework">课后作业</option>
+                  <option value="correction">改错任务</option>
+                  <option value="custom">自定义题库</option>
+                </select>
+              </div>
+              <div id="archivedGrade3PaperList" class="space-y-3"></div>
+              <div id="archivedGrade3PaperPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="student" class="tab-pane hidden fade-in">
         <div class="bg-white rounded-xl shadow-md p-6 mb-8">
             <div class="mb-4 space-x-3">
@@ -377,22 +434,34 @@
 
       <div id="forum" class="tab-pane hidden fade-in">
         <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-            <h2 class="text-xl font-semibold text-gray-700 mb-6 flex items-center"><i class="fa fa-comments text-blue-500 mr-2"></i> 交流广场管理面板</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 border">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发帖状态 / 真实身份</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">文字内容与图片</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">点赞热度 & 时间</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">后台管控</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminForumList" class="bg-white divide-y divide-gray-200">
-                        <tr><td colspan="4" class="text-center py-10 text-gray-400">正在加载数据...</td></tr>
-                    </tbody>
-                </table>
-                <div id="adminForumEmpty" class="hidden text-center py-10 text-gray-400 border border-t-0">广场暂无任何讨论帖子</div>
+            <h2 class="text-xl font-semibold text-gray-700 mb-3 flex items-center"><i class="fa fa-comments text-blue-500 mr-2"></i> 交流广场管理面板</h2>
+            <div id="adminForumSections" class="space-y-6 mb-6">
+              <div class="text-center py-10 text-gray-400">正在加载数据...</div>
+            </div>
+            <div class="rounded-2xl border border-red-100 bg-red-50/50 p-5">
+              <h3 class="text-base font-bold text-red-800 mb-4 flex items-center"><i class="fa fa-folder-open-o mr-2"></i>资料专区</h3>
+              <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+                <div class="flex-1">
+                  <label class="block text-sm font-medium text-gray-600 mb-1">资料标题</label>
+                  <input type="text" id="forumResourceTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white" placeholder="不填则默认使用 PDF 文件名">
+                </div>
+                <div class="flex-1">
+                  <label class="block text-sm font-medium text-gray-600 mb-1">PDF 文件</label>
+                  <div class="relative">
+                    <input type="text" id="forumResourcePdfFile" class="w-full px-3 py-2 pr-24 border border-gray-300 rounded-lg bg-white" placeholder="请选择 PDF 资源文件">
+                    <button type="button" id="forumResourcePdfSelectBtn" class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs rounded bg-red-50 text-red-700 hover:bg-red-100 transition-colors"><i class="fa fa-folder-open mr-1"></i>选择 PDF</button>
+                  </div>
+                </div>
+                <button id="addForumResourceBtn" class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shrink-0"><i class="fa fa-plus mr-2"></i>添加资料</button>
+              </div>
+              <div class="mt-4">
+                <h4 class="text-sm font-bold text-red-800 mb-3 flex items-center"><i class="fa fa-folder-open-o mr-2"></i>已发布资料</h4>
+                <div id="forumResourceList" class="space-y-2"></div>
+                <div id="forumResourcePagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div>
+              </div>
+            </div>
+            <div id="adminForumSecondHandSection" class="mt-6">
+              <div class="text-center py-10 text-gray-400">正在加载二手专区...</div>
             </div>
         </div>
       </div>
@@ -527,9 +596,10 @@
     </div>
   </div>
   <div id="selfLearningInteractionModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[65] backdrop-blur-sm"><div id="selfLearningInteractionModalContent" class="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-4"><h3 id="selfLearningInteractionModalTitle" class="text-lg font-bold text-gray-800">互动详情</h3><button id="closeSelfLearningInteractionModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="selfLearningInteractionModalList" class="space-y-2 max-h-[55vh] overflow-y-auto"></div><div id="selfLearningInteractionModalPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div></div>
+  <div id="videoAnalyticsModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[66] backdrop-blur-sm"><div id="videoAnalyticsModalContent" class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 transform transition-all scale-95 opacity-0"><div class="flex justify-between items-start gap-3 mb-4"><div><h3 id="videoAnalyticsModalTitle" class="text-lg font-bold text-gray-800">视频数据分析</h3><p id="videoAnalyticsModalSummary" class="text-sm text-gray-500 mt-1">正在整理观看记录...</p></div><button id="closeVideoAnalyticsModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="videoAnalyticsModalList" class="space-y-2 max-h-[55vh] overflow-y-auto"></div><div id="videoAnalyticsModalPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div></div>
 
   <script>
-    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', ADMIN_SESSION_KEY = 'adminLoggedIn', PRIZES_STORAGE_KEY = 'exchangePrizes', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions', TEMP_ANSWER_REPORT_STORAGE_KEY = 'tempAnswerReportPayload', ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
+    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', ADMIN_SESSION_KEY = 'adminLoggedIn', PRIZES_STORAGE_KEY = 'exchangePrizes', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions', FORUM_RESOURCE_STORAGE_KEY = 'forumResourceMaterials', TEMP_ANSWER_REPORT_STORAGE_KEY = 'tempAnswerReportPayload', ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
     async function getData(key) { if (key === ADMIN_SESSION_KEY) return localStorage.getItem(key); try { const response = await fetch(`/api/data?key=${key}`); return await response.json(); } catch (e) { return null; } }
     async function saveData(key, value) { if (key === ADMIN_SESSION_KEY) { localStorage.setItem(key, value); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: value }) }); } catch (e) { alert("网络错误"); } }
     async function removeData(key) { if (key === ADMIN_SESSION_KEY) { localStorage.removeItem(key); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: null }) }); } catch (e) { console.error(e); } }
@@ -618,7 +688,10 @@
     const paperFillBlankCount = document.getElementById('paperFillBlankCount'), paperFillBlankPoints = document.getElementById('paperFillBlankPoints'), paperFillBlankAnswerImage = document.getElementById('paperFillBlankAnswerImage'), previewContainer = document.getElementById('previewContainer'), answerImagePreview = document.getElementById('answerImagePreview'), imagePreviewModal = document.getElementById('imagePreviewModal'), fullScreenPreviewImage = document.getElementById('fullScreenPreviewImage'), clearFillBlankAnswersBtn = document.getElementById('clearFillBlankAnswersBtn');
     let adminFillBlankAnswerFiles = [];
     const optionA = document.getElementById('optionA'), optionB = document.getElementById('optionB'), optionC = document.getElementById('optionC'), optionD = document.getElementById('optionD'), dynamicAnswers = document.getElementById('dynamicAnswers'), addPaperBtn = document.getElementById('addPaperBtn');
-    const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade3AddBtn = document.getElementById('grade3AddBtn'), customPaperManageList = document.getElementById('customPaperManageList'), customPaperAddBtn = document.getElementById('customPaperAddBtn');
+    const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade3AddBtn = document.getElementById('grade3AddBtn'), customPaperManageList = document.getElementById('customPaperManageList'), customPaperAddBtn = document.getElementById('customPaperAddBtn'), archivedPaperCountBadge = document.getElementById('archivedPaperCountBadge');
+    const archivedGrade1PaperList = document.getElementById('archivedGrade1PaperList'), archivedGrade2PaperList = document.getElementById('archivedGrade2PaperList'), archivedGrade3PaperList = document.getElementById('archivedGrade3PaperList');
+    const archivedGrade1PaperPagination = document.getElementById('archivedGrade1PaperPagination'), archivedGrade2PaperPagination = document.getElementById('archivedGrade2PaperPagination'), archivedGrade3PaperPagination = document.getElementById('archivedGrade3PaperPagination');
+    const archivedGrade1TypeFilter = document.getElementById('archivedGrade1TypeFilter'), archivedGrade2TypeFilter = document.getElementById('archivedGrade2TypeFilter'), archivedGrade3TypeFilter = document.getElementById('archivedGrade3TypeFilter');
     const dailyRecordList = document.getElementById('dailyRecordList'), recordDateFilter = document.getElementById('recordDateFilter'), noRecordsHint = document.getElementById('noRecordsHint');
     const prizeName = document.getElementById('prizeName'), prizePoints = document.getElementById('prizePoints'), prizeDesc = document.getElementById('prizeDesc'), addPrizeBtn = document.getElementById('addPrizeBtn'), prizeList = document.getElementById('prizeList');
     const exportAllDataBtn = document.getElementById('exportAllDataBtn'), selectImportFileBtn = document.getElementById('selectImportFileBtn'), importFileInput = document.getElementById('importFileInput'), importFileName = document.getElementById('importFileName');
@@ -629,9 +702,11 @@
     const selfLearningTitle = document.getElementById('selfLearningTitle'), selfLearningSummary = document.getElementById('selfLearningSummary'), selfLearningVideo = document.getElementById('selfLearningVideo'), selfLearningVideoSelectBtn = document.getElementById('selfLearningVideoSelectBtn'), selfLearningVideoUploadStatus = document.getElementById('selfLearningVideoUploadStatus'), selfLearningGrade = document.getElementById('selfLearningGrade'), selfLearningRelatedPaper = document.getElementById('selfLearningRelatedPaper'), selfLearningPaperTrigger = document.getElementById('selfLearningPaperTrigger'), selfLearningPaperSelectedText = document.getElementById('selfLearningPaperSelectedText'), selfLearningPaperDropdown = document.getElementById('selfLearningPaperDropdown'), selfLearningPaperSearch = document.getElementById('selfLearningPaperSearch'), selfLearningPaperOptions = document.getElementById('selfLearningPaperOptions'), selfLearningPaperPrev = document.getElementById('selfLearningPaperPrev'), selfLearningPaperNext = document.getElementById('selfLearningPaperNext'), selfLearningPaperPageInfo = document.getElementById('selfLearningPaperPageInfo'), addSelfLearningBtn = document.getElementById('addSelfLearningBtn'), selfLearningList = document.getElementById('selfLearningList'), selfLearningListWrap = document.getElementById('selfLearningListWrap'), selfLearningListToggleBtn = document.getElementById('selfLearningListToggleBtn'), selfLearningListToggleIcon = document.getElementById('selfLearningListToggleIcon');
     const selfLearningInteractionModal = document.getElementById('selfLearningInteractionModal'), selfLearningInteractionModalContent = document.getElementById('selfLearningInteractionModalContent'), selfLearningInteractionModalTitle = document.getElementById('selfLearningInteractionModalTitle'), selfLearningInteractionModalList = document.getElementById('selfLearningInteractionModalList'), selfLearningInteractionModalPagination = document.getElementById('selfLearningInteractionModalPagination'), closeSelfLearningInteractionModalBtn = document.getElementById('closeSelfLearningInteractionModalBtn');
     const videoUploadBtn = document.getElementById('videoUploadBtn'), videoUploadInput = document.getElementById('videoUploadInput'), videoUploadStatus = document.getElementById('videoUploadStatus'), videoManagerSearch = document.getElementById('videoManagerSearch'), videoManagerList = document.getElementById('videoManagerList'), refreshVideoListBtn = document.getElementById('refreshVideoListBtn'), videoManagerPagination = document.getElementById('videoManagerPagination');
+    const videoAnalyticsModal = document.getElementById('videoAnalyticsModal'), videoAnalyticsModalContent = document.getElementById('videoAnalyticsModalContent'), videoAnalyticsModalTitle = document.getElementById('videoAnalyticsModalTitle'), videoAnalyticsModalSummary = document.getElementById('videoAnalyticsModalSummary'), videoAnalyticsModalList = document.getElementById('videoAnalyticsModalList'), videoAnalyticsModalPagination = document.getElementById('videoAnalyticsModalPagination'), closeVideoAnalyticsModalBtn = document.getElementById('closeVideoAnalyticsModalBtn');
     const videoSelectModal = document.getElementById('videoSelectModal'), videoSelectModalContent = document.getElementById('videoSelectModalContent'), closeVideoSelectModalBtn = document.getElementById('closeVideoSelectModalBtn'), videoSelectSearch = document.getElementById('videoSelectSearch'), videoSelectRefreshBtn = document.getElementById('videoSelectRefreshBtn'), videoSelectList = document.getElementById('videoSelectList'), videoSelectPagination = document.getElementById('videoSelectPagination');
     const pdfUploadBtn = document.getElementById('pdfUploadBtn'), pdfUploadInput = document.getElementById('pdfUploadInput'), pdfUploadStatus = document.getElementById('pdfUploadStatus'), pdfManagerSearch = document.getElementById('pdfManagerSearch'), pdfManagerList = document.getElementById('pdfManagerList'), refreshPdfListBtn = document.getElementById('refreshPdfListBtn'), pdfManagerPagination = document.getElementById('pdfManagerPagination');
     const pdfSelectModal = document.getElementById('pdfSelectModal'), pdfSelectModalContent = document.getElementById('pdfSelectModalContent'), closePdfSelectModalBtn = document.getElementById('closePdfSelectModalBtn'), pdfSelectSearch = document.getElementById('pdfSelectSearch'), pdfSelectRefreshBtn = document.getElementById('pdfSelectRefreshBtn'), pdfSelectList = document.getElementById('pdfSelectList'), pdfSelectPagination = document.getElementById('pdfSelectPagination');
+    const forumResourceTitle = document.getElementById('forumResourceTitle'), forumResourcePdfFile = document.getElementById('forumResourcePdfFile'), forumResourcePdfSelectBtn = document.getElementById('forumResourcePdfSelectBtn'), addForumResourceBtn = document.getElementById('addForumResourceBtn'), forumResourceList = document.getElementById('forumResourceList'), forumResourcePagination = document.getElementById('forumResourcePagination');
     const paperPdfFile = document.getElementById('paperPdfFile'), paperPdfSelectBtn = document.getElementById('paperPdfSelectBtn');
     const schoolScoreModal = document.getElementById('schoolScoreModal'), schoolScoreModalContent = document.getElementById('schoolScoreModalContent'), schoolScoreModalTitle = document.getElementById('schoolScoreModalTitle'), closeSchoolScoreModal = document.getElementById('closeSchoolScoreModal'), schoolScoreFormTitle = document.getElementById('schoolScoreFormTitle'), schoolScoreNameInput = document.getElementById('schoolScoreNameInput'), schoolScoreValueInput = document.getElementById('schoolScoreValueInput'), schoolScoreTotalInput = document.getElementById('schoolScoreTotalInput'), saveSchoolScoreBtn = document.getElementById('saveSchoolScoreBtn'), cancelSchoolScoreEditBtn = document.getElementById('cancelSchoolScoreEditBtn'), schoolScoreList = document.getElementById('schoolScoreList'), schoolScorePagination = document.getElementById('schoolScorePagination');
     const SELF_LEARNING_PAPER_PAGE_SIZE = 8;
@@ -643,6 +718,7 @@
     let selfLearningListPage = 1, selfLearningListExpanded = false;
     let selfLearningWatchPageState = {};
     let selfLearningInteractionModalState = { contentId: '', type: 'likes', page: 1, title: '' };
+    let videoAnalyticsModalState = { videoName: '', page: 1, rows: [] };
     let currentSchoolScoreStudentId = '', currentSchoolScoreStudentName = '', currentEditingSchoolScoreId = null, schoolScorePage = 1;
     let cachedVideoLibrary = [];
     let videoSelectState = { targetInputId: '', mode: 'path', page: 1, keyword: '' };
@@ -650,18 +726,29 @@
     let cachedPdfLibrary = [];
     let pdfSelectState = { targetInputId: '', mode: 'filename', page: 1, keyword: '' };
     let pdfManagerPage = 1;
+    let forumResourcePage = 1;
+    let archivedPaperPageState = { grade1: 1, grade2: 1, grade3: 1 };
+    const ARCHIVED_PAPER_PAGE_SIZE = 4;
+    const ADMIN_FORUM_PAGE_SIZE = 5;
+    const FORUM_RESOURCE_PAGE_SIZE = 5;
+    let forumModulePageState = {};
 
     async function init() { if (await getData(ADMIN_SESSION_KEY) === 'true') { showMainContent(); } else { loginBtn.addEventListener('click', handleLogin); [adminName, adminPassword].forEach(el => { el.addEventListener('keyup', e => e.key === 'Enter' && handleLogin()); }); } }
     async function handleLogin() { const name = adminName.value.trim(), password = adminPassword.value.trim(); loginError.classList.add('hidden'); if (!name || !password) return showLoginError('请输入完整的用户名和密码'); if (name === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) { await saveData(ADMIN_SESSION_KEY, 'true'); showMainContent(); } else { showLoginError('用户名或密码错误，请重试'); adminPassword.value = ''; } }
     function showLoginError(message) { loginError.textContent = message; loginError.classList.remove('hidden'); loginScreen.querySelector('.login-container').classList.add('shake'); setTimeout(() => loginScreen.querySelector('.login-container').classList.remove('shake'), 500); }
     function showMainContent() { loginScreen.classList.add('hidden'); mainContent.classList.remove('hidden'); initSystem(); }
     async function handleLogout() { if (confirm('确定要退出登录吗？')) { await removeData(ADMIN_SESSION_KEY); window.location.reload(); } }
+    function isArchivedPaper(paper) {
+      return !!(paper && paper.isArchived);
+    }
     function switchTab(targetTabId) { 
         tabPanes.forEach(pane => pane.classList.add('hidden')); 
         tabButtons.forEach(btn => btn.classList.remove('tab-active')); 
         document.getElementById(targetTabId).classList.remove('hidden'); 
         document.querySelector(`[data-tab="${targetTabId}"]`).classList.add('tab-active'); 
-        if (targetTabId === 'student') { 
+        if (targetTabId === 'archived') {
+            renderArchivedPaperList();
+        } else if (targetTabId === 'student') { 
             loadStudentPointsList(); 
         } else if (targetTabId === 'rank') { 
             loadRankingData(); 
@@ -788,6 +875,8 @@
       answerDetailModal.addEventListener('click', e => e.target === answerDetailModal && closeDetailModal()); 
       if (closeSelfLearningInteractionModalBtn) closeSelfLearningInteractionModalBtn.addEventListener('click', closeSelfLearningInteractionModal);
       if (selfLearningInteractionModal) selfLearningInteractionModal.addEventListener('click', (e) => { if (e.target === selfLearningInteractionModal) closeSelfLearningInteractionModal(); });
+      if (closeVideoAnalyticsModalBtn) closeVideoAnalyticsModalBtn.addEventListener('click', closeVideoAnalyticsModal);
+      if (videoAnalyticsModal) videoAnalyticsModal.addEventListener('click', (e) => { if (e.target === videoAnalyticsModal) closeVideoAnalyticsModal(); });
       if (closeVideoSelectModalBtn) closeVideoSelectModalBtn.addEventListener('click', closeVideoSelectModal);
       if (videoSelectModal) videoSelectModal.addEventListener('click', (e) => { if (e.target === videoSelectModal) closeVideoSelectModal(); });
       if (closePdfSelectModalBtn) closePdfSelectModalBtn.addEventListener('click', closePdfSelectModal);
@@ -842,6 +931,16 @@
       if (refreshPdfListBtn) refreshPdfListBtn.addEventListener('click', fetchPdfLibrary);
       if (pdfSelectSearch) pdfSelectSearch.addEventListener('input', () => { pdfSelectState.page = 1; renderPdfSelectList(); });
       if (pdfSelectRefreshBtn) pdfSelectRefreshBtn.addEventListener('click', fetchPdfLibrary);
+      if (forumResourcePdfSelectBtn) forumResourcePdfSelectBtn.addEventListener('click', () => openPdfSelectModal('forumResourcePdfFile', 'filename'));
+      if (addForumResourceBtn) addForumResourceBtn.addEventListener('click', addForumResourceItem);
+      [archivedGrade1TypeFilter, archivedGrade2TypeFilter, archivedGrade3TypeFilter].forEach((select, index) => {
+        if (!select) return;
+        const gradeKey = ['grade1', 'grade2', 'grade3'][index];
+        select.addEventListener('change', () => {
+          archivedPaperPageState[gradeKey] = 1;
+          renderArchivedPaperList();
+        });
+      });
       fetchVideoLibrary();
       fetchPdfLibrary();
     }
@@ -1514,7 +1613,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         } catch (e) { alert('图片上传服务器失败，请重试'); return; }
       }
       
-      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: (questionCount * singlePoints) + totalFbPoints, answers, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
+      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, isArchived: false, archivedAt: '', targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: (questionCount * singlePoints) + totalFbPoints, answers, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
       const papers = await getData(PAPER_STORAGE_KEY) || []; 
       papers.push(newPaper); 
       await saveData(PAPER_STORAGE_KEY, papers);
@@ -1559,10 +1658,12 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
  async function renderAllPaperLists() {
         const papers = await getData(PAPER_STORAGE_KEY) || [];
         const allAnswers = await getData(ANSWER_STORAGE_KEY) || []; // 🚀 终极优化：只读取1次数据
-        renderPaperList(grade1PaperList, papers.filter(p => p.grade === 'grade1'), allAnswers);
-        renderPaperList(grade2PaperList, papers.filter(p => p.grade === 'grade2'), allAnswers);
-        renderPaperList(grade3PaperList, papers.filter(p => p.grade === 'grade3'), allAnswers);
-        if (customPaperManageList) renderPaperList(customPaperManageList, papers.filter(p => (p.type || 'test') === 'custom'), allAnswers);
+        const activePapers = papers.filter((p) => !isArchivedPaper(p));
+        renderPaperList(grade1PaperList, activePapers.filter(p => p.grade === 'grade1' && (p.type || 'test') !== 'custom'), allAnswers);
+        renderPaperList(grade2PaperList, activePapers.filter(p => p.grade === 'grade2' && (p.type || 'test') !== 'custom'), allAnswers);
+        renderPaperList(grade3PaperList, activePapers.filter(p => p.grade === 'grade3' && (p.type || 'test') !== 'custom'), allAnswers);
+        if (customPaperManageList) renderPaperList(customPaperManageList, activePapers.filter(p => (p.type || 'test') === 'custom'), allAnswers);
+        await renderArchivedPaperList(papers, allAnswers);
         await refreshSelfLearningPaperOptions();
     }
 
@@ -1721,7 +1822,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
     async function refreshSelfLearningPaperOptions() {
       if (!selfLearningRelatedPaper) return;
-      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const papers = (await getData(PAPER_STORAGE_KEY) || []).filter((p) => !isArchivedPaper(p));
       const gradeValue = selfLearningGrade ? selfLearningGrade.value : 'all';
       selfLearningPaperCandidates = papers.filter((p) => {
         if (gradeValue === 'all') return true;
@@ -1758,6 +1859,13 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       }
       return `${val.toFixed(val >= 10 || idx === 0 ? 0 : 1)} ${units[idx]}`;
     }
+    function normalizeVideoResourceName(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const withoutQuery = raw.split('?')[0].split('#')[0];
+      const segments = withoutQuery.split('/').filter(Boolean);
+      return segments.length ? segments[segments.length - 1] : withoutQuery;
+    }
 
     async function fetchVideoLibrary() {
       try {
@@ -1780,7 +1888,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         if (videoManagerPagination) { videoManagerPagination.classList.add('hidden'); videoManagerPagination.innerHTML = ''; }
         return;
       }
-      const pageSize = 8;
+      const pageSize = 5;
       const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
       if (videoManagerPage > totalPages) videoManagerPage = totalPages;
       if (videoManagerPage < 1) videoManagerPage = 1;
@@ -1789,8 +1897,15 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       videoManagerList.innerHTML = pageItems.map((v) => {
         const sizeText = formatBytes(v.size || 0);
         const timeText = v.mtime ? new Date(v.mtime * 1000).toLocaleString() : '';
-        return `<div class="border rounded-lg p-3 bg-gray-50 flex items-center justify-between gap-3"><div class="min-w-0"><p class="font-medium text-gray-800 truncate">${v.name}</p><p class="text-xs text-gray-500 mt-1">${sizeText}${timeText ? ` · ${timeText}` : ''}</p></div><div class="shrink-0 flex items-center gap-2"><button class="copy-video-path text-xs px-2 py-1 rounded border text-gray-600 hover:bg-gray-100" data-name="${v.name}">复制路径</button></div></div>`;
+        return `<div class="border rounded-lg p-3 bg-gray-50 flex items-center justify-between gap-3"><div class="min-w-0"><p class="font-medium text-gray-800 truncate">${v.name}</p><p class="text-xs text-gray-500 mt-1">${sizeText}${timeText ? ` · ${timeText}` : ''}</p></div><div class="shrink-0 flex items-center gap-2"><button class="open-video-analytics text-xs px-2 py-1 rounded border border-emerald-200 text-emerald-600 hover:bg-emerald-50" data-name="${escapeHtmlText(v.name)}">数据分析</button><button class="copy-video-path text-xs px-2 py-1 rounded border text-gray-600 hover:bg-gray-100" data-name="${escapeHtmlText(v.name)}">复制路径</button></div></div>`;
       }).join('');
+      videoManagerList.querySelectorAll('.open-video-analytics').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const name = this.dataset.name || '';
+          if (!name) return;
+          openVideoAnalyticsModal(name);
+        });
+      });
       videoManagerList.querySelectorAll('.copy-video-path').forEach((btn) => {
         btn.addEventListener('click', function () {
           const name = this.dataset.name || '';
@@ -1826,6 +1941,180 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       videoManagerPagination.querySelectorAll('.video-manager-page').forEach((btn) => {
         btn.addEventListener('click', function () { const page = parseInt(this.dataset.page, 10); if (!Number.isNaN(page)) { videoManagerPage = page; renderVideoManagerList(); } });
       });
+    }
+    function closeVideoAnalyticsModal() {
+      if (!videoAnalyticsModal || !videoAnalyticsModalContent) return;
+      videoAnalyticsModalContent.classList.remove('scale-100', 'opacity-100');
+      videoAnalyticsModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => { videoAnalyticsModal.classList.add('hidden'); }, 220);
+    }
+    function renderVideoAnalyticsModal() {
+      if (!videoAnalyticsModalList || !videoAnalyticsModalPagination) return;
+      const rows = Array.isArray(videoAnalyticsModalState.rows) ? videoAnalyticsModalState.rows : [];
+      const pageSize = 5;
+      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      if (videoAnalyticsModalState.page > totalPages) videoAnalyticsModalState.page = totalPages;
+      if (videoAnalyticsModalState.page < 1) videoAnalyticsModalState.page = 1;
+      const startIndex = (videoAnalyticsModalState.page - 1) * pageSize;
+      const pageRows = rows.slice(startIndex, startIndex + pageSize);
+      if (pageRows.length === 0) {
+        videoAnalyticsModalList.innerHTML = '<div class="text-center text-sm text-gray-400 py-10">暂无观看记录</div>';
+      } else {
+        videoAnalyticsModalList.innerHTML = `
+          <div class="overflow-hidden rounded-xl border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-emerald-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-emerald-600">观看学生</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-emerald-600">观看时间</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-emerald-600">观看进度</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 bg-white">
+                ${pageRows.map((row) => `
+                  <tr>
+                    <td class="px-4 py-3 align-top">
+                      <div class="font-medium text-gray-800">${escapeHtmlText(row.studentLabel)}</div>
+                    </td>
+                    <td class="px-4 py-3 align-top text-sm text-gray-700">
+                      ${row.lastUpdate ? `<div class="mt-1 text-xs text-gray-400">${escapeHtmlText(row.lastUpdate)}</div>` : ''}
+                    </td>
+                    <td class="px-4 py-3 align-top">
+                      <div class="flex items-center justify-between gap-3 text-sm text-gray-700 mb-1">
+                        <span>${row.progressPercent}%</span>
+                        <span class="text-xs text-gray-400">${row.durationText}</span>
+                      </div>
+                      <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-emerald-500 h-2.5 rounded-full" style="width:${row.progressPercent}%"></div>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+      if (rows.length <= pageSize) {
+        videoAnalyticsModalPagination.classList.add('hidden');
+        videoAnalyticsModalPagination.innerHTML = '';
+        return;
+      }
+      const pageItems = buildCompactPageItems(videoAnalyticsModalState.page, totalPages);
+      videoAnalyticsModalPagination.classList.remove('hidden');
+      videoAnalyticsModalPagination.innerHTML = `
+        <button class="video-analytics-prev px-2.5 py-1 rounded border text-sm ${videoAnalyticsModalState.page === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${videoAnalyticsModalState.page === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageItems.map((item) => {
+          if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+          const active = item === videoAnalyticsModalState.page;
+          return `<button class="video-analytics-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`;
+        }).join('')}
+        <button class="video-analytics-next px-2.5 py-1 rounded border text-sm ${videoAnalyticsModalState.page === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${videoAnalyticsModalState.page === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      const prevBtn = videoAnalyticsModalPagination.querySelector('.video-analytics-prev');
+      const nextBtn = videoAnalyticsModalPagination.querySelector('.video-analytics-next');
+      if (prevBtn) prevBtn.addEventListener('click', function () { if (videoAnalyticsModalState.page > 1) { videoAnalyticsModalState.page -= 1; renderVideoAnalyticsModal(); } });
+      if (nextBtn) nextBtn.addEventListener('click', function () { if (videoAnalyticsModalState.page < totalPages) { videoAnalyticsModalState.page += 1; renderVideoAnalyticsModal(); } });
+      videoAnalyticsModalPagination.querySelectorAll('.video-analytics-page').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const page = parseInt(this.dataset.page, 10);
+          if (Number.isNaN(page) || page === videoAnalyticsModalState.page) return;
+          videoAnalyticsModalState.page = page;
+          renderVideoAnalyticsModal();
+        });
+      });
+    }
+    async function openVideoAnalyticsModal(videoName) {
+      if (!videoAnalyticsModal || !videoAnalyticsModalContent) return;
+      const [contents, watchStatsAll, studentPointsMap] = await Promise.all([
+        getData(SELF_LEARNING_STORAGE_KEY).then((res) => res || []),
+        getData(SELF_LEARNING_WATCH_STORAGE_KEY).then((res) => res || {}),
+        getData(STUDENT_POINTS_KEY).then((res) => res || {})
+      ]);
+      const normalizedName = normalizeVideoResourceName(videoName);
+      const matchedContents = contents.filter((item) => normalizeVideoResourceName(item.videoFile) === normalizedName);
+      const selfLearningRows = matchedContents.flatMap((item) => {
+        const itemStats = watchStatsAll[item.id] || {};
+        return Object.values(itemStats).map((record) => {
+          const progressPercent = Math.max(0, Math.min(100, parseInt(record.progressPercent, 10) || 0));
+          const watchedSeconds = Math.max(0, parseInt(record.watchedSeconds, 10) || 0);
+          const duration = Math.max(0, parseInt(record.duration, 10) || 0);
+          const studentMeta = record.studentId ? studentPointsMap[record.studentId] : null;
+          const studentName = record.studentName || (studentMeta && studentMeta.name) || '未知学生';
+          return {
+            studentId: record.studentId || '',
+            studentLabel: record.studentId ? `${studentName}（${record.studentId}）` : studentName,
+            durationText: duration > 0 ? `总时长 ${formatDuration(duration)}` : '总时长未知',
+            progressPercent,
+            lastUpdate: record.lastUpdate || '',
+            watchedSeconds,
+            duration
+          };
+        });
+      });
+      const paperVideoStats = watchStatsAll[`video::${normalizedName}`] || {};
+      const paperVideoRows = Object.values(paperVideoStats).map((record) => {
+        const progressPercent = Math.max(0, Math.min(100, parseInt(record.progressPercent, 10) || 0));
+        const watchedSeconds = Math.max(0, parseInt(record.watchedSeconds, 10) || 0);
+        const duration = Math.max(0, parseInt(record.duration, 10) || 0);
+        const studentMeta = record.studentId ? studentPointsMap[record.studentId] : null;
+        const studentName = record.studentName || (studentMeta && studentMeta.name) || '未知学生';
+        return {
+          studentId: record.studentId || '',
+          studentLabel: record.studentId ? `${studentName}（${record.studentId}）` : studentName,
+          durationText: duration > 0 ? `总时长 ${formatDuration(duration)}` : '总时长未知',
+          progressPercent,
+          lastUpdate: record.lastUpdate || '',
+          watchedSeconds,
+          duration
+        };
+      });
+      const mergedMap = new Map();
+      [...selfLearningRows, ...paperVideoRows].forEach((row) => {
+        const key = row.studentId || row.studentLabel;
+        if (!key) return;
+        const currentUpdateTime = new Date(String(row.lastUpdate || '').replace(/-/g, '/')).getTime() || 0;
+        const prev = mergedMap.get(key);
+        if (!prev) {
+          mergedMap.set(key, {
+            ...row,
+            _updateTime: currentUpdateTime
+          });
+          return;
+        }
+        if ((row.progressPercent || 0) > (prev.progressPercent || 0) || ((row.progressPercent || 0) === (prev.progressPercent || 0) && (row.watchedSeconds || 0) > (prev.watchedSeconds || 0))) {
+          prev.progressPercent = row.progressPercent;
+          prev.watchedSeconds = row.watchedSeconds;
+          prev.duration = row.duration;
+          prev.durationText = row.durationText;
+        }
+        if (currentUpdateTime >= (prev._updateTime || 0)) {
+          prev.lastUpdate = row.lastUpdate;
+          prev._updateTime = currentUpdateTime;
+          prev.studentLabel = row.studentLabel || prev.studentLabel;
+        }
+      });
+      const rows = Array.from(mergedMap.values()).map((row) => {
+        return {
+          ...row
+        };
+      }).sort((a, b) => {
+        if (b.progressPercent !== a.progressPercent) return b.progressPercent - a.progressPercent;
+        if (b.watchedSeconds !== a.watchedSeconds) return b.watchedSeconds - a.watchedSeconds;
+        return String(b.lastUpdate || '').localeCompare(String(a.lastUpdate || ''));
+      });
+      videoAnalyticsModalState = { videoName: normalizedName, page: 1, rows };
+      if (videoAnalyticsModalTitle) videoAnalyticsModalTitle.textContent = `${normalizedName} - 数据分析`;
+      if (videoAnalyticsModalSummary) {
+        if (matchedContents.length === 0 && paperVideoRows.length === 0) videoAnalyticsModalSummary.textContent = '该视频还没有观看记录。';
+        else videoAnalyticsModalSummary.textContent = ``;
+      }
+      renderVideoAnalyticsModal();
+      videoAnalyticsModal.classList.remove('hidden');
+      setTimeout(() => {
+        videoAnalyticsModalContent.classList.remove('scale-95', 'opacity-0');
+        videoAnalyticsModalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
     }
 
     function openVideoSelectModal(targetInputId, mode) {
@@ -2042,6 +2331,97 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           closePdfSelectModal();
         });
       });
+    }
+    async function renderForumResourceList() {
+      if (!forumResourceList) return;
+      const resources = await getData(FORUM_RESOURCE_STORAGE_KEY) || [];
+      const sorted = resources.slice().sort((a, b) => (b.createTime || 0) - (a.createTime || 0));
+      if (sorted.length === 0) {
+        forumResourceList.innerHTML = '<div class="text-center text-gray-400 py-5 border border-dashed border-emerald-200 rounded-xl bg-white">暂无资料，先从 PDF 资源库里添加吧。</div>';
+        if (forumResourcePagination) {
+          forumResourcePagination.classList.add('hidden');
+          forumResourcePagination.innerHTML = '';
+        }
+        return;
+      }
+      const totalPages = Math.max(1, Math.ceil(sorted.length / FORUM_RESOURCE_PAGE_SIZE));
+      if (forumResourcePage > totalPages) forumResourcePage = totalPages;
+      if (forumResourcePage < 1) forumResourcePage = 1;
+      const startIndex = (forumResourcePage - 1) * FORUM_RESOURCE_PAGE_SIZE;
+      const pageItems = sorted.slice(startIndex, startIndex + FORUM_RESOURCE_PAGE_SIZE);
+      forumResourceList.innerHTML = pageItems.map((item) => `
+        <div class="border border-emerald-100 rounded-xl bg-white px-4 py-3 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-medium text-gray-800 truncate">${escapeHtmlText(item.title || item.file || '未命名资料')}</p>
+            <p class="text-xs text-gray-500 mt-1">文件：${escapeHtmlText(item.file || '')}</p>
+          </div>
+          <div class="shrink-0 flex items-center gap-2">
+            <button class="delete-forum-resource text-red-500 text-sm hover:text-red-700" data-id="${item.id}"><i class="fa fa-trash mr-1"></i>删除</button>
+          </div>
+        </div>
+      `).join('');
+      if (forumResourcePagination) {
+        if (sorted.length <= FORUM_RESOURCE_PAGE_SIZE) {
+          forumResourcePagination.classList.add('hidden');
+          forumResourcePagination.innerHTML = '';
+        } else {
+          const pagerItems = buildCompactPageItems(forumResourcePage, totalPages);
+          forumResourcePagination.classList.remove('hidden');
+          forumResourcePagination.innerHTML = `
+            <button class="forum-resource-prev px-2.5 py-1 rounded border text-sm ${forumResourcePage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${forumResourcePage === 1 ? 'disabled' : ''}>上一页</button>
+            ${pagerItems.map((item) => {
+              if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+              const active = item === forumResourcePage;
+              return `<button class="forum-resource-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`;
+            }).join('')}
+            <button class="forum-resource-next px-2.5 py-1 rounded border text-sm ${forumResourcePage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${forumResourcePage === totalPages ? 'disabled' : ''}>下一页</button>
+          `;
+          const prevBtn = forumResourcePagination.querySelector('.forum-resource-prev');
+          const nextBtn = forumResourcePagination.querySelector('.forum-resource-next');
+          if (prevBtn) prevBtn.addEventListener('click', function () {
+            if (forumResourcePage <= 1) return;
+            forumResourcePage -= 1;
+            renderForumResourceList();
+          });
+          if (nextBtn) nextBtn.addEventListener('click', function () {
+            if (forumResourcePage >= totalPages) return;
+            forumResourcePage += 1;
+            renderForumResourceList();
+          });
+          forumResourcePagination.querySelectorAll('.forum-resource-page').forEach((btn) => {
+            btn.addEventListener('click', function () {
+              const page = parseInt(this.dataset.page, 10);
+              if (Number.isNaN(page)) return;
+              forumResourcePage = page;
+              renderForumResourceList();
+            });
+          });
+        }
+      }
+      forumResourceList.querySelectorAll('.delete-forum-resource').forEach((btn) => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id || '';
+          if (!id) return;
+          if (!confirm('确定要删除这条资料吗？')) return;
+          let resources = await getData(FORUM_RESOURCE_STORAGE_KEY) || [];
+          resources = resources.filter((item) => item.id !== id);
+          await saveData(FORUM_RESOURCE_STORAGE_KEY, resources);
+          await renderForumResourceList();
+        });
+      });
+    }
+    async function addForumResourceItem() {
+      const rawFile = forumResourcePdfFile ? forumResourcePdfFile.value.trim() : '';
+      const file = rawFile.startsWith('pdf/') ? rawFile.slice(4) : (rawFile.startsWith('/pdf/') ? rawFile.slice(5) : rawFile);
+      if (!file) return alert('请先选择 PDF 文件');
+      const title = (forumResourceTitle ? forumResourceTitle.value.trim() : '') || file.replace(/\.pdf$/i, '');
+      const resources = await getData(FORUM_RESOURCE_STORAGE_KEY) || [];
+      resources.unshift({ id: `fr_${Date.now()}`, title, file, createTime: Date.now() });
+      await saveData(FORUM_RESOURCE_STORAGE_KEY, resources);
+      forumResourcePage = 1;
+      if (forumResourceTitle) forumResourceTitle.value = '';
+      if (forumResourcePdfFile) forumResourcePdfFile.value = '';
+      await renderForumResourceList();
     }
 
     async function uploadVideoFile(file) {
@@ -2406,16 +2786,90 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     async function renderPaperList(container, papers, allAnswers) { // 🚀 接收传入的数据，不再重复请求
         container.innerHTML = ''; 
         if (papers.length === 0) return container.innerHTML = '<div class="text-center text-gray-500 py-4">暂无套卷</div>'; 
-        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试')); const redoEnabled = !!paper.allowRedo; const scopeSummary = getPaperScopeSummary(paper); const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 text-amber-600">范围: ${scopeSummary}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-violet-600 edit-paper-scope text-sm whitespace-nowrap" data-id="${paper.id}"><i class="fa fa-users"></i> 编辑范围</button><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap mt-1" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
+        papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试')); const redoEnabled = !!paper.allowRedo; const scopeSummary = getPaperScopeSummary(paper); const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 text-amber-600">范围: ${scopeSummary}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-violet-600 edit-paper-scope text-sm whitespace-nowrap" data-id="${paper.id}"><i class="fa fa-users"></i> 编辑范围</button><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap mt-1" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-amber-600 archive-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-archive"></i> 归档</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
     paperItem.querySelector('.edit-paper-scope').addEventListener('click', function () { openPaperScopeEditModal(this.dataset.id); });
     paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
     paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
             paperItem.querySelector('.view-analysis').addEventListener('click', function () { showPaperAnalysis(this.dataset.id); });
             paperItem.querySelector('.config-answers').addEventListener('click', function () { openAnswerConfigModal(this.dataset.id); });
+            paperItem.querySelector('.archive-paper').addEventListener('click', function () { if (confirm(`确定要归档"${paper.name}"吗？归档后学生端将不再显示该套题相关数据。`)) archivePaper(this.dataset.id); });
             paperItem.querySelector('.delete-paper').addEventListener('click', function () { if (confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) deletePaper(this.dataset.id); });
     }); 
     }
+            async function renderArchivedPaperList(paperList, answerList) {
+              const papers = Array.isArray(paperList) ? paperList : (await getData(PAPER_STORAGE_KEY) || []);
+              const allAnswers = Array.isArray(answerList) ? answerList : (await getData(ANSWER_STORAGE_KEY) || []);
+              const archivedPapers = papers.filter((paper) => isArchivedPaper(paper)).sort((a, b) => new Date(String(b.archivedAt || b.createTime || '').replace(/-/g, '/')).getTime() - new Date(String(a.archivedAt || a.createTime || '').replace(/-/g, '/')).getTime());
+              if (archivedPaperCountBadge) archivedPaperCountBadge.textContent = `${archivedPapers.length} 套`;
+              const gradeConfigs = [
+                { grade: 'grade1', listEl: archivedGrade1PaperList, paginationEl: archivedGrade1PaperPagination, filterEl: archivedGrade1TypeFilter, emptyClass: 'text-blue-400' },
+                { grade: 'grade2', listEl: archivedGrade2PaperList, paginationEl: archivedGrade2PaperPagination, filterEl: archivedGrade2TypeFilter, emptyClass: 'text-emerald-400' },
+                { grade: 'grade3', listEl: archivedGrade3PaperList, paginationEl: archivedGrade3PaperPagination, filterEl: archivedGrade3TypeFilter, emptyClass: 'text-purple-400' }
+              ];
+              const buildArchivedCardHtml = (paper) => {
+                const paperAnswers = allAnswers.filter((a) => a.paperId === paper.id);
+                const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试'));
+                const gradeLabel = paper.grade === 'grade1' ? '高一' : (paper.grade === 'grade2' ? '高二' : (paper.grade === 'grade3' ? '高三' : '未设置'));
+                const avgScore = paperAnswers.length > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / paperAnswers.length).toFixed(1) : 'N/A';
+                return `<div class="border border-amber-100 rounded-xl p-4 bg-gradient-to-r from-amber-50 via-white to-white"><div class="flex justify-between items-start gap-4"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-amber-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${gradeLabel} · ${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore} · ${paperAnswers.length} 人作答</p><p class="text-xs text-amber-700 mt-1">归档时间: ${paper.archivedAt || '未知'}</p></div><div class="flex flex-col items-start"><button class="text-emerald-600 restore-paper text-sm whitespace-nowrap" data-id="${paper.id}"><i class="fa fa-undo mr-1"></i>取消归档</button><button class="text-blue-500 archived-view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list mr-1"></i>作答明细</button><button class="text-purple-600 archived-view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart mr-1"></i>数据分析</button><button class="text-green-600 archived-config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog mr-1"></i>配置答案</button><button class="text-red-500 archived-delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash mr-1"></i>删除套卷</button></div></div></div>`;
+              };
+              gradeConfigs.forEach((cfg) => {
+                if (!cfg.listEl || !cfg.paginationEl) return;
+                const typeValue = cfg.filterEl ? cfg.filterEl.value : 'all';
+                const gradePapers = archivedPapers.filter((paper) => paper.grade === cfg.grade && (typeValue === 'all' || (paper.type || 'test') === typeValue));
+                if (gradePapers.length === 0) {
+                  cfg.listEl.innerHTML = `<div class="text-center py-10 border border-dashed border-gray-200 rounded-xl bg-white ${cfg.emptyClass}">暂无匹配归档套题</div>`;
+                  cfg.paginationEl.classList.add('hidden');
+                  cfg.paginationEl.innerHTML = '';
+                  return;
+                }
+                const totalPages = Math.max(1, Math.ceil(gradePapers.length / ARCHIVED_PAPER_PAGE_SIZE));
+                let currentPage = archivedPaperPageState[cfg.grade] || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+                if (currentPage < 1) currentPage = 1;
+                archivedPaperPageState[cfg.grade] = currentPage;
+                const startIndex = (currentPage - 1) * ARCHIVED_PAPER_PAGE_SIZE;
+                const pageItems = gradePapers.slice(startIndex, startIndex + ARCHIVED_PAPER_PAGE_SIZE);
+                cfg.listEl.innerHTML = pageItems.map(buildArchivedCardHtml).join('');
+                cfg.listEl.querySelectorAll('.restore-paper').forEach((btn) => btn.addEventListener('click', function () { restorePaper(this.dataset.id); }));
+                cfg.listEl.querySelectorAll('.archived-view-answers').forEach((btn) => btn.addEventListener('click', function () { showAnswerDetails(this.dataset.id); }));
+                cfg.listEl.querySelectorAll('.archived-view-analysis').forEach((btn) => btn.addEventListener('click', function () { showPaperAnalysis(this.dataset.id); }));
+                cfg.listEl.querySelectorAll('.archived-config-answers').forEach((btn) => btn.addEventListener('click', function () { openAnswerConfigModal(this.dataset.id); }));
+                cfg.listEl.querySelectorAll('.archived-delete-paper').forEach((btn) => btn.addEventListener('click', function () { const paper = gradePapers.find((item) => item.id === this.dataset.id); if (paper && confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) deletePaper(this.dataset.id); }));
+                if (gradePapers.length <= ARCHIVED_PAPER_PAGE_SIZE) {
+                  cfg.paginationEl.classList.add('hidden');
+                  cfg.paginationEl.innerHTML = '';
+                  return;
+                }
+                const pagerItems = buildCompactPageItems(currentPage, totalPages);
+                cfg.paginationEl.classList.remove('hidden');
+                cfg.paginationEl.innerHTML = `
+                  <button class="archived-paper-prev px-2.5 py-1 rounded border text-sm ${currentPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-grade="${cfg.grade}" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+                  ${pagerItems.map((item) => {
+                    if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+                    const active = item === currentPage;
+                    return `<button class="archived-paper-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-grade="${cfg.grade}" data-page="${item}">${item}</button>`;
+                  }).join('')}
+                  <button class="archived-paper-next px-2.5 py-1 rounded border text-sm ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-grade="${cfg.grade}" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+                `;
+                const prevBtn = cfg.paginationEl.querySelector('.archived-paper-prev');
+                const nextBtn = cfg.paginationEl.querySelector('.archived-paper-next');
+                if (prevBtn) prevBtn.addEventListener('click', function () { const gradeKey = this.dataset.grade; if ((archivedPaperPageState[gradeKey] || 1) > 1) { archivedPaperPageState[gradeKey] -= 1; renderArchivedPaperList(papers, allAnswers); } });
+                if (nextBtn) nextBtn.addEventListener('click', function () { const gradeKey = this.dataset.grade; archivedPaperPageState[gradeKey] = (archivedPaperPageState[gradeKey] || 1) + 1; renderArchivedPaperList(papers, allAnswers); });
+                cfg.paginationEl.querySelectorAll('.archived-paper-page').forEach((btn) => {
+                  btn.addEventListener('click', function () {
+                    const gradeKey = this.dataset.grade;
+                    const page = parseInt(this.dataset.page, 10);
+                    if (!gradeKey || Number.isNaN(page)) return;
+                    archivedPaperPageState[gradeKey] = page;
+                    renderArchivedPaperList(papers, allAnswers);
+                  });
+                });
+              });
+            }
             async function togglePaperRedoStatus(paperId, isEnabled) { let papers = await getData(PAPER_STORAGE_KEY) || []; const idx = papers.findIndex(p => p.id === paperId); if (idx === -1) return; papers[idx].allowRedo = !isEnabled; await saveData(PAPER_STORAGE_KEY, papers); renderAllPaperLists(); }
+            async function archivePaper(paperId) { let papers = await getData(PAPER_STORAGE_KEY) || []; const idx = papers.findIndex(p => p.id === paperId); if (idx === -1) return; papers[idx].isArchived = true; papers[idx].archivedAt = new Date().toLocaleString(); await saveData(PAPER_STORAGE_KEY, papers); renderAllPaperLists(); }
+            async function restorePaper(paperId) { let papers = await getData(PAPER_STORAGE_KEY) || []; const idx = papers.findIndex(p => p.id === paperId); if (idx === -1) return; papers[idx].isArchived = false; papers[idx].archivedAt = ''; await saveData(PAPER_STORAGE_KEY, papers); renderAllPaperLists(); }
             async function deletePaper(paperId) { let papers = await getData(PAPER_STORAGE_KEY) || []; papers = papers.filter(p => p.id !== paperId); await saveData(PAPER_STORAGE_KEY, papers); let answers = await getData(ANSWER_STORAGE_KEY) || []; answers = answers.filter(a => a.paperId !== paperId); await saveData(ANSWER_STORAGE_KEY, answers); renderAllPaperLists(); }
     
     // 🚀 核心：强绑定按钮点击事件，绝不丢失
@@ -3398,49 +3852,166 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     }); 
    // ================= 🚀 后台交流广场管理逻辑 =================
     const PUBLIC_MESSAGES_KEY = 'publicForumMessages';
+    const FORUM_MODULES = [
+        { id: 'discussion', label: '讨论专区', icon: 'fa-comments-o', color: 'red' },
+        { id: 'need_video', label: '需要视频', icon: 'fa-play-circle-o', color: 'blue' },
+        //{ id: 'need_paper', label: '需要题目', icon: 'fa-file-text-o', color: 'indigo' },
+        { id: 'need_prize', label: '需要奖品', icon: 'fa-gift', color: 'amber' },
+        { id: 'resources', label: '资料专区', icon: 'fa-folder-open-o', color: 'emerald' },
+        { id: 'second_hand', label: '二手专区', icon: 'fa-exchange', color: 'violet' }
+    ];
+    function normalizeForumModule(value) {
+        const raw = String(value || '').trim();
+        const matched = FORUM_MODULES.find((item) => item.id === raw || item.label === raw);
+        return matched ? matched.id : FORUM_MODULES[0].id;
+    }
+    function getForumModuleMeta(moduleId) {
+        return FORUM_MODULES.find((item) => item.id === normalizeForumModule(moduleId)) || FORUM_MODULES[0];
+    }
+    function getForumModuleHeaderClasses(color) {
+        const map = {
+            red: 'from-emerald-50 to-white text-emerald-600 border-emerald-100',
+            blue: 'from-blue-50 to-white text-blue-600 border-blue-100',
+            indigo: 'from-indigo-50 to-white text-indigo-600 border-indigo-100',
+            amber: 'from-amber-50 to-white text-amber-600 border-amber-100',
+            emerald: 'from-red-50 to-white text-red-600 border-red-100',
+            violet: 'from-violet-50 to-white text-violet-600 border-violet-100'
+        };
+        return map[color] || 'from-gray-50 to-white text-gray-600 border-gray-100';
+    }
+    function renderAdminForumContent(msg) {
+        if (normalizeForumModule(msg.module) !== 'need_video') {
+            const imgHtml = msg.image
+                ? `<img src="${msg.image}" class="mt-2 h-16 w-auto object-contain rounded border cursor-pointer hover:opacity-80 transition shadow-sm" onclick="showAdminImagePreview(this.src)">`
+                : '';
+            return `${escapeHtmlText(msg.text || '').replace(/\n/g, '<br>')}${imgHtml}`;
+        }
+        const paperName = String(msg.videoRequestPaperName || '').trim();
+        const questionNo = String(msg.videoRequestQuestionNo || '').trim();
+        const fallbackText = (!paperName && !questionNo) ? String(msg.text || '').trim() : '';
+        return `
+          <div class="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-indigo-50 p-3">
+            <div class="mt-2 space-y-1 text-sm text-gray-700">
+              <div><span class="font-bold text-gray-900">套题：</span>${paperName ? escapeHtmlText(paperName) : '未填写'}</div>
+              <div><span class="font-bold text-gray-900">题号：</span>${questionNo ? `第 ${escapeHtmlText(questionNo)} 题` : '未填写'}</div>
+              ${fallbackText ? `<div class="rounded-lg bg-white/80 px-3 py-2 text-xs text-gray-500">${escapeHtmlText(fallbackText)}</div>` : ''}
+            </div>
+          </div>
+        `;
+    }
+    function buildAdminForumModuleSection(moduleItem, moduleMsgs) {
+        const totalPages = Math.max(1, Math.ceil(moduleMsgs.length / ADMIN_FORUM_PAGE_SIZE));
+        let currentPage = forumModulePageState[moduleItem.id] || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+        forumModulePageState[moduleItem.id] = currentPage;
+        const startIndex = (currentPage - 1) * ADMIN_FORUM_PAGE_SIZE;
+        const pageRows = moduleMsgs.slice(startIndex, startIndex + ADMIN_FORUM_PAGE_SIZE);
+        const rowsHtml = moduleMsgs.length === 0
+            ? `<tr><td colspan="4" class="px-4 py-8 text-center text-sm text-gray-400">该模块暂无内容</td></tr>`
+            : pageRows.map((msg) => {
+                const likes = msg.likedBy ? msg.likedBy.length : 0;
+                const author = msg.isAnonymous
+                    ? `<span class="text-orange-500 font-bold"><i class="fa fa-user-secret mr-1"></i> 匿名发帖</span><br><span class="text-xs text-gray-400">真实身份: ${escapeHtmlText(msg.senderName || '')}${msg.senderId ? `（${escapeHtmlText(msg.senderId)}）` : ''}</span>`
+                    : `<span class="font-bold text-gray-800"><i class="fa fa-user mr-1"></i> ${escapeHtmlText(msg.senderName || '未知用户')}</span><br><span class="text-xs text-gray-400">${msg.senderId ? `学号：${escapeHtmlText(msg.senderId)}` : '未记录学号'}</span>`;
+                return `
+                <tr class="hover:bg-blue-50 transition-colors">
+                    <td class="px-4 py-4 whitespace-nowrap text-sm align-top">${author}</td>
+                    <td class="px-4 py-4 text-sm text-gray-700 max-w-md break-words align-top">${renderAdminForumContent(msg)}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top">
+                        <span class="bg-red-50 text-red-500 px-2 py-1 rounded-full font-bold text-xs"><i class="fa fa-heart mr-1"></i>${likes} 赞</span><br>
+                        <span class="bg-orange-50 text-orange-500 px-2 py-1 rounded-full font-bold text-xs inline-block mt-2"><i class="fa fa-gift mr-1"></i>${msg.tippedPoints || 0} 积分</span><br>
+                        <span class="text-xs text-gray-400 mt-2 inline-block">${escapeHtmlText(msg.time || '')}</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm align-top">
+                        <button onclick="deleteForumMessage(${msg.id})" class="text-red-500 hover:text-red-700 font-bold bg-white border border-red-200 px-3 py-1.5 rounded transition shadow-sm hover:shadow"><i class="fa fa-trash mr-1"></i> 强制删帖</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        const paginationHtml = moduleMsgs.length <= ADMIN_FORUM_PAGE_SIZE
+            ? ''
+            : `<div class="px-5 py-3 border-t bg-white flex items-center justify-end gap-1">
+                <button class="forum-module-prev px-2.5 py-1 rounded border text-sm ${currentPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-module="${moduleItem.id}" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+                ${buildCompactPageItems(currentPage, totalPages).map((item) => {
+                  if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+                  const active = item === currentPage;
+                  return `<button class="forum-module-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-module="${moduleItem.id}" data-page="${item}">${item}</button>`;
+                }).join('')}
+                <button class="forum-module-next px-2.5 py-1 rounded border text-sm ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-module="${moduleItem.id}" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+              </div>`;
+        return `
+        <div class="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+          <div class="px-5 py-4 border-b bg-gradient-to-r ${getForumModuleHeaderClasses(moduleItem.color)}">
+            <div class="flex items-center justify-between gap-3">
+              <h3 class="text-lg font-bold flex items-center"><i class="fa ${moduleItem.icon} mr-2"></i>${moduleItem.label}</h3>
+              <span class="px-3 py-1 rounded-full bg-white/80 text-xs font-bold border border-white/70">${moduleMsgs.length} 条</span>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发帖状态 / 真实身份</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">文字内容与图片</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">点赞热度 & 时间</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">后台管控</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">${rowsHtml}</tbody>
+            </table>
+          </div>
+          ${paginationHtml}
+        </div>`;
+    }
 
     async function loadAdminForum() {
-        const list = document.getElementById('adminForumList');
-        const emptyHint = document.getElementById('adminForumEmpty');
-        list.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500"><i class="fa fa-spinner fa-spin mr-2"></i> 数据加载中...</td></tr>';
+        const sectionsWrap = document.getElementById('adminForumSections');
+        const secondHandWrap = document.getElementById('adminForumSecondHandSection');
+        if (!sectionsWrap || !secondHandWrap) return;
+        sectionsWrap.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fa fa-spinner fa-spin mr-2"></i> 数据加载中...</div>';
+        secondHandWrap.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fa fa-spinner fa-spin mr-2"></i> 数据加载中...</div>';
+        await renderForumResourceList();
         
         let msgs = await getData(PUBLIC_MESSAGES_KEY) || [];
-        if (msgs.length === 0) {
-            list.innerHTML = '';
-            emptyHint.classList.remove('hidden');
-            return;
-        }
-        emptyHint.classList.add('hidden');
-        
+        msgs = msgs.map((msg) => ({ ...msg, module: normalizeForumModule(msg.module) }));
         // 后台管理面板：永远按时间从最新到最老排序，方便追踪最新发言
         msgs.sort((a, b) => b.id - a.id);
-        
-        let html = '';
-        msgs.forEach(msg => {
-            const likes = msg.likedBy ? msg.likedBy.length : 0;
-            const author = msg.isAnonymous 
-                ? `<span class="text-orange-500 font-bold"><i class="fa fa-user-secret mr-1"></i> 匿名发帖</span><br><span class="text-xs text-gray-400">真实身份: ${msg.senderName}</span>` 
-                : `<span class="font-bold text-gray-800"><i class="fa fa-user mr-1"></i> ${msg.senderName}</span>`;
-            
-            const imgHtml = msg.image 
-                ? `<img src="${msg.image}" class="mt-2 h-16 w-auto object-contain rounded border cursor-pointer hover:opacity-80 transition shadow-sm" onclick="showAdminImagePreview(this.src)">` 
-                : '';
-            
-            html += `
-            <tr class="hover:bg-blue-50 transition-colors">
-                <td class="px-4 py-4 whitespace-nowrap text-sm">${author}</td>
-                <td class="px-4 py-4 text-sm text-gray-700 max-w-md break-words">${msg.text.replace(/\n/g, '<br>')}${imgHtml}</td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span class="bg-red-50 text-red-500 px-2 py-1 rounded-full font-bold text-xs"><i class="fa fa-heart mr-1"></i>${likes} 赞</span><br>
-                    <span class="text-xs text-gray-400 mt-2 inline-block">${msg.time}</span>
-                </td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm">
-                    <button onclick="deleteForumMessage(${msg.id})" class="text-red-500 hover:text-red-700 font-bold bg-white border border-red-200 px-3 py-1.5 rounded transition shadow-sm hover:shadow"><i class="fa fa-trash mr-1"></i> 强制删帖</button>
-                </td>
-            </tr>
-            `;
+        const displayModules = FORUM_MODULES.filter((moduleItem) => moduleItem.id !== 'resources' && moduleItem.id !== 'second_hand');
+        const secondHandModule = FORUM_MODULES.find((moduleItem) => moduleItem.id === 'second_hand');
+        sectionsWrap.innerHTML = displayModules.map((moduleItem) => buildAdminForumModuleSection(moduleItem, msgs.filter((msg) => msg.module === moduleItem.id))).join('');
+        if (!sectionsWrap.innerHTML.trim()) {
+            sectionsWrap.innerHTML = '<div class="text-center py-10 text-gray-400 border rounded-xl">广场暂无其他讨论帖子</div>';
+        }
+        secondHandWrap.innerHTML = secondHandModule
+            ? buildAdminForumModuleSection(secondHandModule, msgs.filter((msg) => msg.module === secondHandModule.id))
+            : '<div class="text-center py-10 text-gray-400 border rounded-xl">二手专区暂无内容</div>';
+        [sectionsWrap, secondHandWrap].forEach((container) => {
+            container.querySelectorAll('.forum-module-prev').forEach((btn) => {
+                btn.addEventListener('click', function () {
+                    const moduleId = this.dataset.module || '';
+                    if (!moduleId || (forumModulePageState[moduleId] || 1) <= 1) return;
+                    forumModulePageState[moduleId] = (forumModulePageState[moduleId] || 1) - 1;
+                    loadAdminForum();
+                });
+            });
+            container.querySelectorAll('.forum-module-next').forEach((btn) => {
+                btn.addEventListener('click', function () {
+                    const moduleId = this.dataset.module || '';
+                    if (!moduleId) return;
+                    forumModulePageState[moduleId] = (forumModulePageState[moduleId] || 1) + 1;
+                    loadAdminForum();
+                });
+            });
+            container.querySelectorAll('.forum-module-page').forEach((btn) => {
+                btn.addEventListener('click', function () {
+                    const moduleId = this.dataset.module || '';
+                    const page = parseInt(this.dataset.page, 10);
+                    if (!moduleId || Number.isNaN(page)) return;
+                    forumModulePageState[moduleId] = page;
+                    loadAdminForum();
+                });
+            });
         });
-        list.innerHTML = html;
     }
 
     window.deleteForumMessage = async function(id) {

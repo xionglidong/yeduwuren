@@ -91,9 +91,16 @@
  <h3 class="text-xl font-bold mb-4 flex items-center justify-between">
           <div class="flex items-center">
             <i class="fa fa-fire text-red-500 mr-2"></i> 讨论广场 
-            <span class="text-sm font-normal text-gray-500 ml-3 hidden md:inline">高赞内容会自动置顶，遇到好段子还可以用积分打赏哦！🎁</span>
           </div>
-      </h3>    
+      </h3>
+      <div class="mb-4 rounded-2xl border border-gray-200 bg-gradient-to-r from-red-50 via-white to-blue-50 p-4">
+        <div id="forum-module-tabs" class="flex flex-wrap gap-2"></div>
+        <div class="mt-4 flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div id="forum-module-desc" class="text-sm text-gray-500">分享解题思路、课堂灵感和学习心得。</div>
+          </div>
+        </div>
+      </div>
       <div class="flex flex-col h-[550px]">
         <div id="message-list" class="flex-grow overflow-y-auto bg-gray-50/80 rounded-xl p-4 mb-4 space-y-6 border border-gray-200 custom-scrollbar">
            <div class="text-center text-gray-400 text-sm py-4">加载中...</div>
@@ -102,14 +109,26 @@
            <img id="chat-image-preview" src="" class="h-20 w-auto rounded border border-gray-300 shadow-sm object-cover">
            <button onclick="removeChatImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow hover:bg-red-600"><i class="fa fa-times"></i></button>
         </div>
-        <div class="flex items-end space-x-2 bg-white p-2 rounded-lg border border-gray-300 shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
-          <div class="flex flex-col justify-end pb-2 pl-2">
+        <div id="forum-composer" class="flex items-end space-x-2 bg-white p-2 rounded-lg border border-gray-300 shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+          <div id="forum-image-picker-wrap" class="flex flex-col justify-end pb-2 pl-2">
              <label class="cursor-pointer text-gray-400 hover:text-primary transition" title="上传图片">
                 <i class="fa fa-picture-o text-2xl"></i>
                 <input type="file" id="chat-image-input" accept="image/*" class="hidden">
              </label>
           </div>
           <textarea id="message-input" rows="2" class="flex-grow resize-none border-none focus:ring-0 text-sm p-2 bg-transparent text-gray-700 placeholder-gray-400" placeholder="分享你的思路或错题... (按 Ctrl+Enter 发送)"></textarea>
+          <div id="need-video-compose" class="hidden flex-grow">
+            <div class="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-indigo-50 px-4 py-3">
+              <div class="mb-3 flex items-center text-xs font-bold text-blue-600">
+                <i class="fa fa-play-circle-o mr-1.5"></i> 只需填写套题和题号，教师就能看到你具体需要讲解的视频位置
+              </div>
+              <div class="space-y-2">
+                <input id="need-video-paper-input" type="text" list="forum-paper-name-options" class="w-full rounded-xl border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100" placeholder="搜索或输入套题名称">
+                <input id="need-video-question-input" type="text" inputmode="numeric" class="w-full rounded-xl border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100" placeholder="输入题号，例如 15">
+              </div>
+            </div>
+          </div>
+          <datalist id="forum-paper-name-options"></datalist>
           <div class="flex flex-col items-center justify-between pb-1 space-y-2">
              <label class="flex items-center text-xs text-gray-500 cursor-pointer hover:text-gray-700" title="勾选后头像和名字将随机改变">
                 <input type="checkbox" id="anonymous-checkbox" class="mr-1.5 w-3 h-3 text-primary rounded focus:ring-primary"> 匿名
@@ -144,10 +163,21 @@
 
     let userPoints = 0, userName = '', userId = '', userGrade = '', userRank = 0;
     const RANK_SYSTEM = [ { name: '学者', threshold: 0, color: '#737373' }, { name: '学徒', threshold: 10, color: '#B87333' }, { name: '学士', threshold: 50, color: '#8493A8' }, { name: '学客', threshold: 200, color: '#C69D3D' }, { name: '学匠', threshold: 500, color: '#2EA29F' }, { name: '学师', threshold: 800, color: '#4169E1' }, { name: '学霸', threshold: 1200, color: '#FF1A1A' }, { name: '学王', threshold: 1500, color: '#F16022' }, { name: '学灵', threshold: 1800, color: '#9F5CF7' }, { name: '学尊', threshold: 2000, color: '#C533FF' }, { name: '学宗', threshold: 2500, color: '#FF4D00' }, { name: '学皇', threshold: 3000, color: '#DC143C' }, { name: '学帝', threshold: 3500, color: '#D60000' }, { name: '学仙', threshold: 4000, color: '#DAA520' }, { name: '学圣', threshold: 4500, color: '#FF8C00' }, { name: '学神', threshold: 5000, color: '#FF0000' } ];
-    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', STUDENT_INFO_KEY = 'studentInfo', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', PRIZES_STORAGE_KEY = 'exchangePrizes', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions';
+    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', STUDENT_INFO_KEY = 'studentInfo', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', PRIZES_STORAGE_KEY = 'exchangePrizes', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions', FORUM_RESOURCE_STORAGE_KEY = 'forumResourceMaterials';
     const PUBLIC_MESSAGES_KEY = 'publicForumMessages'; 
+    const FORUM_MODULES = [
+      { id: 'discussion', label: '讨论专区', icon: 'fa-comments-o', color: 'emerald', desc: '分享解题思路、课堂灵感和学习心得。' },
+      { id: 'need_video', label: '需要视频', icon: 'fa-play-circle-o', color: 'blue', desc: '发布你想看的讲解视频、解析视频需求。' },
+      //{ id: 'need_paper', label: '需要题目', icon: 'fa-file-text-o', color: 'indigo', desc: '集中收集想练的题型、想加的套题和知识点。' },
+      { id: 'need_prize', label: '需要奖品', icon: 'fa-gift', color: 'amber', desc: '提议积分兑换奖品或活动奖励内容。' },
+      { id: 'resources', label: '资料专区', icon: 'fa-folder-open-o', color: 'red', desc: '沉淀资料、笔记、图片和学习辅助信息。' },
+      { id: 'second_hand', label: '二手专区', icon: 'fa-exchange', color: 'violet', desc: '交流闲置资料、文具或学习用品。' }
+    ];
     let publicMessages = []; 
+    let forumResources = [];
     let pendingChatImageBase64 = null;
+    let forumPaperNameOptions = [];
+    let currentForumModule = 'discussion';
     let currentPaper = null, currentQuestionIndex = 0, studentAnswers = [], studentInfo = {}, studentPointsData = {}, exchangeRecords = [], prizes = [], timerInterval = null, secondsElapsed = 0;
     let uploadedFbImages = [], fbSelfScore = 0, fbIsConfirmed = false, allAnswerRecords = [], fbJudgments = null;
     let statsListModalState = { type: '', page: 1, items: [], keyword: '' };
@@ -161,6 +191,8 @@
     let selfLearningWatchStats = null;
     let selfLearningInteractions = null;
     let lastSelfLearningSyncedSecond = -1;
+    let currentExplanationVideoContext = null;
+    let lastExplanationVideoSyncedSecond = -1;
     let selfLearningDanmuLastSecond = -1;
     let selfLearningShownDanmuKeys = new Set();
     const LEARNING_PANEL_PAGE_SIZE = 5;
@@ -277,6 +309,19 @@
       selfLearningVideoPlayer.addEventListener('timeupdate', playSelfLearningDanmuByTime);
       selfLearningVideoPlayer.addEventListener('pause', () => syncSelfLearningWatchStats(false));
       selfLearningVideoPlayer.addEventListener('ended', () => syncSelfLearningWatchStats(true));
+      const explanationVideo = document.getElementById('explanationVideo');
+      if (explanationVideo) {
+        explanationVideo.addEventListener('timeupdate', () => {
+          if (!currentExplanationVideoContext || !userId) return;
+          const second = Math.floor(explanationVideo.currentTime || 0);
+          if (second === lastExplanationVideoSyncedSecond) return;
+          if (second % 5 !== 0 && !explanationVideo.ended) return;
+          lastExplanationVideoSyncedSecond = second;
+          syncExplanationVideoWatchStats(false);
+        });
+        explanationVideo.addEventListener('pause', () => syncExplanationVideoWatchStats(false));
+        explanationVideo.addEventListener('ended', () => syncExplanationVideoWatchStats(true));
+      }
       selfLearningLikeBtn.addEventListener('click', toggleSelfLearningLike);
       selfLearningSendDanmuBtn.addEventListener('click', sendSelfLearningDanmu);
       selfLearningDanmuInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') sendSelfLearningDanmu(); });
@@ -304,7 +349,7 @@
     } 
     window.addEventListener('beforeunload', function (e) { if (!answerCardModal.classList.contains('hidden') && studentAnswers.some(a => a !== null)) { e.preventDefault(); e.returnValue = '您正在答题中，离开可能丢失未提交的进度！'; } });
     function updateLogoutButtonState() { const logoutBtn = document.getElementById('logout-btn'), mobileLogoutBtn = document.getElementById('mobile-logout-btn'); if (userName) { logoutBtn.classList.remove('hidden'); mobileLogoutBtn.classList.remove('hidden'); } else { logoutBtn.classList.add('hidden'); mobileLogoutBtn.classList.add('hidden'); } }
-    async function handleLogout() { if (!userName) return; const modal = document.getElementById('logoutSummaryModal'), content = document.getElementById('logoutSummaryContent'), summaryText = document.getElementById('logoutSummaryText'), today = new Date().toLocaleDateString(), allAnswers = await getData(ANSWER_STORAGE_KEY) || [], papers = await getVisiblePapers() || [], todayRecords = allAnswers.filter(record => { if (record.studentId !== userId) return false; const recordDate = new Date(record.submitTime.replace(/-/g, '/')).toLocaleDateString(); return recordDate === today; }); const paperCount = todayRecords.length; let todayTotalQuestions = 0, totalCorrect = 0, totalPointsEarned = 0; for (const record of todayRecords) { const paper = papers.find(p => p.id === record.paperId); totalPointsEarned += paper ? getRecordTotalScore(record, paper) : (parseFloat(record.score) || 0); if (paper) { todayTotalQuestions += paper.questionCount; if (paper.fillInBlankCount > 0) todayTotalQuestions += parseInt(paper.fillInBlankCount); if (record.answers && paper.answers) record.answers.forEach((ans, idx) => { if (ans === paper.answers[idx]) totalCorrect++; }); if (record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) totalCorrect += record.fillInBlankDetails.filter(Boolean).length; } else if (record.answers) todayTotalQuestions += record.answers.length; } const todayAccuracy = todayTotalQuestions > 0 ? Math.round((totalCorrect / todayTotalQuestions) * 100) : 0; const myAllRecords = allAnswers.filter(r => r.studentId === userId); let lifeTimeTotalQuestions = 0, lifeTimeCorrect = 0; myAllRecords.forEach(record => { const paper = papers.find(p => p.id === record.paperId); if (paper) { let qCount = paper.questionCount; if (paper.fillInBlankCount) qCount += parseInt(paper.fillInBlankCount); lifeTimeTotalQuestions += qCount; if (record.answers && paper.answers) record.answers.forEach((ans, idx) => { if (ans === paper.answers[idx]) lifeTimeCorrect++; }); if (record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) lifeTimeCorrect += record.fillInBlankDetails.filter(Boolean).length; } }); const lifeTimeAccuracy = lifeTimeTotalQuestions > 0 ? Math.round((lifeTimeCorrect / lifeTimeTotalQuestions) * 100) : 0; let motivationalText = "继续加油！"; if (lifeTimeTotalQuestions === 0) motivationalText = "千里之行始于足下，期待你明天的进步！"; else if (lifeTimeTotalQuestions < 50) { if (lifeTimeAccuracy < 60) motivationalText = "万事开头难，别灰心，坚持练习一定会有收获！"; else if (lifeTimeAccuracy < 85) motivationalText = "不错的开始！保持这个节奏，继续挑战自我！"; else motivationalText = "开局完美！天赋异禀的你，未来可期！"; } else if (lifeTimeTotalQuestions < 200) { if (lifeTimeAccuracy < 60) motivationalText = "做题量上来了，建议多花点时间复盘错题，质量比数量更重要哦！"; else if (lifeTimeAccuracy < 85) motivationalText = "稳扎稳打，你的努力正在转化为实力的提升！"; else motivationalText = "状态火热！保持高正确率，你就是明日之星！"; } else { if (lifeTimeAccuracy < 60) motivationalText = "勤奋的你刷了很多题，试着慢下来复盘一下错题，磨刀不误砍柴工！"; else if (lifeTimeAccuracy < 85) motivationalText = "你是练习场上的常客了，保持现在的状态，坚持就是胜利！"; else motivationalText = "独孤求败！如此高的正确率和刷题量，你就是传说中的学霸！"; } summaryText.innerHTML = `<div class="space-y-6"><p class="text-gray-600"><span class="font-bold text-primary text-lg">${userName}</span> 同学，今日收获</p><div class="grid grid-cols-2 gap-3"><div class="bg-blue-50 p-4 rounded-2xl border border-blue-100"><p class="text-xs text-blue-500 font-bold mb-1">完成试卷</p><p class="text-2xl font-black text-blue-700">${paperCount}<span class="text-sm ml-1">套</span></p></div><div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100"><p class="text-xs text-indigo-500 font-bold mb-1">训练题目</p><p class="text-2xl font-black text-indigo-700">${todayTotalQuestions}<span class="text-sm ml-1">道</span></p></div><div class="bg-green-50 p-4 rounded-2xl border border-green-100"><p class="text-xs text-green-500 font-bold mb-1">平均正确率</p><p class="text-2xl font-black text-green-700">${todayAccuracy}%</p></div><div class="bg-orange-50 p-4 rounded-2xl border border-orange-100"><p class="text-xs text-orange-500 font-bold mb-1">获得积分</p><p class="text-2xl font-black text-orange-700">+${totalPointsEarned}</p></div></div><div class="relative bg-gray-50 p-5 rounded-2xl border border-gray-100 overflow-hidden"><i class="fa fa-quote-left absolute -top-2 -left-1 text-gray-200 text-4xl opacity-50"></i><p class="relative z-10 text-gray-600 italic leading-relaxed text-sm">${motivationalText}</p></div></div>`; modal.classList.remove('hidden'); setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10); }
+    async function handleLogout() { if (!userName) return; const modal = document.getElementById('logoutSummaryModal'), content = document.getElementById('logoutSummaryContent'), summaryText = document.getElementById('logoutSummaryText'), today = new Date().toLocaleDateString(), papers = await getVisiblePapers() || [], allAnswers = filterActiveAnswerRecords(await getData(ANSWER_STORAGE_KEY) || [], papers), todayRecords = allAnswers.filter(record => { if (record.studentId !== userId) return false; const recordDate = new Date(record.submitTime.replace(/-/g, '/')).toLocaleDateString(); return recordDate === today; }); const paperCount = todayRecords.length; let todayTotalQuestions = 0, totalCorrect = 0, totalPointsEarned = 0; for (const record of todayRecords) { const paper = papers.find(p => p.id === record.paperId); totalPointsEarned += paper ? getRecordTotalScore(record, paper) : (parseFloat(record.score) || 0); if (paper) { todayTotalQuestions += paper.questionCount; if (paper.fillInBlankCount > 0) todayTotalQuestions += parseInt(paper.fillInBlankCount); if (record.answers && paper.answers) record.answers.forEach((ans, idx) => { if (ans === paper.answers[idx]) totalCorrect++; }); if (record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) totalCorrect += record.fillInBlankDetails.filter(Boolean).length; } else if (record.answers) todayTotalQuestions += record.answers.length; } const todayAccuracy = todayTotalQuestions > 0 ? Math.round((totalCorrect / todayTotalQuestions) * 100) : 0; const myAllRecords = allAnswers.filter(r => r.studentId === userId); let lifeTimeTotalQuestions = 0, lifeTimeCorrect = 0; myAllRecords.forEach(record => { const paper = papers.find(p => p.id === record.paperId); if (paper) { let qCount = paper.questionCount; if (paper.fillInBlankCount) qCount += parseInt(paper.fillInBlankCount); lifeTimeTotalQuestions += qCount; if (record.answers && paper.answers) record.answers.forEach((ans, idx) => { if (ans === paper.answers[idx]) lifeTimeCorrect++; }); if (record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) lifeTimeCorrect += record.fillInBlankDetails.filter(Boolean).length; } }); const lifeTimeAccuracy = lifeTimeTotalQuestions > 0 ? Math.round((lifeTimeCorrect / lifeTimeTotalQuestions) * 100) : 0; let motivationalText = "继续加油！"; if (lifeTimeTotalQuestions === 0) motivationalText = "千里之行始于足下，期待你明天的进步！"; else if (lifeTimeTotalQuestions < 50) { if (lifeTimeAccuracy < 60) motivationalText = "万事开头难，别灰心，坚持练习一定会有收获！"; else if (lifeTimeAccuracy < 85) motivationalText = "不错的开始！保持这个节奏，继续挑战自我！"; else motivationalText = "开局完美！天赋异禀的你，未来可期！"; } else if (lifeTimeTotalQuestions < 200) { if (lifeTimeAccuracy < 60) motivationalText = "做题量上来了，建议多花点时间复盘错题，质量比数量更重要哦！"; else if (lifeTimeAccuracy < 85) motivationalText = "稳扎稳打，你的努力正在转化为实力的提升！"; else motivationalText = "状态火热！保持高正确率，你就是明日之星！"; } else { if (lifeTimeAccuracy < 60) motivationalText = "勤奋的你刷了很多题，试着慢下来复盘一下错题，磨刀不误砍柴工！"; else if (lifeTimeAccuracy < 85) motivationalText = "你是练习场上的常客了，保持现在的状态，坚持就是胜利！"; else motivationalText = "独孤求败！如此高的正确率和刷题量，你就是传说中的学霸！"; } summaryText.innerHTML = `<div class="space-y-6"><p class="text-gray-600"><span class="font-bold text-primary text-lg">${userName}</span> 同学，今日收获</p><div class="grid grid-cols-2 gap-3"><div class="bg-blue-50 p-4 rounded-2xl border border-blue-100"><p class="text-xs text-blue-500 font-bold mb-1">完成试卷</p><p class="text-2xl font-black text-blue-700">${paperCount}<span class="text-sm ml-1">套</span></p></div><div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100"><p class="text-xs text-indigo-500 font-bold mb-1">训练题目</p><p class="text-2xl font-black text-indigo-700">${todayTotalQuestions}<span class="text-sm ml-1">道</span></p></div><div class="bg-green-50 p-4 rounded-2xl border border-green-100"><p class="text-xs text-green-500 font-bold mb-1">平均正确率</p><p class="text-2xl font-black text-green-700">${todayAccuracy}%</p></div><div class="bg-orange-50 p-4 rounded-2xl border border-orange-100"><p class="text-xs text-orange-500 font-bold mb-1">获得积分</p><p class="text-2xl font-black text-orange-700">+${totalPointsEarned}</p></div></div><div class="relative bg-gray-50 p-5 rounded-2xl border border-gray-100 overflow-hidden"><i class="fa fa-quote-left absolute -top-2 -left-1 text-gray-200 text-4xl opacity-50"></i><p class="relative z-10 text-gray-600 italic leading-relaxed text-sm">${motivationalText}</p></div></div>`; modal.classList.remove('hidden'); setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10); }
     async function performLogout() { document.getElementById('logoutSummaryModal').classList.add('hidden'); userName = ''; userId = ''; userPoints = 0; userGrade = ''; studentInfo = {}; await saveData(STUDENT_INFO_KEY, {}); studentNameInput.value = ''; studentIdInput.value = ''; document.getElementById('login-card').classList.remove('hidden'); userPointsCard.classList.add('hidden'); exchangeHistory.classList.add('hidden'); examContainer.classList.add('hidden'); document.getElementById('module-tabs').classList.add('hidden');document.getElementById('message-board-section').classList.add('hidden'); if (learningCustomSection) learningCustomSection.classList.add('hidden'); updateLogoutButtonState(); if (editPrizesBtn) editPrizesBtn.classList.add('hidden'); showGeneralModal('已退出', '您已成功退出登录', 'success'); }
     function closeLogoutSummaryModal() { const modal = document.getElementById('logoutSummaryModal'), content = document.getElementById('logoutSummaryContent'); content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); }, 300); }
     function startTimer() { if (timerInterval) clearInterval(timerInterval); updateTimerDisplay(); timerInterval = setInterval(() => { secondsElapsed++; updateTimerDisplay(); if(currentPaper && studentAnswers.length > 0) localStorage.setItem('draft_' + currentPaper.id, JSON.stringify({ answers: studentAnswers, time: secondsElapsed, fbImages: uploadedFbImages, draftImages: uploadedDraftImages }));; }, 1000); }
@@ -509,6 +554,186 @@
     function escapeHtmlText(value) {
       return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
     }
+    function normalizeForumModule(value) {
+      const raw = String(value || '').trim();
+      const matched = FORUM_MODULES.find((item) => item.id === raw || item.label === raw);
+      return matched ? matched.id : FORUM_MODULES[0].id;
+    }
+    function getForumModuleMeta(moduleId) {
+      return FORUM_MODULES.find((item) => item.id === normalizeForumModule(moduleId)) || FORUM_MODULES[0];
+    }
+    function normalizeVideoResourceName(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const withoutQuery = raw.split('?')[0].split('#')[0];
+      const segments = withoutQuery.split('/').filter(Boolean);
+      return segments.length ? segments[segments.length - 1] : withoutQuery;
+    }
+    function isArchivedPaper(paper) {
+      return !!(paper && paper.isArchived);
+    }
+    function filterActiveAnswerRecords(records, papers) {
+      const activePaperIds = new Set((papers || []).map((paper) => paper.id));
+      return (records || []).filter((record) => activePaperIds.has(record.paperId));
+    }
+    function filterVisibleSelfLearningContents(contents, papers) {
+      const activePaperIds = new Set((papers || []).map((paper) => paper.id));
+      return (contents || []).filter((item) => item && (!item.relatedPaperId || activePaperIds.has(item.relatedPaperId)));
+    }
+    function getForumModuleColorClasses(color, active = false) {
+      const map = {
+        red: active ? 'bg-red-500 text-white border-red-500 shadow-red-100' : 'bg-white text-red-500 border-red-100 hover:bg-red-50',
+        blue: active ? 'bg-blue-500 text-white border-blue-500 shadow-blue-100' : 'bg-white text-blue-500 border-blue-100 hover:bg-blue-50',
+        indigo: active ? 'bg-indigo-500 text-white border-indigo-500 shadow-indigo-100' : 'bg-white text-indigo-500 border-indigo-100 hover:bg-indigo-50',
+        amber: active ? 'bg-amber-500 text-white border-amber-500 shadow-amber-100' : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-50',
+        emerald: active ? 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-100' : 'bg-white text-emerald-600 border-emerald-100 hover:bg-emerald-50',
+        violet: active ? 'bg-violet-500 text-white border-violet-500 shadow-violet-100' : 'bg-white text-violet-500 border-violet-100 hover:bg-violet-50'
+      };
+      return map[color] || (active ? 'bg-primary text-white border-primary shadow-primary/10' : 'bg-white text-primary border-primary/10 hover:bg-primary/5');
+    }
+    function getForumModuleCounts(messages) {
+      const counts = {};
+      FORUM_MODULES.forEach((item) => { counts[item.id] = 0; });
+      (messages || []).forEach((msg) => {
+        const moduleId = normalizeForumModule(msg.module);
+        counts[moduleId] = (counts[moduleId] || 0) + 1;
+      });
+      counts.resources = (forumResources || []).length;
+      return counts;
+    }
+    function renderForumModuleTabs(messages = publicMessages) {
+      const wrap = document.getElementById('forum-module-tabs');
+      const descEl = document.getElementById('forum-module-desc');
+      if (!wrap) return;
+      const counts = getForumModuleCounts(messages);
+      wrap.innerHTML = FORUM_MODULES.map((item) => {
+        const active = currentForumModule === item.id;
+        return `<button type="button" class="forum-module-tab inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition shadow-sm ${getForumModuleColorClasses(item.color, active)}" data-module="${item.id}"><i class="fa ${item.icon}"></i><span>${item.label}</span><span class="rounded-full ${active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'} px-2 py-0.5 text-[11px]">${counts[item.id] || 0}</span></button>`;
+      }).join('');
+      const currentMeta = getForumModuleMeta(currentForumModule);
+      if (descEl) descEl.textContent = currentMeta.desc;
+    }
+    function renderForumPaperNameOptions(keyword = '') {
+      const datalist = document.getElementById('forum-paper-name-options');
+      if (!datalist) return;
+      const normalizedKeyword = String(keyword || '').trim().toLowerCase();
+      if (!normalizedKeyword) {
+        datalist.innerHTML = '';
+        return;
+      }
+      const matchedNames = forumPaperNameOptions
+        .filter((name) => name.toLowerCase().includes(normalizedKeyword))
+        .slice(0, 20);
+      datalist.innerHTML = matchedNames.map((name) => `<option value="${escapeHtmlText(name)}"></option>`).join('');
+    }
+    async function refreshForumPaperNameOptions() {
+      const papers = await getVisiblePapers() || [];
+      forumPaperNameOptions = Array.from(new Set(
+        papers
+          .map((paper) => String(paper && paper.name ? paper.name : '').trim())
+          .filter(Boolean)
+      )).sort((a, b) => a.localeCompare(b, 'zh-CN'));
+      const paperInput = document.getElementById('need-video-paper-input');
+      renderForumPaperNameOptions(paperInput ? paperInput.value : '');
+    }
+    function normalizeForumResourceItem(item) {
+      const file = String(item && item.file ? item.file : '').trim();
+      return {
+        id: String(item && item.id ? item.id : `forum_resource_${Date.now()}`),
+        title: String(item && item.title ? item.title : '').trim() || file.replace(/\.pdf$/i, '') || '未命名资料',
+        file,
+        createTime: item && item.createTime ? item.createTime : 0
+      };
+    }
+    function formatForumResourceTime(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      return date.toLocaleString();
+    }
+    async function loadForumResources() {
+      const resources = await getData(FORUM_RESOURCE_STORAGE_KEY) || [];
+      forumResources = resources
+        .map(normalizeForumResourceItem)
+        .filter((item) => item.file);
+    }
+    function renderForumResourceCards() {
+      const list = document.getElementById('message-list');
+      const resourceMeta = getForumModuleMeta('resources');
+      if (!list) return;
+      const sortedResources = (forumResources || []).slice().sort((a, b) => (b.createTime || 0) - (a.createTime || 0));
+      if (sortedResources.length === 0) {
+        list.innerHTML = `<div class="text-center text-gray-400 text-sm py-12 flex flex-col items-center"><i class="fa ${resourceMeta.icon} text-4xl text-emerald-200 mb-4"></i>${escapeHtmlText(resourceMeta.label)}暂时还没有资料，稍后再来看看吧！</div>`;
+        return;
+      }
+      list.innerHTML = `
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
+          ${sortedResources.map((item) => {
+            return `
+              <button type="button" class="open-forum-resource rounded-2xl border border-red-100 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-red-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-200" data-file="${escapeHtmlText(item.file)}">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-700">
+                      <i class="fa fa-file-pdf-o mr-1"></i> PDF
+                    </div>
+                    <h4 class="mt-3 text-sm font-bold text-gray-800 break-words overflow-hidden" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escapeHtmlText(item.title)}</h4>
+                  </div>
+                  <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-red-600">
+                    <i class="fa fa-folder-open-o text-base"></i>
+                  </div>
+                </div>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+      list.querySelectorAll('.open-forum-resource').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const file = this.dataset.file || '';
+          if (!file) return;
+          openPdfFile(file);
+        });
+      });
+      list.scrollTop = 0;
+    }
+    function updateForumComposerByModule() {
+      const composer = document.getElementById('forum-composer');
+      const msgInput = document.getElementById('message-input');
+      const needVideoCompose = document.getElementById('need-video-compose');
+      const imagePickerWrap = document.getElementById('forum-image-picker-wrap');
+      const imagePreview = document.getElementById('chat-image-preview-container');
+      const sendBtn = document.getElementById('send-message-btn');
+      const isNeedVideo = currentForumModule === 'need_video';
+      const isResourceModule = currentForumModule === 'resources';
+      if (composer) composer.classList.toggle('hidden', isResourceModule);
+      if (msgInput) msgInput.classList.toggle('hidden', isNeedVideo);
+      if (needVideoCompose) needVideoCompose.classList.toggle('hidden', !isNeedVideo);
+      if (imagePickerWrap) imagePickerWrap.classList.toggle('hidden', isNeedVideo);
+      if (imagePreview) imagePreview.classList.toggle('hidden', isNeedVideo || isResourceModule || !pendingChatImageBase64);
+      if (sendBtn) sendBtn.textContent = isNeedVideo ? '发布需求' : '发送';
+      if (isNeedVideo && pendingChatImageBase64) removeChatImage();
+    }
+    function renderForumMessageContent(msg) {
+      if (normalizeForumModule(msg.module) !== 'need_video') {
+        const imgHtml = msg.image ? `<img src="${msg.image}" class="mt-2 rounded-lg max-h-48 object-contain cursor-pointer hover:opacity-90 border shadow-sm" onclick="showImagePreview(this.src)">` : '';
+        return `${msg.text ? escapeHtmlText(msg.text).replace(/\n/g, '<br>') : ''}${imgHtml}`;
+      }
+      const paperName = String(msg.videoRequestPaperName || '').trim();
+      const questionNo = String(msg.videoRequestQuestionNo || '').trim();
+      const fallbackText = (!paperName && !questionNo) ? String(msg.text || '').trim() : '';
+      return `
+        <div class="min-w-[280px] rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-indigo-50 p-4 shadow-sm">
+          <div class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold text-blue-600">
+            <i class="fa fa-play-circle-o mr-1.5"></i> 讲解视频需求
+          </div>
+          <div class="mt-3 space-y-2 text-sm text-gray-700">
+            <div><span class="font-bold text-gray-900">套题：</span>${paperName ? escapeHtmlText(paperName) : '未填写'}</div>
+            <div><span class="font-bold text-gray-900">题号：</span>${questionNo ? `第 ${escapeHtmlText(questionNo)} 题` : '未填写'}</div>
+            ${fallbackText ? `<div class="rounded-xl bg-white/80 px-3 py-2 text-xs text-gray-500">${escapeHtmlText(fallbackText)}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }
     function buildCurrentPaperBestScoreRankList() {
       if (!currentPaper) return [];
       const studentMap = new Map();
@@ -617,8 +842,8 @@
     async function renderStudentStats() {
       if (!userId) return;
       const statsDashboard = document.getElementById('stats-dashboard'), statPapers = document.getElementById('stat-papers'), statTotalQuestions = document.getElementById('stat-total-questions'), statWrongQuestions = document.getElementById('stat-wrong-questions'), statAccuracy = document.getElementById('stat-accuracy'), statTotalQuestionsRank = document.getElementById('stat-total-questions-rank'), statAccuracyRank = document.getElementById('stat-accuracy-rank');
-      allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || [];
       const papers = await getVisiblePapers() || [];
+      allAnswerRecords = filterActiveAnswerRecords(await getData(ANSWER_STORAGE_KEY) || [], papers);
       window.g_hiddenWrongQuestions = await getData('hiddenWrongQuestions') || [];
       const userRecords = allAnswerRecords.filter(r => r.studentId === userId);
       if (userRecords.length === 0) {
@@ -758,8 +983,8 @@
     }
     async function openCompletedTasksModal() {
       if (!userId) return;
-      allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || [];
       const papers = await getVisiblePapers() || [];
+      allAnswerRecords = filterActiveAnswerRecords(await getData(ANSWER_STORAGE_KEY) || [], papers);
       const userRecords = allAnswerRecords.filter((record) => record.studentId === userId).sort((a, b) => parseSubmitTimeValue(b.submitTime) - parseSubmitTimeValue(a.submitTime));
       const latestByPaper = new Map();
       userRecords.forEach((record) => {
@@ -791,8 +1016,8 @@
     }
     async function openWrongQuestionsModal() {
       if (!userId) return;
-      allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || [];
       const papers = await getVisiblePapers() || [];
+      allAnswerRecords = filterActiveAnswerRecords(await getData(ANSWER_STORAGE_KEY) || [], papers);
       const userRecords = allAnswerRecords.filter((record) => record.studentId === userId).sort((a, b) => parseSubmitTimeValue(b.submitTime) - parseSubmitTimeValue(a.submitTime));
       const wrongQuestions = [];
       userRecords.forEach((record) => {
@@ -1045,6 +1270,38 @@
       };
       await saveData(SELF_LEARNING_WATCH_STORAGE_KEY, selfLearningWatchStats);
     }
+    async function syncExplanationVideoWatchStats(force) {
+      if (!currentExplanationVideoContext || !userId) return;
+      await ensureSelfLearningWatchStatsLoaded();
+      const explanationVideo = document.getElementById('explanationVideo');
+      if (!explanationVideo) return;
+      const videoName = normalizeVideoResourceName(currentExplanationVideoContext.videoName || currentExplanationVideoContext.src || '');
+      if (!videoName) return;
+      const bucketKey = `video::${videoName}`;
+      if (!selfLearningWatchStats[bucketKey]) selfLearningWatchStats[bucketKey] = {};
+      const currentTime = Math.floor(explanationVideo.currentTime || 0);
+      const duration = Math.floor(explanationVideo.duration || 0);
+      const prev = selfLearningWatchStats[bucketKey][userId] || {};
+      const watchedSeconds = Math.max(prev.watchedSeconds || 0, currentTime);
+      const resolvedDuration = Math.max(prev.duration || 0, duration);
+      const progressPercent = resolvedDuration > 0 ? Math.min(100, Math.round((watchedSeconds / resolvedDuration) * 100)) : 0;
+      if (!prev.watchedSeconds && watchedSeconds <= 0) return;
+      const hasChanged = force || watchedSeconds !== (prev.watchedSeconds || 0) || resolvedDuration !== (prev.duration || 0) || progressPercent !== (prev.progressPercent || 0);
+      if (!hasChanged) return;
+      selfLearningWatchStats[bucketKey][userId] = {
+        studentId: userId,
+        studentName: userName,
+        watchedSeconds,
+        duration: resolvedDuration,
+        progressPercent,
+        watchedText: `${formatDuration(watchedSeconds)}${resolvedDuration > 0 ? ` / ${formatDuration(resolvedDuration)}` : ''}`,
+        lastUpdate: new Date().toLocaleString(),
+        source: 'paper_video',
+        videoName,
+        title: currentExplanationVideoContext.title || '题目讲解视频'
+      };
+      await saveData(SELF_LEARNING_WATCH_STORAGE_KEY, selfLearningWatchStats);
+    }
     function canViewSelfLearningByGrade(contentGrade, currentUserGrade) {
       if (!contentGrade || contentGrade === 'all') return true;
       const userGradeMap = { '高一': 1, '高二': 2, '高三': 3 };
@@ -1159,15 +1416,15 @@
     }
 
    async function getVisiblePapers() {
-      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const papers = (await getData(PAPER_STORAGE_KEY) || []).filter((paper) => !isArchivedPaper(paper));
       if (!userId) return papers;
       return papers.filter(p => !p.targetStudentIds || p.targetStudentIds.length === 0 || p.targetStudentIds.includes(userId));
    }
 
    async function loadAndRenderPapers() { 
         const papers = await getVisiblePapers() || []; 
-        selfLearningContents = await getData(SELF_LEARNING_STORAGE_KEY) || [];
-        allAnswerRecords = await getData(ANSWER_STORAGE_KEY) || []; 
+        selfLearningContents = filterVisibleSelfLearningContents(await getData(SELF_LEARNING_STORAGE_KEY) || [], papers);
+        allAnswerRecords = filterActiveAnswerRecords(await getData(ANSWER_STORAGE_KEY) || [], papers); 
         updateTabBadges(papers, allAnswerRecords); // 🚀 触发红点检测
         await renderSelfLearningContents(papers);
         await renderCustomPaperPanel(papers);
@@ -1430,8 +1687,8 @@
         historyDetailModal.classList.remove('hidden'); setTimeout(() => { historyDetailContent.classList.remove('scale-95', 'opacity-0'); historyDetailContent.classList.add('scale-100', 'opacity-100'); }, 10); 
     }
     function closeHistoryDetailModal() { historyDetailContent.classList.remove('scale-100', 'opacity-100'); historyDetailContent.classList.add('scale-95', 'opacity-0'); setTimeout(() => historyDetailModal.classList.add('hidden'), 300); }
-    function playExplanationVideo(src, title) { const explanationVideo = document.getElementById('explanationVideo'); explanationVideo.src = src; document.getElementById('videoTitle').textContent = title; document.getElementById('videoPlayerModal').classList.remove('hidden'); setTimeout(() => { document.getElementById('videoPlayerContent').classList.remove('scale-95', 'opacity-0'); document.getElementById('videoPlayerContent').classList.add('scale-100', 'opacity-100'); explanationVideo.play().catch(e => console.log(e)); }, 10); }
-    function closeVideoPlayer() { const explanationVideo = document.getElementById('explanationVideo'); explanationVideo.pause(); document.getElementById('videoPlayerContent').classList.remove('scale-100', 'opacity-100'); document.getElementById('videoPlayerContent').classList.add('scale-95', 'opacity-0'); setTimeout(() => { document.getElementById('videoPlayerModal').classList.add('hidden'); explanationVideo.src = ''; }, 300); }
+    function playExplanationVideo(src, title) { const explanationVideo = document.getElementById('explanationVideo'); currentExplanationVideoContext = { src, title: title || '题目讲解视频', videoName: normalizeVideoResourceName(src) }; lastExplanationVideoSyncedSecond = -1; explanationVideo.src = src; document.getElementById('videoTitle').textContent = title; document.getElementById('videoPlayerModal').classList.remove('hidden'); setTimeout(() => { document.getElementById('videoPlayerContent').classList.remove('scale-95', 'opacity-0'); document.getElementById('videoPlayerContent').classList.add('scale-100', 'opacity-100'); explanationVideo.play().catch(e => console.log(e)); }, 10); }
+    function closeVideoPlayer() { const explanationVideo = document.getElementById('explanationVideo'); syncExplanationVideoWatchStats(true); explanationVideo.pause(); document.getElementById('videoPlayerContent').classList.remove('scale-100', 'opacity-100'); document.getElementById('videoPlayerContent').classList.add('scale-95', 'opacity-0'); setTimeout(() => { document.getElementById('videoPlayerModal').classList.add('hidden'); explanationVideo.src = ''; currentExplanationVideoContext = null; lastExplanationVideoSyncedSecond = -1; }, 300); }
     document.getElementById('closeVideoPlayerBtn').addEventListener('click', closeVideoPlayer);
 
     async function openAnswerCard(paperId) {
@@ -1791,29 +2048,46 @@ submitAllBtn.disabled =
     };
 
     async function loadMessages() {
-        publicMessages = await getData(PUBLIC_MESSAGES_KEY) || [];
+        const [messages, resources] = await Promise.all([
+          getData(PUBLIC_MESSAGES_KEY),
+          getData(FORUM_RESOURCE_STORAGE_KEY)
+        ]);
+        publicMessages = messages || [];
+        publicMessages = publicMessages.map((msg) => ({ ...msg, module: normalizeForumModule(msg.module) }));
+        forumResources = (resources || []).map(normalizeForumResourceItem).filter((item) => item.file);
+        await refreshForumPaperNameOptions();
         renderMessages();
     }
 
     function renderMessages() {
         const list = document.getElementById('message-list');
         list.innerHTML = '';
+        renderForumModuleTabs(publicMessages);
+        updateForumComposerByModule();
+        if (currentForumModule === 'resources') {
+            renderForumResourceCards();
+            return;
+        }
         
         // 动态控制输入框提示语：没登录就引导登录
         const msgInput = document.getElementById('message-input');
-        if(!userId) {
-            msgInput.placeholder = "👉 请先在上方登录，登录后即可发帖互动、传图交流...";
-        } else {
-            msgInput.placeholder = "分享你的思路或错题... (按 Ctrl+Enter 发送)";
+        const currentMeta = getForumModuleMeta(currentForumModule);
+        if (msgInput) {
+          if(!userId) {
+              msgInput.placeholder = `👉 请先在上方登录，登录后即可在「${currentMeta.label}」发帖互动、传图交流...`;
+          } else {
+              msgInput.placeholder = `在「${currentMeta.label}」发布内容... (按 Ctrl+Enter 发送)`;
+          }
         }
 
-        if (publicMessages.length === 0) {
-            list.innerHTML = '<div class="text-center text-gray-400 text-sm py-10 flex flex-col items-center"><i class="fa fa-coffee text-4xl text-gray-200 mb-4 mt-8"></i>广场空空如也，快来抢沙发吧！</div>';
+        const filteredMessages = publicMessages.filter((msg) => normalizeForumModule(msg.module) === currentForumModule);
+        if (filteredMessages.length === 0) {
+            list.innerHTML = `<div class="text-center text-gray-400 text-sm py-10 flex flex-col items-center"><i class="fa ${currentMeta.icon} text-4xl text-gray-200 mb-4 mt-8"></i>${escapeHtmlText(currentMeta.label)}暂时还没有内容，快来发第一条吧！</div>`;
             return;
         }
         
         // 按 点赞数(主) 和 发布时间(次) 降序排序
-        const sortedMessages = [...publicMessages].sort((a, b) => {
+        const sortedMessages = [...filteredMessages].sort((a, b) => {
             const likesA = a.likedBy ? a.likedBy.length : 0;
             const likesB = b.likedBy ? b.likedBy.length : 0;
             if (likesA !== likesB) return likesB - likesA; 
@@ -1828,7 +2102,6 @@ submitAllBtn.disabled =
             let displayName = msg.isAnonymous ? "匿名侠" : msg.senderName;
             let avatarSeed = msg.isAnonymous ? msg.id : msg.senderId;
             const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${avatarSeed}&backgroundColor=b6e3f4`;
-            let imgHtml = msg.image ? `<img src="${msg.image}" class="mt-2 rounded-lg max-h-48 object-contain cursor-pointer hover:opacity-90 border shadow-sm" onclick="showImagePreview(this.src)">` : '';
 
             const likesCount = msg.likedBy ? msg.likedBy.length : 0;
             const hasLiked = msg.likedBy && msg.likedBy.includes(currentUId);
@@ -1848,8 +2121,7 @@ submitAllBtn.disabled =
                         ${isMe ? `<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">我</span>` : ''}
                     </div>
                     <div class="inline-block px-4 py-2.5 text-sm text-gray-800 bg-white border border-gray-100 rounded-2xl rounded-tl-none shadow-sm break-words" style="max-width: fit-content;">
-                        ${msg.text ? msg.text.replace(/\n/g, '<br>') : ''}
-                        ${imgHtml}
+                        ${renderForumMessageContent(msg)}
                     </div>
                     <div class="flex items-center mt-1.5 space-x-4 ml-1">
                         <button onclick="toggleLike(${msg.id})" class="text-xs font-bold ${likeBtnColor} flex items-center transition transform hover:scale-110 active:scale-95">
@@ -1867,30 +2139,49 @@ submitAllBtn.disabled =
     }
 
     async function sendMessage() {
+        if (currentForumModule === 'resources') return;
         if (!userId) return showGeneralModal('提示', '💡 请先在上方填写姓名和学号登录，登录后才能发帖讨论哦！', 'warning');
         
         const input = document.getElementById('message-input');
+        const paperInput = document.getElementById('need-video-paper-input');
+        const questionInput = document.getElementById('need-video-question-input');
         const isAnon = document.getElementById('anonymous-checkbox').checked;
+        const isNeedVideo = currentForumModule === 'need_video';
         const text = input.value.trim();
+        const paperName = paperInput ? paperInput.value.trim() : '';
+        const questionNo = questionInput ? questionInput.value.trim() : '';
         
-        if (!text && !pendingChatImageBase64) return; 
+        if (isNeedVideo) {
+          if (!paperName) return showGeneralModal('提示', '请先输入要讲解的套题名称。', 'warning');
+          if (!questionNo) return showGeneralModal('提示', '请先输入具体题号。', 'warning');
+          const visiblePapers = await getVisiblePapers() || [];
+          const paperExists = visiblePapers.some((paper) => String(paper.name || '').trim() === paperName);
+          if (!paperExists) return showGeneralModal('提示', `未找到名为“${paperName}”的套题，请重新确认后再发布。`, 'warning');
+        } else if (!text && !pendingChatImageBase64) {
+          return;
+        }
 
         const btn = document.getElementById('send-message-btn');
         btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
 
-        try {
+	        try {
             let imgUrl = null;
-            if (pendingChatImageBase64) {
+            if (!isNeedVideo && pendingChatImageBase64) {
                 const res = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: pendingChatImageBase64 }) });
                 const data = await res.json();
                 imgUrl = data.url;
             }
 
-            const newMsg = {
-                id: Date.now(), senderId: userId, senderName: userName,
-                isAnonymous: isAnon, text: text, image: imgUrl,
-                time: new Date().toLocaleString(), likedBy: [], tippedPoints: 0
-            };
+	            const newMsg = {
+	                id: Date.now(), senderId: userId, senderName: userName,
+	                isAnonymous: isAnon,
+                  text: isNeedVideo ? `《${paperName}》第${questionNo}题需要讲解视频` : text,
+                  image: imgUrl,
+	                time: new Date().toLocaleString(), likedBy: [], tippedPoints: 0,
+                    module: currentForumModule,
+                    videoRequestPaperName: isNeedVideo ? paperName : '',
+                    videoRequestQuestionNo: isNeedVideo ? questionNo : ''
+	            };
             
             let currentMsgs = await getData(PUBLIC_MESSAGES_KEY) || [];
             currentMsgs.push(newMsg);
@@ -1898,14 +2189,51 @@ submitAllBtn.disabled =
             
             publicMessages = currentMsgs; 
             input.value = ''; removeChatImage();
+            if (paperInput) paperInput.value = '';
+            if (questionInput) questionInput.value = '';
+            renderForumPaperNameOptions('');
             document.getElementById('anonymous-checkbox').checked = false; 
             renderMessages();
         } catch (e) { alert('发送失败，请重试'); } 
-        finally { btn.disabled = false; btn.innerHTML = '发送'; }
+        finally {
+          btn.disabled = false;
+          btn.textContent = currentForumModule === 'need_video' ? '发布需求' : '发送';
+        }
     }
     
-    document.getElementById('send-message-btn').addEventListener('click', sendMessage); 
-    document.getElementById('message-input').addEventListener('keydown', (e) => { if(e.ctrlKey && e.key === 'Enter') sendMessage(); });
+	      document.getElementById('send-message-btn').addEventListener('click', sendMessage); 
+	      document.getElementById('message-input').addEventListener('keydown', (e) => { if(e.ctrlKey && e.key === 'Enter') sendMessage(); });
+          const needVideoPaperInput = document.getElementById('need-video-paper-input');
+          const needVideoQuestionInput = document.getElementById('need-video-question-input');
+          if (needVideoPaperInput) {
+            needVideoPaperInput.addEventListener('input', (e) => {
+              renderForumPaperNameOptions(e.target.value);
+            });
+            needVideoPaperInput.addEventListener('focus', (e) => {
+              renderForumPaperNameOptions(e.target.value);
+            });
+            needVideoPaperInput.addEventListener('blur', () => {
+              setTimeout(() => {
+                if (!needVideoPaperInput.value.trim()) renderForumPaperNameOptions('');
+              }, 120);
+            });
+          }
+          if (needVideoPaperInput) needVideoPaperInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+          if (needVideoQuestionInput) needVideoQuestionInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+          const forumModuleTabs = document.getElementById('forum-module-tabs');
+          if (forumModuleTabs) {
+            forumModuleTabs.addEventListener('click', (e) => {
+              const btn = e.target.closest('.forum-module-tab');
+              if (!btn) return;
+              currentForumModule = normalizeForumModule(btn.dataset.module);
+              if (currentForumModule === 'need_video') refreshForumPaperNameOptions();
+              if (currentForumModule === 'resources') {
+                loadForumResources().then(renderMessages);
+                return;
+              }
+              renderMessages();
+            });
+          }
     
     window.addEventListener('DOMContentLoaded', () => {
         init();
