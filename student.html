@@ -29,6 +29,30 @@
     .cta-glow { box-shadow: 0 10px 24px rgba(79, 70, 229, 0.25); }
     .category-chevron-icon { transition: transform 0.2s ease; display: inline-block; }
     .category-chevron-icon.rotated { transform: rotate(-90deg); }
+
+    @font-face {
+        font-family: "iconfont"; /* Project id 5190730 */
+        src: url('//at.alicdn.com/t/c/font_5190730_8nw1dzwgwx4.woff2?t=1780584853957') format('woff2'),
+            url('//at.alicdn.com/t/c/font_5190730_8nw1dzwgwx4.woff?t=1780584853957') format('woff'),
+            url('//at.alicdn.com/t/c/font_5190730_8nw1dzwgwx4.ttf?t=1780584853957') format('truetype');
+      }
+
+      .iconfont {
+        font-family: "iconfont" !important;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .icon-shu:before {
+        content: "\e809";
+      }
+
+      @font-face {font-family: "iconfont"; /* 项目ID 5190730 */src: url('//at.alicdn.com/t/c/font_5190730_8nw1dzwgwx4.woff2?t=1780584853957') format('woff2'),url('//at.alicdn.com/t/c/font_5190730_8nw1dzwgwx4.woff?t=1780584853957') format('woff'),url('//at.alicdn.com/t/c/font_5190730_8nw1dzwgwx4.ttf?t=1780584853957') format('truetype');}.iconfont {font-family: "iconfont" !important;font-size: 16px;font-style: normal;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;}.icon-shu:before {content: "\e809";}
+
+
+
   </style>
 </head>
 
@@ -1697,30 +1721,12 @@
         controls.classList.add('hidden');
       }
       
-      const assignedIcons = new Set();
       const getCategoryDesign = (catId, catName) => {
         const seed = String(catId || catName || '');
         let hash = 0;
         for (let i = 0; i < seed.length; i++) {
           hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
         }
-        
-        const icons = [
-          'fa-book', 'fa-graduation-cap', 'fa-pencil', 'fa-lightbulb-o', 'fa-calculator', 
-          'fa-globe', 'fa-certificate', 'fa-university', 'fa-mortar-board', 'fa-language',
-          'fa-pencil-square-o', 'fa-rocket', 'fa-flask', 'fa-laptop', 'fa-line-chart', 
-          'fa-database', 'fa-microchip', 'fa-server', 'fa-code', 'fa-terminal', 
-          'fa-gear', 'fa-wifi', 'fa-shield', 'fa-plug', 'fa-cube', 'fa-cubes',
-          'fa-puzzle-piece', 'fa-gamepad', 'fa-trophy', 'fa-magic', 'fa-star', 
-          'fa-soccer-ball-o', 'fa-bullseye', 'fa-flag', 'fa-gift', 'fa-music',
-          'fa-compass', 'fa-paper-plane', 'fa-plane', 'fa-space-shuttle', 'fa-anchor',
-          'fa-bicycle', 'fa-tree', 'fa-leaf', 'fa-road', 'fa-map-o',
-          'fa-wrench', 'fa-clock-o', 'fa-camera', 'fa-bell', 'fa-bolt', 
-          'fa-key', 'fa-lock', 'fa-umbrella', 'fa-heart', 'fa-paw',
-          'fa-cloud', 'fa-fire', 'fa-diamond', 'fa-eye', 'fa-tag',
-          'fa-paint-brush', 'fa-image', 'fa-film', 'fa-headphones', 'fa-scissors',
-          'fa-coffee', 'fa-cutlery', 'fa-beer'
-        ];
         
         const colorThemes = [
           { bg: 'bg-gradient-to-br from-pink-400 to-rose-500', shadow: 'shadow-rose-100' },
@@ -1733,18 +1739,8 @@
           { bg: 'bg-gradient-to-br from-indigo-400 to-violet-650', shadow: 'shadow-indigo-100' }
         ];
         
-        let iconIdx = hash % icons.length;
-        let attempts = 0;
-        while (assignedIcons.has(icons[iconIdx]) && attempts < icons.length) {
-          iconIdx = (iconIdx + 1) % icons.length;
-          attempts++;
-        }
-        
-        const selectedIcon = icons[iconIdx];
-        assignedIcons.add(selectedIcon);
-        
         return {
-          icon: selectedIcon,
+          //icon: 'fa-book-open',
           theme: colorThemes[hash % colorThemes.length]
         };
       };
@@ -1757,7 +1753,7 @@
           <div class="cursor-pointer bg-gradient-to-br from-indigo-50/50 via-white to-white hover:from-indigo-50/80 hover:to-indigo-50/20 border border-gray-200 hover:border-indigo-300 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 student-category-card flex flex-col justify-between" data-category-id="${cat.id}">
             <div class="flex items-start justify-between mb-4">
               <div class="w-12 h-12 rounded-xl ${design.theme.bg} text-white flex items-center justify-center text-xl shadow-md ${design.theme.shadow}">
-                <i class="fa ${design.icon}"></i>
+                <i style='font-size:34px' class="fa iconfont icon-shu"></i>
               </div>
               <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
                 ${catPapers.length} 套题
