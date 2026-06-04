@@ -66,6 +66,36 @@
     .shake { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both; }
     @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-3px); } 40%, 60% { transform: translateX(3px); } }
     .tab-active { border-bottom: 3px solid #4F46E5; color: #4F46E5; font-weight: 600; }
+    
+    /* Drag & Drop Visual Styles */
+    .drag-over-category {
+      background-color: #EEF2FF !important;
+      border-color: #4F46E5 !important;
+      border-style: dashed !important;
+      transform: scale(1.02);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    }
+    .draggable-paper-item {
+      cursor: grab;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .draggable-paper-item:active {
+      cursor: grabbing;
+      opacity: 0.6;
+    }
+    .category-chevron-icon {
+      transition: transform 0.2s ease;
+    }
+    .category-chevron-icon.rotated {
+      transform: rotate(-90deg);
+    }
+    .drag-over-sort {
+      border-top: 4px solid #8B5CF6 !important;
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.25s ease-out;
+    }
   </style>
 </head>
 
@@ -337,18 +367,63 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white rounded-xl shadow-md p-6 fade-in"><h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-book text-blue-500 mr-2"></i> 高一题库管理</h3><div id="grade1AddBtn" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 mb-4"><i class="fa fa-plus text-purple-500 text-2xl mb-2"></i><p>添加新套卷</p></div><div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="grade1PaperList"></div></div>
-          <div class="bg-white rounded-xl shadow-md p-6 fade-in"><h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-book text-blue-500 mr-2"></i> 高二题库管理</h3><div id="grade2AddBtn" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 mb-4"><i class="fa fa-plus text-purple-500 text-2xl mb-2"></i><p>添加新套卷</p></div><div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="grade2PaperList"></div></div>
-          <div class="bg-white rounded-xl shadow-md p-6 fade-in"><h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-book text-blue-500 mr-2"></i> 高三题库管理</h3><div id="grade3AddBtn" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 mb-4"><i class="fa fa-plus text-purple-500 text-2xl mb-2"></i><p>添加新套卷</p></div><div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="grade3PaperList"></div></div>
-        </div>
-        <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
-          <h3 class="text-lg font-bold mb-4 flex items-center"><i class="fa fa-puzzle-piece text-indigo-500 mr-2"></i> 自定义题库管理</h3>
-          <div id="customPaperAddBtn" class="border-2 border-dashed border-indigo-200 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-500 mb-4 bg-indigo-50/40">
-            <i class="fa fa-plus text-indigo-500 text-2xl mb-2"></i>
-            <p>添加自定义题库</p>
+        <!-- Refactored Question Library Dual-Pane Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8" id="refactoredPaperManager">
+          <!-- Left side: Set List (7/12 cols) -->
+          <div class="lg:col-span-7 bg-white rounded-xl shadow-md p-6 fade-in flex flex-col">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+              <h3 class="text-lg font-bold flex items-center text-gray-800">
+                <i class="fa fa-book text-blue-500 mr-2"></i> 套题管理
+              </h3>
+              <!-- Grade Filter Tabs -->
+              <div class="flex items-center gap-1.5 flex-wrap" id="leftGradeFilterContainer">
+                <button type="button" class="grade-filter-tab px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-primary text-white shadow-sm" data-grade="all">全部</button>
+                <button type="button" class="grade-filter-tab px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-white text-gray-600 border border-gray-250 hover:bg-gray-50" data-grade="grade1">高一</button>
+                <button type="button" class="grade-filter-tab px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-white text-gray-600 border border-gray-250 hover:bg-gray-50" data-grade="grade2">高二</button>
+                <button type="button" class="grade-filter-tab px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-white text-gray-600 border border-gray-250 hover:bg-gray-50" data-grade="grade3">高三</button>
+              </div>
+            </div>
+            
+            <!-- Filters & Search -->
+            <div class="flex flex-col sm:flex-row gap-3 mb-4 items-center justify-between">
+              <div class="relative w-full sm:max-w-xs">
+                <input type="text" id="leftSearchInput" class="w-full pl-8 pr-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="按套题名称搜索...">
+                <i class="fa fa-search text-gray-400 absolute left-2.5 top-2 text-xs"></i>
+              </div>
+              <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                <label class="flex items-center text-xs text-gray-500 cursor-pointer select-none">
+                  <input type="checkbox" id="showUncategorizedOnlyCheckbox" class="mr-1.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  仅显示未分类
+                </label>
+              </div>
+            </div>
+            
+            <!-- Set Cards Container -->
+            <div class="space-y-3 overflow-y-auto pr-1" id="refactoredPaperListContainer" style="max-height: 520px; min-height: 200px;">
+              <div class="text-center text-gray-400 py-10">加载中...</div>
+            </div>
           </div>
-          <div class="space-y-3 max-h-80 overflow-y-auto pr-2" id="customPaperManageList"></div>
+          
+          <!-- Right side: Category Management (5/12 cols) -->
+          <div class="lg:col-span-5 bg-white rounded-xl shadow-md p-6 fade-in flex flex-col">
+            <div class="mb-6 pb-4 border-b border-gray-100">
+              <h3 class="text-lg font-bold flex items-center text-gray-800">
+                <i class="fa fa-folder-open text-yellow-500 mr-2"></i> 分类管理
+              </h3>
+              <p class="text-xs text-gray-400 mt-1">可以将左侧套卷直接拖拽入右侧的分类文件夹中</p>
+            </div>
+            
+            <!-- Category Creation -->
+            <div class="flex gap-2 mb-6">
+              <input type="text" id="newCategoryName" class="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="新建分类名称 (如: 立体几何专题)...">
+              <button type="button" id="createCategoryBtn" class="px-4 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm">创建</button>
+            </div>
+            
+            <!-- Category Dropzones Container -->
+            <div class="space-y-3 overflow-y-auto pr-1" id="categoriesContainer" style="max-height: 440px; min-height: 200px;">
+              <div class="text-center text-gray-400 py-10">加载中...</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -688,7 +763,26 @@
     const paperFillBlankCount = document.getElementById('paperFillBlankCount'), paperFillBlankPoints = document.getElementById('paperFillBlankPoints'), paperFillBlankAnswerImage = document.getElementById('paperFillBlankAnswerImage'), previewContainer = document.getElementById('previewContainer'), answerImagePreview = document.getElementById('answerImagePreview'), imagePreviewModal = document.getElementById('imagePreviewModal'), fullScreenPreviewImage = document.getElementById('fullScreenPreviewImage'), clearFillBlankAnswersBtn = document.getElementById('clearFillBlankAnswersBtn');
     let adminFillBlankAnswerFiles = [];
     const optionA = document.getElementById('optionA'), optionB = document.getElementById('optionB'), optionC = document.getElementById('optionC'), optionD = document.getElementById('optionD'), dynamicAnswers = document.getElementById('dynamicAnswers'), addPaperBtn = document.getElementById('addPaperBtn');
-    const grade1PaperList = document.getElementById('grade1PaperList'), grade2PaperList = document.getElementById('grade2PaperList'), grade3PaperList = document.getElementById('grade3PaperList'), grade3AddBtn = document.getElementById('grade3AddBtn'), customPaperManageList = document.getElementById('customPaperManageList'), customPaperAddBtn = document.getElementById('customPaperAddBtn'), archivedPaperCountBadge = document.getElementById('archivedPaperCountBadge');
+    // Refactored question library UI variables
+    const refactoredPaperListContainer = document.getElementById('refactoredPaperListContainer');
+    const categoriesContainer = document.getElementById('categoriesContainer');
+    const leftGradeFilterContainer = document.getElementById('leftGradeFilterContainer');
+    const leftSearchInput = document.getElementById('leftSearchInput');
+    const showUncategorizedOnlyCheckbox = document.getElementById('showUncategorizedOnlyCheckbox');
+    const newCategoryName = document.getElementById('newCategoryName');
+    const createCategoryBtn = document.getElementById('createCategoryBtn');
+    
+    // Mock declarations for backward compatibility
+    const grade1PaperList = null, grade2PaperList = null, grade3PaperList = null, grade3AddBtn = null, customPaperManageList = null, customPaperAddBtn = null;
+    const archivedPaperCountBadge = document.getElementById('archivedPaperCountBadge');
+    
+    // Refactored question library state variables
+    let currentLeftGradeFilter = 'all';
+    let currentLeftSearchQuery = '';
+    let currentShowUncategorizedOnly = false;
+    const expandedCategoryIds = new Set();
+    const editingCategoryIds = new Set();
+    const PAPER_CATEGORIES_KEY = 'paperCategories';
     const archivedGrade1PaperList = document.getElementById('archivedGrade1PaperList'), archivedGrade2PaperList = document.getElementById('archivedGrade2PaperList'), archivedGrade3PaperList = document.getElementById('archivedGrade3PaperList');
     const archivedGrade1PaperPagination = document.getElementById('archivedGrade1PaperPagination'), archivedGrade2PaperPagination = document.getElementById('archivedGrade2PaperPagination'), archivedGrade3PaperPagination = document.getElementById('archivedGrade3PaperPagination');
     const archivedGrade1TypeFilter = document.getElementById('archivedGrade1TypeFilter'), archivedGrade2TypeFilter = document.getElementById('archivedGrade2TypeFilter'), archivedGrade3TypeFilter = document.getElementById('archivedGrade3TypeFilter');
@@ -770,10 +864,37 @@
       if (paperType) paperType.addEventListener('change', syncPaperFormByType);
       syncPaperFormByType();
 
-      document.getElementById('grade1AddBtn').addEventListener('click', () => { if (paperType) paperType.value = 'test'; paperGrade.value = 'grade1'; syncPaperFormByType(); scrollToForm(); });
-      document.getElementById('grade2AddBtn').addEventListener('click', () => { if (paperType) paperType.value = 'test'; paperGrade.value = 'grade2'; syncPaperFormByType(); scrollToForm(); });
-      grade3AddBtn.addEventListener('click', () => { if (paperType) paperType.value = 'test'; paperGrade.value = 'grade3'; syncPaperFormByType(); scrollToForm(); });
-      if (customPaperAddBtn) customPaperAddBtn.addEventListener('click', () => { if (paperType) paperType.value = 'custom'; syncPaperFormByType(); scrollToForm(); });
+      // Grade filter tabs selection logic (Left Panel)
+      if (leftGradeFilterContainer) {
+        leftGradeFilterContainer.addEventListener('click', (e) => {
+          const btn = e.target.closest('.grade-filter-tab');
+          if (!btn) return;
+          currentLeftGradeFilter = btn.dataset.grade;
+          // Toggle active classes
+          leftGradeFilterContainer.querySelectorAll('.grade-filter-tab').forEach(el => {
+            el.className = 'grade-filter-tab px-3 py-1.5 text-xs font-semibold rounded-lg transition-all text-gray-600 hover:text-purple-600';
+          });
+          btn.className = 'grade-filter-tab px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-white text-purple-600 shadow-sm';
+          renderAllPaperLists();
+        });
+      }
+
+      // Search field input listener (Left Panel)
+      if (leftSearchInput) {
+        leftSearchInput.addEventListener('input', (e) => {
+          currentLeftSearchQuery = e.target.value.trim().toLowerCase();
+          renderAllPaperLists();
+        });
+      }
+
+      // Show uncategorized only checkbox change listener (Left Panel)
+      if (showUncategorizedOnlyCheckbox) {
+        showUncategorizedOnlyCheckbox.addEventListener('change', (e) => {
+          currentShowUncategorizedOnly = e.target.checked;
+          renderAllPaperLists();
+        });
+      }
+
       addPaperBtn.addEventListener('click', addNewPaper);
       document.querySelectorAll('input[name="paperScope"]').forEach(radio => {
           radio.addEventListener('change', (e) => {
@@ -969,7 +1090,7 @@
         const area = document.getElementById('fbPointsConfigArea'), container = document.getElementById('dynamicFbPointsContainer');
         if (area && area.parentElement.classList.contains('space-y-4')) {
             const addBtn = document.getElementById('addPaperBtn');
-            addBtn.parentElement.insertBefore(area, addBtn); 
+            addBtn.parentElement.insertBefore(area, addBtn);
             area.classList.remove('mt-2');
             area.classList.add('mb-6', 'w-full', 'shadow-sm'); 
         }
@@ -1613,7 +1734,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         } catch (e) { alert('图片上传服务器失败，请重试'); return; }
       }
       
-      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, isArchived: false, archivedAt: '', targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: (questionCount * singlePoints) + totalFbPoints, answers, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
+      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, isArchived: false, archivedAt: '', categoryId: '', categoryIds: [], targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: (questionCount * singlePoints) + totalFbPoints, answers, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
       const papers = await getData(PAPER_STORAGE_KEY) || []; 
       papers.push(newPaper); 
       await saveData(PAPER_STORAGE_KEY, papers);
@@ -1655,18 +1776,498 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       alert('任务添加成功！');
     }
 
- async function renderAllPaperLists() {
+    async function renderAllPaperLists() {
         const papers = await getData(PAPER_STORAGE_KEY) || [];
         const allAnswers = await getData(ANSWER_STORAGE_KEY) || []; // 🚀 终极优化：只读取1次数据
-        const activePapers = papers.filter((p) => !isArchivedPaper(p));
-        renderPaperList(grade1PaperList, activePapers.filter(p => p.grade === 'grade1' && (p.type || 'test') !== 'custom'), allAnswers);
-        renderPaperList(grade2PaperList, activePapers.filter(p => p.grade === 'grade2' && (p.type || 'test') !== 'custom'), allAnswers);
-        renderPaperList(grade3PaperList, activePapers.filter(p => p.grade === 'grade3' && (p.type || 'test') !== 'custom'), allAnswers);
-        if (customPaperManageList) renderPaperList(customPaperManageList, activePapers.filter(p => (p.type || 'test') === 'custom'), allAnswers);
+        
+        // 1. Render refactored dual-pane UI
+        await renderRefactoredPaperList(papers, allAnswers);
+        
+        // 2. Render archived lists & self learning options
         await renderArchivedPaperList(papers, allAnswers);
         await refreshSelfLearningPaperOptions();
     }
 
+    // Refactored question library UI helpers
+    function getPaperTypeLabel(type) {
+      return type === 'homework' ? '📚 作业' : (type === 'correction' ? '📸 改错' : (type === 'custom' ? '🧩 自定义' : '📝 测试'));
+    }
+    
+    function getPaperGradeLabel(grade) {
+      return grade === 'grade1' ? '高一' : (grade === 'grade2' ? '高二' : (grade === 'grade3' ? '高三' : '自定义'));
+    }
+
+    function getPaperCategoryIds(paper) {
+      if (!paper) return [];
+      if (Array.isArray(paper.categoryIds)) return paper.categoryIds;
+      if (paper.categoryId) return [paper.categoryId];
+      return [];
+    }
+
+    // HTML5 Drag and Drop event handlers
+    function handleDragStart(e) {
+      e.dataTransfer.setData('text/plain', e.currentTarget.dataset.id);
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleCategoryDragStart(e) {
+      if (e.target.tagName.toLowerCase() === 'input' || e.target.closest('input') || e.target.closest('button')) {
+        e.preventDefault();
+        return;
+      }
+      e.dataTransfer.setData('text/category-id', e.currentTarget.dataset.categoryId);
+      e.dataTransfer.effectAllowed = 'move';
+    }
+    
+    function handleDragOver(e) {
+      e.preventDefault();
+      const dropZone = e.currentTarget.closest('.drop-zone');
+      if (dropZone) {
+        if (e.dataTransfer.types.includes('text/category-id')) {
+          dropZone.classList.add('drag-over-sort');
+        } else {
+          dropZone.classList.add('drag-over-category');
+        }
+      }
+    }
+    
+    function handleDragLeave(e) {
+      const dropZone = e.currentTarget.closest('.drop-zone');
+      if (dropZone) {
+        dropZone.classList.remove('drag-over-category');
+        dropZone.classList.remove('drag-over-sort');
+      }
+    }
+    
+    async function handleDrop(e) {
+      e.preventDefault();
+      const dropZone = e.currentTarget.closest('.drop-zone');
+      if (dropZone) {
+        dropZone.classList.remove('drag-over-category');
+        dropZone.classList.remove('drag-over-sort');
+      }
+      
+      const categoryId = e.currentTarget.dataset.categoryId;
+      
+      // Check if this is a category reordering drop
+      const draggedCatId = e.dataTransfer.getData('text/category-id');
+      if (draggedCatId) {
+        if (draggedCatId === categoryId || !categoryId) return;
+        let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+        const draggedIdx = categories.findIndex(c => c.id === draggedCatId);
+        const targetIdx = categories.findIndex(c => c.id === categoryId);
+        if (draggedIdx === -1 || targetIdx === -1) return;
+        
+        const [draggedCat] = categories.splice(draggedIdx, 1);
+        categories.splice(targetIdx, 0, draggedCat);
+        await saveData(PAPER_CATEGORIES_KEY, categories);
+        renderAllPaperLists();
+        return;
+      }
+      
+      // Otherwise, it is a paper dropping onto a category
+      const paperId = e.dataTransfer.getData('text/plain');
+      if (!paperId || !categoryId) return;
+      
+      let papers = await getData(PAPER_STORAGE_KEY) || [];
+      const idx = papers.findIndex(p => p.id === paperId);
+      if (idx === -1) return;
+      
+      const currentCats = getPaperCategoryIds(papers[idx]);
+      if (!currentCats.includes(categoryId)) {
+        papers[idx].categoryIds = [...currentCats, categoryId];
+        papers[idx].categoryId = papers[idx].categoryIds[0] || '';
+        await saveData(PAPER_STORAGE_KEY, papers);
+        renderAllPaperLists();
+      }
+    }
+
+    // Category CRUD actions
+    async function createCategory() {
+      if (!newCategoryName) return;
+      const name = newCategoryName.value.trim();
+      if (!name) return alert('分类名称不能为空');
+      
+      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+        return alert('分类名称已存在');
+      }
+      
+      const newCat = {
+        id: 'cat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        name: name,
+        createTime: new Date().toLocaleString()
+      };
+      
+      categories.push(newCat);
+      await saveData(PAPER_CATEGORIES_KEY, categories);
+      newCategoryName.value = '';
+      
+      // Auto expand the newly created category
+      expandedCategoryIds.add(newCat.id);
+      
+      renderAllPaperLists();
+    }
+    
+    async function deleteCategory(categoryId) {
+      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const cat = categories.find(c => c.id === categoryId);
+      if (!cat) return;
+      
+      if (!confirm(`确定要删除分类 "${cat.name}" 吗？该分类下的所有套题将变为未分类状态。`)) return;
+      
+      categories = categories.filter(c => c.id !== categoryId);
+      await saveData(PAPER_CATEGORIES_KEY, categories);
+      
+      // Clear categoryId and categoryIds from papers
+      let papers = await getData(PAPER_STORAGE_KEY) || [];
+      let updatedCount = 0;
+      papers.forEach(p => {
+        const currentCats = getPaperCategoryIds(p);
+        if (currentCats.includes(categoryId)) {
+          p.categoryIds = currentCats.filter(id => id !== categoryId);
+          p.categoryId = p.categoryIds[0] || '';
+          updatedCount++;
+        }
+      });
+      
+      if (updatedCount > 0) {
+        await saveData(PAPER_STORAGE_KEY, papers);
+      }
+      
+      expandedCategoryIds.delete(categoryId);
+      renderAllPaperLists();
+    }
+    
+    async function removePaperFromCategory(paperId, categoryId) {
+      let papers = await getData(PAPER_STORAGE_KEY) || [];
+      const idx = papers.findIndex(p => p.id === paperId);
+      if (idx === -1) return;
+      
+      const currentCats = getPaperCategoryIds(papers[idx]);
+      papers[idx].categoryIds = currentCats.filter(id => id !== categoryId);
+      papers[idx].categoryId = papers[idx].categoryIds[0] || '';
+      await saveData(PAPER_STORAGE_KEY, papers);
+      renderAllPaperLists();
+    }
+    
+    async function renameCategory(categoryId, newName) {
+      newName = newName.trim();
+      if (!newName) return alert('分类名称不能为空');
+      
+      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      if (categories.some(c => c.id !== categoryId && c.name.toLowerCase() === newName.toLowerCase())) {
+        return alert('分类名称已存在');
+      }
+      
+      const cat = categories.find(c => c.id === categoryId);
+      if (cat) {
+        cat.name = newName;
+        await saveData(PAPER_CATEGORIES_KEY, categories);
+      }
+      editingCategoryIds.delete(categoryId);
+      renderAllPaperLists();
+    }
+
+    // Refactored dual-pane render function
+    async function renderRefactoredPaperList(papers, allAnswers) {
+      if (!refactoredPaperListContainer || !categoriesContainer) return;
+      
+      const categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const activePapers = papers.filter((p) => !isArchivedPaper(p));
+
+      // 1. Render Left Side Set List
+      let filteredPapers = activePapers;
+      
+      // Filter by Grade tab
+      if (currentLeftGradeFilter !== 'all') {
+        filteredPapers = filteredPapers.filter(p => p.grade === currentLeftGradeFilter);
+      }
+      
+      // Filter by search query
+      if (currentLeftSearchQuery) {
+        filteredPapers = filteredPapers.filter(p => String(p.name || '').toLowerCase().includes(currentLeftSearchQuery));
+      }
+      
+      // Filter by uncategorized checkbox
+      if (currentShowUncategorizedOnly) {
+        filteredPapers = filteredPapers.filter(p => getPaperCategoryIds(p).length === 0);
+      }
+      
+      // Clear Left Container
+      refactoredPaperListContainer.innerHTML = '';
+      
+      if (filteredPapers.length === 0) {
+        refactoredPaperListContainer.innerHTML = '<div class="text-center text-gray-500 py-10">暂无匹配套题</div>';
+      } else {
+        filteredPapers.forEach(paper => {
+          const paperAnswers = allAnswers.filter(a => a.paperId === paper.id);
+          const answerCount = paperAnswers.length;
+          const avgScore = answerCount > 0 
+            ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / answerCount).toFixed(1) 
+            : 'N/A';
+          const typeLabel = getPaperTypeLabel(paper.type);
+          const gradeLabel = getPaperGradeLabel(paper.grade);
+          const redoEnabled = !!paper.allowRedo;
+          const scopeSummary = getPaperScopeSummary(paper);
+          
+          // Get category names if categorized
+          const paperCats = getPaperCategoryIds(paper);
+          
+          const paperItem = document.createElement('div');
+          paperItem.className = 'border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-all duration-200 flex flex-col draggable-paper-item';
+          paperItem.setAttribute('draggable', 'true');
+          paperItem.setAttribute('data-id', paper.id);
+          
+          paperItem.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+                <i class="fa fa-ellipsis-v text-gray-300 cursor-grab active:cursor-grabbing mr-1 select-none"></i>
+                <span class="text-[10px] text-white bg-indigo-500 px-2 py-0.5 rounded-full whitespace-nowrap">${typeLabel}</span>
+                <h4 class="font-semibold text-gray-800 truncate max-w-[150px] sm:max-w-none" title="${paper.name}">${paper.name}</h4>
+                ${paperCats.map(catId => {
+                  const category = categories.find(c => c.id === catId);
+                  if (!category) return '';
+                  return `
+                    <span class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-100 whitespace-nowrap mr-1">
+                      <i class="fa fa-folder mr-1"></i>${category.name}
+                    </span>
+                  `;
+                }).join('')}
+              </div>
+              
+              <div class="flex items-center gap-2 shrink-0 ml-2">
+                <span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full whitespace-nowrap">${gradeLabel}</span>
+                <button type="button" class="toggle-paper-detail px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-xs font-semibold transition-all flex items-center">
+                  <i class="fa fa-info-circle mr-1"></i>详情
+                </button>
+              </div>
+            </div>
+            
+            <!-- Collapsible details -->
+            <div class="paper-details-collapsed hidden mt-4 pt-4 border-t border-gray-100 animate-fade-in">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 text-xs text-gray-500">
+                <div>题数：<strong class="text-gray-800">${paper.questionCount} 题</strong></div>
+                <div>总分：<strong class="text-gray-800">${paper.totalPoints} 分</strong></div>
+                <div>平均分：<strong class="text-blue-600 font-bold">${avgScore} 分</strong></div>
+                <div>重做：<strong class="${redoEnabled ? 'text-green-600' : 'text-gray-400'}">${redoEnabled ? '开启' : '关闭'}</strong></div>
+                <div class="col-span-2">范围：<strong class="text-amber-600">${scopeSummary}</strong></div>
+                <div class="col-span-2">创建时间：<strong class="text-gray-700">${paper.createTime}</strong></div>
+              </div>
+              
+              <!-- Action buttons -->
+              <div class="flex flex-wrap gap-2 pt-2 border-t border-dashed border-gray-100">
+                <button type="button" class="edit-paper-scope px-2.5 py-1.5 bg-violet-50 text-violet-600 hover:bg-violet-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-users mr-1"></i>编辑范围</button>
+                <button type="button" class="toggle-redo px-2.5 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'} mr-1"></i>${redoEnabled ? '关闭重做' : '开启重做'}</button>
+                <button type="button" class="view-answers px-2.5 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-list mr-1"></i>${answerCount}人明细</button>
+                <button type="button" class="view-analysis px-2.5 py-1.5 bg-purple-50 text-purple-600 hover:bg-purple-100 text-xs rounded-lg font-semibold transition-colors" data-id="${paper.id}"><i class="fa fa-pie-chart mr-1"></i>数据分析</button>
+                <button type="button" class="config-answers px-2.5 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-cog mr-1"></i>配置答案</button>
+                <button type="button" class="archive-paper px-2.5 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-archive mr-1"></i>归档</button>
+                <button type="button" class="delete-paper px-2.5 py-1.5 bg-red-50 text-red-500 hover:bg-red-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-trash mr-1"></i>删除</button>
+              </div>
+            </div>
+          `;
+          
+          refactoredPaperListContainer.appendChild(paperItem);
+          
+          // Setup Drag events on set item
+          paperItem.addEventListener('dragstart', handleDragStart);
+          
+          // Setup accordion toggle
+          const toggleBtn = paperItem.querySelector('.toggle-paper-detail');
+          const detailsPanel = paperItem.querySelector('.paper-details-collapsed');
+          toggleBtn.addEventListener('click', () => {
+            const isHidden = detailsPanel.classList.contains('hidden');
+            detailsPanel.classList.toggle('hidden', !isHidden);
+            toggleBtn.innerHTML = isHidden 
+              ? `<i class="fa fa-chevron-up mr-1"></i>收起` 
+              : `<i class="fa fa-info-circle mr-1"></i>详情`;
+          });
+          
+          // Action button listeners
+          paperItem.querySelector('.edit-paper-scope').addEventListener('click', function () { openPaperScopeEditModal(this.dataset.id); });
+          paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
+          paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
+          paperItem.querySelector('.view-analysis').addEventListener('click', function () { showPaperAnalysis(this.dataset.id); });
+          paperItem.querySelector('.config-answers').addEventListener('click', function () { openAnswerConfigModal(this.dataset.id); });
+          paperItem.querySelector('.archive-paper').addEventListener('click', function () { if (confirm(`确定要归档"${paper.name}"吗？归档后学生端将不再显示该套题相关数据。`)) archivePaper(this.dataset.id); });
+          paperItem.querySelector('.delete-paper').addEventListener('click', function () { if (confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) deletePaper(this.dataset.id); });
+        });
+      }
+
+      // 2. Render Right Side Category List
+      categoriesContainer.innerHTML = '';
+      if (categories.length === 0) {
+        categoriesContainer.innerHTML = `
+          <div class="text-center py-10 text-gray-500 border border-dashed border-gray-200 rounded-2xl bg-gray-50 drop-zone flex flex-col justify-center items-center" data-category-id="">
+            <i class="fa fa-folder-open text-gray-300 text-3xl mb-2"></i>
+            <p class="text-sm">暂无分类，请在上方输入并创建</p>
+          </div>
+        `;
+      } else {
+        categories.forEach(cat => {
+          const catPapers = activePapers.filter(p => getPaperCategoryIds(p).includes(cat.id));
+          const isExpanded = expandedCategoryIds.has(cat.id);
+          const isEditing = editingCategoryIds.has(cat.id);
+          
+          const catCard = document.createElement('div');
+          catCard.className = 'border border-gray-150 rounded-xl bg-gray-50 hover:bg-white hover:border-purple-300 transition-all duration-200 drop-zone overflow-hidden shadow-sm cursor-grab active:cursor-grabbing';
+          catCard.setAttribute('data-category-id', cat.id);
+          catCard.setAttribute('draggable', 'true');
+          
+          let headerContent = '';
+          if (isEditing) {
+            headerContent = `
+              <div class="flex items-center gap-2 flex-1" onclick="event.stopPropagation()">
+                <i class="fa fa-folder text-yellow-500 text-lg"></i>
+                <input type="text" class="edit-category-input px-2 py-0.5 border border-purple-300 rounded text-xs font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-purple-500" value="${cat.name}" data-category-id="${cat.id}" autofocus onclick="event.stopPropagation()">
+                <button type="button" class="save-category-btn text-green-600 hover:text-green-700 p-1" data-category-id="${cat.id}" title="保存">
+                  <i class="fa fa-check"></i>
+                </button>
+                <button type="button" class="cancel-category-btn text-gray-400 hover:text-gray-600 p-1" data-category-id="${cat.id}" title="取消">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+            `;
+          } else {
+            headerContent = `
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                <i class="fa fa-chevron-down text-gray-400 category-chevron-icon ${isExpanded ? '' : 'rotated'}" id="chevron-${cat.id}"></i>
+                <i class="fa fa-folder text-yellow-500 text-lg"></i>
+                <h4 class="font-bold text-gray-800 truncate" title="${cat.name}">${cat.name}</h4>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                  ${catPapers.length} 套
+                </span>
+              </div>
+              
+              <div class="flex items-center gap-1">
+                <button type="button" class="edit-category-btn text-gray-400 hover:text-purple-600 transition-colors p-1" data-category-id="${cat.id}" title="修改名称">
+                  <i class="fa fa-pencil"></i>
+                </button>
+                <button type="button" class="delete-category-btn text-gray-400 hover:text-red-600 transition-colors p-1" data-category-id="${cat.id}" title="删除分类">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            `;
+          }
+          
+          catCard.innerHTML = `
+            <div class="flex items-center justify-between p-4 cursor-pointer select-none hover:bg-purple-50/20 transition-colors category-header" data-category-id="${cat.id}">
+              ${headerContent}
+            </div>
+            
+            <div class="category-sets-container ${isExpanded ? '' : 'hidden'} border-t border-gray-100 bg-white p-3 space-y-2" id="sets-container-${cat.id}">
+              ${catPapers.length === 0 ? `
+                <div class="text-center py-4 text-xs text-gray-400 border border-dashed border-gray-100 rounded-lg">
+                  暂无套题，请从左侧拖入此处
+                </div>
+              ` : catPapers.map(paper => `
+                <div class="flex items-center justify-between p-2.5 border border-gray-100 rounded-lg hover:bg-gray-50 text-xs" draggable="false">
+                  <div class="flex items-center gap-2 truncate flex-1 mr-2" draggable="false">
+                    <span class="text-[9px] text-white bg-purple-400 px-1.5 py-0.5 rounded whitespace-nowrap">${getPaperTypeLabel(paper.type)}</span>
+                    <span class="font-medium text-gray-700 truncate" title="${paper.name}">${paper.name}</span>
+                    <span class="text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap">${getPaperGradeLabel(paper.grade)}</span>
+                  </div>
+                  <button type="button" class="remove-paper-from-category text-gray-400 hover:text-red-500 transition-colors py-1 px-2 border border-transparent rounded hover:border-gray-200" data-paper-id="${paper.id}" data-category-id="${cat.id}">
+                    <i class="fa fa-times mr-1"></i>移出
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          `;
+          
+          categoriesContainer.appendChild(catCard);
+          
+          // Setup Drag events on category card (both sorting and paper dropping)
+          catCard.addEventListener('dragstart', handleCategoryDragStart);
+          catCard.addEventListener('dragover', handleDragOver);
+          catCard.addEventListener('dragleave', handleDragLeave);
+          catCard.addEventListener('drop', handleDrop);
+          
+          // Setup accordion click
+          catCard.querySelector('.category-header').addEventListener('click', function(e) {
+            if (e.target.closest('.delete-category-btn') || e.target.closest('.edit-category-btn') || e.target.closest('.save-category-btn') || e.target.closest('.cancel-category-btn') || e.target.closest('input')) return;
+            
+            const catId = this.dataset.categoryId;
+            const chevron = document.getElementById(`chevron-${catId}`);
+            const setsContainer = document.getElementById(`sets-container-${catId}`);
+            
+            if (expandedCategoryIds.has(catId)) {
+              expandedCategoryIds.delete(catId);
+              setsContainer.classList.add('hidden');
+              chevron.classList.add('rotated');
+            } else {
+              expandedCategoryIds.add(catId);
+              setsContainer.classList.remove('hidden');
+              chevron.classList.remove('rotated');
+            }
+          });
+          
+          // Inline edit category buttons
+          const editBtn = catCard.querySelector('.edit-category-btn');
+          if (editBtn) {
+            editBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              editingCategoryIds.add(this.dataset.categoryId);
+              renderAllPaperLists();
+            });
+          }
+          
+          const cancelBtn = catCard.querySelector('.cancel-category-btn');
+          if (cancelBtn) {
+            cancelBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              editingCategoryIds.delete(this.dataset.categoryId);
+              renderAllPaperLists();
+            });
+          }
+          
+          const saveBtn = catCard.querySelector('.save-category-btn');
+          if (saveBtn) {
+            saveBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const input = catCard.querySelector('.edit-category-input');
+              if (input) renameCategory(this.dataset.categoryId, input.value);
+            });
+          }
+          
+          const editInput = catCard.querySelector('.edit-category-input');
+          if (editInput) {
+            editInput.focus();
+            editInput.select();
+            editInput.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                renameCategory(this.dataset.categoryId, this.value);
+              } else if (e.key === 'Escape') {
+                e.preventDefault();
+                editingCategoryIds.delete(this.dataset.categoryId);
+                renderAllPaperLists();
+              }
+            });
+          }
+          
+          // Delete category listener
+          const deleteBtn = catCard.querySelector('.delete-category-btn');
+          if (deleteBtn) {
+            deleteBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              deleteCategory(this.dataset.categoryId);
+            });
+          }
+          
+          // Remove paper listener
+          catCard.querySelectorAll('.remove-paper-from-category').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              removePaperFromCategory(this.dataset.paperId, this.dataset.categoryId);
+            });
+          });
+        });
+      }
+    }
+
+    
     async function initSelfLearningManagement() {
       if (!addSelfLearningBtn) return;
       addSelfLearningBtn.addEventListener('click', addSelfLearningContent);
