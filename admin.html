@@ -1880,7 +1880,148 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         papers[idx].categoryIds = [...currentCats, categoryId];
         papers[idx].categoryId = papers[idx].categoryIds[0] || '';
         await saveData(PAPER_STORAGE_KEY, papers);
+        
+        // Update category's paperIds list
+        let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+        const catIdx = categories.findIndex(c => c.id === categoryId);
+        if (catIdx !== -1) {
+          if (!Array.isArray(categories[catIdx].paperIds)) {
+            categories[catIdx].paperIds = [];
+          }
+          if (!categories[catIdx].paperIds.includes(paperId)) {
+            categories[catIdx].paperIds.push(paperId);
+            await saveData(PAPER_CATEGORIES_KEY, categories);
+          }
+        }
+        
         renderAllPaperLists();
+      }
+    }
+
+    // Drag and drop sorting for papers within categories
+    function handleCategoryPaperDragStart(e) {
+      if (e.target.closest('button') || e.target.closest('input')) {
+        e.preventDefault();
+        return;
+      }
+      e.stopPropagation();
+      e.dataTransfer.setData('text/paper-id', e.currentTarget.dataset.paperId);
+      e.dataTransfer.setData('text/category-id', e.currentTarget.dataset.categoryId);
+      e.dataTransfer.effectAllowed = 'move';
+      e.currentTarget.classList.add('opacity-50');
+    }
+
+    function handleCategoryPaperDragEnd(e) {
+      e.currentTarget.classList.remove('opacity-50');
+    }
+
+    function handleCategoryPaperDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer.types.includes('text/paper-id') || e.dataTransfer.types.includes('text/plain')) {
+        e.currentTarget.classList.add('border-t-2', 'border-purple-500');
+      }
+    }
+
+    function handleCategoryPaperDragLeave(e) {
+      e.stopPropagation();
+      e.currentTarget.classList.remove('border-t-2', 'border-purple-500');
+    }
+
+    async function handleCategoryPaperDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const targetItem = e.currentTarget;
+      targetItem.classList.remove('border-t-2', 'border-purple-500');
+      
+      const draggedPaperId = e.dataTransfer.getData('text/paper-id');
+      const catId = e.dataTransfer.getData('text/category-id');
+      const targetPaperId = targetItem.dataset.paperId;
+      const targetCatId = targetItem.dataset.categoryId;
+      
+      const leftPaperId = e.dataTransfer.getData('text/plain');
+      
+      if (draggedPaperId && catId && targetPaperId && catId === targetCatId) {
+        if (draggedPaperId === targetPaperId) return;
+        
+        let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+        const catIdx = categories.findIndex(c => c.id === catId);
+        if (catIdx === -1) return;
+        
+        let paperIds = Array.isArray(categories[catIdx].paperIds) ? [...categories[catIdx].paperIds] : [];
+        
+        const papers = await getData(PAPER_STORAGE_KEY) || [];
+        const activePapers = papers.filter(p => !isArchivedPaper(p));
+        const catPapers = activePapers.filter(p => getPaperCategoryIds(p).includes(catId));
+        
+        const catPapersSorted = [...catPapers];
+        catPapersSorted.sort((a, b) => {
+          const idxA = paperIds.indexOf(a.id);
+          const idxB = paperIds.indexOf(b.id);
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          if (idxA !== -1) return -1;
+          if (idxB !== -1) return 1;
+          return 0;
+        });
+        
+        const sortedIds = catPapersSorted.map(p => p.id);
+        const draggedIdx = sortedIds.indexOf(draggedPaperId);
+        const targetIdx = sortedIds.indexOf(targetPaperId);
+        
+        if (draggedIdx !== -1 && targetIdx !== -1) {
+          const [draggedId] = sortedIds.splice(draggedIdx, 1);
+          sortedIds.splice(targetIdx, 0, draggedId);
+          
+          categories[catIdx].paperIds = sortedIds;
+          await saveData(PAPER_CATEGORIES_KEY, categories);
+          renderAllPaperLists();
+        }
+      } else if (leftPaperId && targetCatId) {
+        let papers = await getData(PAPER_STORAGE_KEY) || [];
+        const idx = papers.findIndex(p => p.id === leftPaperId);
+        if (idx === -1) return;
+        
+        const currentCats = getPaperCategoryIds(papers[idx]);
+        if (!currentCats.includes(targetCatId)) {
+          papers[idx].categoryIds = [...currentCats, targetCatId];
+          papers[idx].categoryId = papers[idx].categoryIds[0] || '';
+          await saveData(PAPER_STORAGE_KEY, papers);
+        }
+        
+        let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+        const catIdx = categories.findIndex(c => c.id === targetCatId);
+        if (catIdx !== -1) {
+          let paperIds = Array.isArray(categories[catIdx].paperIds) ? [...categories[catIdx].paperIds] : [];
+          const activePapers = papers.filter(p => !isArchivedPaper(p));
+          const catPapers = activePapers.filter(p => getPaperCategoryIds(p).includes(targetCatId));
+          
+          const catPapersSorted = [...catPapers];
+          catPapersSorted.sort((a, b) => {
+            const idxA = paperIds.indexOf(a.id);
+            const idxB = paperIds.indexOf(b.id);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return 0;
+          });
+          
+          const sortedIds = catPapersSorted.map(p => p.id);
+          const existingIdx = sortedIds.indexOf(leftPaperId);
+          if (existingIdx !== -1) {
+            sortedIds.splice(existingIdx, 1);
+          }
+          
+          const targetIdx = sortedIds.indexOf(targetPaperId);
+          if (targetIdx !== -1) {
+            sortedIds.splice(targetIdx, 0, leftPaperId);
+          } else {
+            sortedIds.push(leftPaperId);
+          }
+          
+          categories[catIdx].paperIds = sortedIds;
+          await saveData(PAPER_CATEGORIES_KEY, categories);
+          renderAllPaperLists();
+        }
       }
     }
 
@@ -1950,6 +2091,15 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       papers[idx].categoryIds = currentCats.filter(id => id !== categoryId);
       papers[idx].categoryId = papers[idx].categoryIds[0] || '';
       await saveData(PAPER_STORAGE_KEY, papers);
+      
+      // Update category's paperIds list
+      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const catIdx = categories.findIndex(c => c.id === categoryId);
+      if (catIdx !== -1 && Array.isArray(categories[catIdx].paperIds)) {
+        categories[catIdx].paperIds = categories[catIdx].paperIds.filter(id => id !== paperId);
+        await saveData(PAPER_CATEGORIES_KEY, categories);
+      }
+      
       renderAllPaperLists();
     }
     
@@ -2108,7 +2258,16 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         `;
       } else {
         categories.forEach(cat => {
+          const catPaperIds = Array.isArray(cat.paperIds) ? cat.paperIds : [];
           const catPapers = activePapers.filter(p => getPaperCategoryIds(p).includes(cat.id));
+          catPapers.sort((a, b) => {
+            const indexA = catPaperIds.indexOf(a.id);
+            const indexB = catPaperIds.indexOf(b.id);
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return 0;
+          });
           const isExpanded = expandedCategoryIds.has(cat.id);
           const isEditing = editingCategoryIds.has(cat.id);
           
@@ -2164,8 +2323,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                   暂无套题，请从左侧拖入此处
                 </div>
               ` : catPapers.map(paper => `
-                <div class="flex items-center justify-between p-2.5 border border-gray-100 rounded-lg hover:bg-gray-50 text-xs" draggable="false">
-                  <div class="flex items-center gap-2 truncate flex-1 mr-2" draggable="false">
+                <div class="flex items-center justify-between p-2.5 border border-gray-100 rounded-lg bg-gray-50/50 hover:bg-white hover:border-purple-300 text-xs category-paper-item cursor-grab active:cursor-grabbing transition-all duration-200" draggable="true" data-paper-id="${paper.id}" data-category-id="${cat.id}">
+                  <div class="flex items-center gap-2 truncate flex-1 mr-2 pointer-events-none" draggable="false">
                     <span class="text-[9px] text-white bg-purple-400 px-1.5 py-0.5 rounded whitespace-nowrap">${getPaperTypeLabel(paper.type)}</span>
                     <span class="font-medium text-gray-700 truncate" title="${paper.name}">${paper.name}</span>
                     <span class="text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap">${getPaperGradeLabel(paper.grade)}</span>
@@ -2186,6 +2345,15 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           catCard.addEventListener('dragleave', handleDragLeave);
           catCard.addEventListener('drop', handleDrop);
           
+          // Setup Drag events on category papers (for paper sorting within category)
+          catCard.querySelectorAll('.category-paper-item').forEach(item => {
+            item.addEventListener('dragstart', handleCategoryPaperDragStart);
+            item.addEventListener('dragend', handleCategoryPaperDragEnd);
+            item.addEventListener('dragover', handleCategoryPaperDragOver);
+            item.addEventListener('dragleave', handleCategoryPaperDragLeave);
+            item.addEventListener('drop', handleCategoryPaperDrop);
+          });
+
           // Setup accordion click
           catCard.querySelector('.category-header').addEventListener('click', function(e) {
             if (e.target.closest('.delete-category-btn') || e.target.closest('.edit-category-btn') || e.target.closest('.save-category-btn') || e.target.closest('.cancel-category-btn') || e.target.closest('input')) return;

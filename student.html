@@ -1726,6 +1726,15 @@
           const cat = visibleCategories.find(c => c.id === catId);
           if (!cat) return;
           const catPapers = gradeFilteredPapers.filter(p => getPaperCategoryIds(p).includes(cat.id));
+          const catPaperIds = Array.isArray(cat.paperIds) ? cat.paperIds : [];
+          catPapers.sort((a, b) => {
+            const indexA = catPaperIds.indexOf(a.id);
+            const indexB = catPaperIds.indexOf(b.id);
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return 0;
+          });
           openCategoryModal(cat.id, cat.name, catPapers, allAnswers);
         });
       });
