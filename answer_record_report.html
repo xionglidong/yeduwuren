@@ -255,6 +255,16 @@
         <div id="draftImages" class="media-grid"></div>
       </div>
     </section>
+
+    <section id="correctionSection" class="mb-6 hidden">
+      <h2 class="section-title text-lg mb-4"><i class="fa fa-pencil-square-o text-purple-500 mr-2"></i>学生改错草稿纸</h2>
+      <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+        <div class="flex flex-wrap gap-4 text-sm mb-4">
+          <div class="bg-white rounded-xl border px-4 py-2"><span class="text-gray-400">改错提交时间</span><span id="correctionTime" class="ml-2 font-bold text-gray-900">--</span></div>
+        </div>
+        <div id="correctionImages" class="media-grid space-y-3"></div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -330,6 +340,7 @@
 	      document.getElementById('studentPointsRankSub').textContent = payload.student?.studentCount ? `${payload.student.studentCount} 人` : '';
 	      document.getElementById('studentTitle').textContent = payload.student?.pointsTitle || '--';
 	      document.getElementById('submitTime').textContent = payload.record?.submitTime || '--';
+	      document.getElementById('correctionTime').textContent = payload.record?.correctionTime || '--';
       document.getElementById('paperName').textContent = payload.paper?.name || '--';
       document.getElementById('paperType').textContent = paperTypeLabel(payload.paper?.type);
       const totalCount = (payload.paper?.questionCount || 0) + (payload.paper?.fillInBlankCount || 0);
@@ -399,6 +410,11 @@
       if (drafts.length > 0) {
         document.getElementById('draftSection').classList.remove('hidden');
         renderImageList('draftImages', drafts);
+      }
+      const correctionImages = Array.isArray(payload.record?.correctionImages) ? payload.record.correctionImages.filter(Boolean) : [];
+      if (correctionImages.length > 0) {
+        document.getElementById('correctionSection').classList.remove('hidden');
+        renderImageList('correctionImages', correctionImages);
       }
     });
   </script>

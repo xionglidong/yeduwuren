@@ -771,7 +771,7 @@
     const showUncategorizedOnlyCheckbox = document.getElementById('showUncategorizedOnlyCheckbox');
     const newCategoryName = document.getElementById('newCategoryName');
     const createCategoryBtn = document.getElementById('createCategoryBtn');
-    
+    createCategoryBtn.addEventListener("click",createCategory)
     // Mock declarations for backward compatibility
     const grade1PaperList = null, grade2PaperList = null, grade3PaperList = null, grade3AddBtn = null, customPaperManageList = null, customPaperAddBtn = null;
     const archivedPaperCountBadge = document.getElementById('archivedPaperCountBadge');
@@ -1252,7 +1252,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           fillInBlankDetails: Array.isArray(record.fillInBlankDetails) ? record.fillInBlankDetails : [],
           fillInBlankStudentImage: record.fillInBlankStudentImage || [],
           fillInBlankScore: getRecordFillBlankScore(record, paper),
-          draftImages: Array.isArray(record.draftImages) ? record.draftImages : []
+          draftImages: Array.isArray(record.draftImages) ? record.draftImages : [],
+          correctionImages: Array.isArray(record.correctionImages) ? record.correctionImages : [],
+          correctionTime: record.correctionTime || ''
         },
         paperContent: {
           answers: Array.isArray(paper.answers) ? paper.answers : [],
@@ -4016,10 +4018,18 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                                  </div>`;
             }
 
-            const card = document.createElement('div'); card.className = 'border rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md'; card.innerHTML = `<div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-3"><div class="w-2 h-12 rounded-full ${isPerfect ? 'bg-green-500' : 'bg-primary'}"></div><div><h4 class="font-bold text-gray-800">${paperName}</h4><p class="text-xs text-gray-500">${answer.submitTime} 提交</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${isPerfect ? 'text-green-600' : 'text-primary'}">${displayScore} <span class="text-xs text-gray-400 font-normal">/${totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div class="hidden p-4 border-t border-gray-100 bg-white">${questionsHtml}${draftHtml}${fillBlankHtml}${correctionHtml}</div>`; studentHistoryList.appendChild(card); 
+            const answerStorageIndex = allAnswers.indexOf(answer);
+            const card = document.createElement('div'); card.className = 'border rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md'; card.innerHTML = `<div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-3"><div class="w-2 h-12 rounded-full ${isPerfect ? 'bg-green-500' : 'bg-primary'}"></div><div><h4 class="font-bold text-gray-800">${paperName}</h4><p class="text-xs text-gray-500">${answer.submitTime} 提交</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${isPerfect ? 'text-green-600' : 'text-primary'}">${displayScore} <span class="text-xs text-gray-400 font-normal">/${totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><button type="button" class="text-sky-600 hover:text-white bg-sky-50 hover:bg-sky-500 border border-sky-200 px-2 py-1 rounded transition shadow-sm text-xs relative z-50 mr-2 data-export-history-btn" data-export-answer-index="${answerStorageIndex}" data-paper-id="${answer.paperId}" onclick="event.stopPropagation();"><i class="fa fa-file-pdf-o"></i> 存PDF</button><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div class="hidden p-4 border-t border-gray-100 bg-white">${questionsHtml}${draftHtml}${fillBlankHtml}${correctionHtml}</div>`; studentHistoryList.appendChild(card); 
         }); 
         
         // 渲染完 HTML 后，立刻手动把事件装在按钮上
+        studentHistoryList.querySelectorAll('.data-export-history-btn').forEach(btn => {
+            btn.onclick = function(e) {
+                e.preventDefault(); e.stopPropagation();
+                openAnswerRecordReport(parseInt(this.getAttribute('data-export-answer-index'), 10), this.getAttribute('data-paper-id'));
+            };
+        });
+        
         btnBindings.forEach(binding => {
             const btn = document.getElementById(binding.id);
             if (btn) {
