@@ -26,6 +26,7 @@
     .badge-new { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 999px; }
     .result-correct { background-color: #e6ffed; color: #10b981; border-left: 3px solid #10b981; }
     .result-incorrect { background-color: #fee2e2; color: #ef4444; border-left: 3px solid #ef4444; }
+    .result-partial { background-color: #fef3c7; color: #d97706; border-left: 3px solid #d97706; }
     .cta-glow { box-shadow: 0 10px 24px rgba(79, 70, 229, 0.25); }
     .category-chevron-icon { transition: transform 0.2s ease; display: inline-block; }
     .category-chevron-icon.rotated { transform: rotate(-90deg); }
@@ -1319,14 +1320,53 @@
       }, 0);
     }
 
+    function getQuestionScore(answer, standard, isMultiple, singlePoints) {
+      const studentAns = answer || '';
+      const stdAns = standard || '';
+      if (isMultiple) {
+        if (!studentAns || !stdAns) return { score: 0, status: 'incorrect', text: '错误' };
+        const stdOptions = stdAns.split('');
+        const studentOptions = studentAns.split('');
+        let hasWrong = false;
+        let correctCount = 0;
+        for (let char of studentOptions) {
+          if (stdOptions.includes(char)) correctCount++;
+          else hasWrong = true;
+        }
+        if (hasWrong || correctCount === 0) {
+          return { score: 0, status: 'incorrect', text: '错误' };
+        } else {
+          if (correctCount === stdOptions.length) {
+            return { score: 6, status: 'correct', text: '全对' };
+          } else if (stdOptions.length === 2) {
+            if (correctCount === 1) return { score: 3, status: 'partial', text: '部分对' };
+          } else if (stdOptions.length === 3) {
+            if (correctCount === 1) return { score: 2, status: 'partial', text: '部分对' };
+            else if (correctCount === 2) return { score: 4, status: 'partial', text: '部分对' };
+          }
+        }
+        return { score: 0, status: 'incorrect', text: '错误' };
+      } else {
+        if (studentAns === stdAns) {
+          const pts = parseFloat(singlePoints) || 0;
+          return { score: pts, status: 'correct', text: '正确' };
+        }
+        return { score: 0, status: 'incorrect', text: '错误' };
+      }
+    }
+
     function getRecordTotalScore(record, paper) {
       if (!paper || !record) return parseFloat(record && record.score) || 0;
       let total = 0;
       const answers = Array.isArray(record.answers) ? record.answers : [];
       const standardAnswers = Array.isArray(paper.answers) ? paper.answers : [];
       const singlePoints = parseFloat(paper.singlePoints) || 0;
+      const questionTypes = Array.isArray(paper.questionTypes) ? paper.questionTypes : [];
       answers.forEach((answer, index) => {
-        if (answer === standardAnswers[index]) total += singlePoints;
+        const isMultiple = questionTypes[index] === 'multiple';
+        const standard = standardAnswers[index] || '';
+        const qInfo = getQuestionScore(answer, standard, isMultiple, singlePoints);
+        total += qInfo.score;
       });
       total += getRecordFillBlankScore(record, paper);
       return total;
@@ -2146,7 +2186,48 @@
         const paper = (await getVisiblePapers()).find(p => p.id === paperId); if (!paper) return; 
         const userRecords = allAnswerRecords.filter(a => a.studentId === userId && a.paperId === paperId); if (userRecords.length === 0) return alert('未找到您的作答记录。'); userRecords.sort((a, b) => new Date(b.submitTime).getTime() - new Date(a.submitTime).getTime()); const latestRecord = userRecords[0]; const displayScore = getRecordTotalScore(latestRecord, paper); historyModalTitle.textContent = `${paper.name} - 历史作答详情`; historyScoreDisplay.textContent = `${displayScore}/${paper.totalPoints}分`; historySubmitTime.textContent = latestRecord.submitTime; const timeElapsed = latestRecord.timeElapsed || 0; historyTimeDisplay.textContent = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; historyDetailsList.innerHTML = ''; 
         if (historyViewPdfBtn) { const pdfFile = paper && paper.pdfFile ? String(paper.pdfFile).trim() : ''; if (pdfFile) { historyViewPdfBtn.classList.remove('hidden'); historyViewPdfBtn.onclick = () => openPdfFile(pdfFile); } else { historyViewPdfBtn.classList.add('hidden'); historyViewPdfBtn.onclick = null; } }
-        latestRecord.answers.forEach((ans, i) => { const isCorrect = ans === paper.answers[i]; let videoBtnHtml = ''; if (paper.videos && paper.videos[i]) { videoBtnHtml = `<button onclick="playExplanationVideo('./video/${paper.videos[i]}', '第 ${i + 1} 题讲解')" class="mt-2 text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full hover:bg-indigo-200 transition-colors flex items-center w-fit"><i class="fa fa-play-circle mr-1.5 text-indigo-600"></i> 观看视频讲解</button>`; } const detailItem = document.createElement('div'); detailItem.className = `p-3 rounded-lg ${isCorrect ? 'result-correct' : 'result-incorrect'}`; detailItem.innerHTML = `<div class="flex justify-between items-start"><div><p class="font-medium"><span class="mr-2">${i + 1}. 题目 ${i + 1}</span><span class="text-sm">${isCorrect ? '✅ 回答正确' : '❌ 回答错误'}</span></p><div class="mt-1 text-sm space-y-0.5"><p>你的答案: <span class="font-bold">${ans}</span></p><p>正确答案: <span class="font-bold">${paper.answers[i]}</span></p><p class="text-xs text-gray-500">${paper.options[paper.answers[i]] || '无选项内容'}</p></div></div></div>${videoBtnHtml}`; historyDetailsList.appendChild(detailItem); }); 
+        latestRecord.answers.forEach((ans, i) => {
+          const isMultiple = paper.questionTypes && paper.questionTypes[i] === 'multiple';
+          const standard = paper.answers[i] || '';
+          const qInfo = getQuestionScore(ans, standard, isMultiple, paper.singlePoints);
+          
+          let styleClass = '';
+          let statusText = '';
+          if (qInfo.status === 'correct') {
+            styleClass = 'result-correct';
+            statusText = `✅ 全对 (+${qInfo.score}分)`;
+          } else if (qInfo.status === 'partial') {
+            styleClass = 'result-partial';
+            statusText = `⚠️ 部分对 (+${qInfo.score}分)`;
+          } else {
+            styleClass = 'result-incorrect';
+            statusText = `❌ 错误 (+0分)`;
+          }
+          
+          let videoBtnHtml = '';
+          if (paper.videos && paper.videos[i]) {
+            videoBtnHtml = `<button onclick="playExplanationVideo('./video/${paper.videos[i]}', '第 ${i + 1} 题讲解')" class="mt-2 text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full hover:bg-indigo-200 transition-colors flex items-center w-fit"><i class="fa fa-play-circle mr-1.5 text-indigo-600"></i> 观看视频讲解</button>`;
+          }
+          
+          const detailItem = document.createElement('div');
+          detailItem.className = `p-3 rounded-lg ${styleClass}`;
+          detailItem.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-medium">
+                  <span class="mr-2">${i + 1}. 题目 ${i + 1} (${isMultiple ? '多选' : '单选'})</span>
+                  <span class="text-sm font-bold">${statusText}</span>
+                </p>
+                <div class="mt-1 text-sm space-y-0.5">
+                  <p>你的答案: <span class="font-bold">${ans || '未填'}</span></p>
+                  <p>正确答案: <span class="font-bold">${standard}</span></p>
+                </div>
+              </div>
+            </div>
+            ${videoBtnHtml}
+          `;
+          historyDetailsList.appendChild(detailItem);
+        }); 
         
         // 🚀 核心升级：历史详情支持多图展示
         if (latestRecord.fillInBlankStudentImage && paper.fillInBlankCount > 0) { 
@@ -2326,7 +2407,74 @@
     function getBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
     function generateQuestionNav() { questionNav.innerHTML = ''; for (let i = 0; i < currentPaper.questionCount; i++) { const navBtn = document.createElement('button'); navBtn.className = `w-8 h-8 rounded-full flex items-center justify-center text-sm ${i === 0 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`; navBtn.textContent = i + 1; navBtn.dataset.questionIndex = i; navBtn.addEventListener('click', function () { currentQuestionIndex = parseInt(this.dataset.questionIndex); renderCurrentQuestion(); updateNavButtons(); updateQuestionNavStyle(); }); questionNav.appendChild(navBtn); } }
     function updateQuestionNavStyle() { questionNav.querySelectorAll('button').forEach((btn, index) => { if (index === currentQuestionIndex) btn.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm bg-primary text-white'; else if (studentAnswers[index] !== null) btn.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm bg-green-100 text-green-700'; else btn.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm bg-gray-200 text-gray-700 hover:bg-gray-300'; }); }
-    function renderCurrentQuestion() { const questionNumber = currentQuestionIndex + 1; questionContent.innerHTML = `<div class="mb-4"><h4 class="text-lg font-medium">${questionNumber}. 这是第${questionNumber}题，考查相关知识点</h4><p class="text-gray-600 text-sm mt-2">(${currentPaper.singlePoints}分)</p></div><div class="space-y-2 mt-4">${Object.entries(currentPaper.options).map(([key, value]) => `<div class="option-item p-3 border rounded-lg cursor-pointer ${studentAnswers[currentQuestionIndex] === key ? 'bg-primary/10 border-primary/30' : ''}" data-option="${key}"><div class="flex items-center"><div class="w-6 h-6 rounded-full border ${studentAnswers[currentQuestionIndex] === key ? 'bg-primary border-primary text-white' : 'border-gray-300'} flex items-center justify-center mr-3">${studentAnswers[currentQuestionIndex] === key ? '<i class="fa fa-check text-xs"></i>' : key}</div><span>${value}</span></div></div>`).join('')}</div>`; questionContent.querySelectorAll('.option-item').forEach(option => { option.addEventListener('click', function () { studentAnswers[currentQuestionIndex] = this.dataset.option; const hasNextQuestion = currentQuestionIndex < currentPaper.questionCount - 1; if (hasNextQuestion) { currentQuestionIndex++; } renderCurrentQuestion(); updateQuestionNavStyle(); updateNavButtons(); }); }); updateProgressBar(); }
+    function renderCurrentQuestion() { 
+      const questionNumber = currentQuestionIndex + 1; 
+      const qtype = currentPaper.questionTypes && currentPaper.questionTypes[currentQuestionIndex] ? currentPaper.questionTypes[currentQuestionIndex] : 'single';
+      const isMultiple = qtype === 'multiple';
+      
+      const badgeHtml = isMultiple 
+        ? `<span class="inline-block text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded mr-2">多选题 (6分)</span>`
+        : `<span class="inline-block text-xs font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-2">单选题 (${currentPaper.singlePoints}分)</span>`;
+      
+      const pointsHtml = isMultiple 
+        ? `<p class="text-gray-500 text-xs mt-1">本题分值: 6分 (全部选对得6分，漏选得部分分，有错选得0分)</p>`
+        : `<p class="text-gray-500 text-xs mt-1">本题分值: ${currentPaper.singlePoints}分</p>`;
+        
+      const currentAns = studentAnswers[currentQuestionIndex] || '';
+      
+      questionContent.innerHTML = `
+        <div class="mb-4">
+          <h4 class="text-lg font-medium flex items-center">
+            ${badgeHtml}
+            <span>${questionNumber}. 这是第${questionNumber}题，考查相关知识点</span>
+          </h4>
+          ${pointsHtml}
+        </div>
+        <div class="space-y-2 mt-4">
+          ${Object.entries(currentPaper.options).map(([key, value]) => {
+            const isSelected = isMultiple ? currentAns.includes(key) : currentAns === key;
+            const containerClass = isSelected ? 'bg-primary/10 border-primary/30' : '';
+            const indicatorShape = isMultiple ? 'rounded' : 'rounded-full';
+            const indicatorBg = isSelected ? 'bg-primary border-primary text-white' : 'border-gray-300';
+            const indicatorContent = isSelected ? '<i class="fa fa-check text-xs"></i>' : key;
+            return `
+              <div class="option-item p-3 border rounded-lg cursor-pointer ${containerClass}" data-option="${key}">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 ${indicatorShape} border ${indicatorBg} flex items-center justify-center mr-3 text-xs font-bold">
+                    ${indicatorContent}
+                  </div>
+                  <span class="text-sm font-medium text-gray-700">${value}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `; 
+      
+      questionContent.querySelectorAll('.option-item').forEach(option => { 
+        option.addEventListener('click', function () { 
+          const opt = this.dataset.option;
+          if (isMultiple) {
+            let checkedOptions = currentAns ? currentAns.split('') : [];
+            if (checkedOptions.includes(opt)) {
+              checkedOptions = checkedOptions.filter(o => o !== opt);
+            } else {
+              checkedOptions.push(opt);
+            }
+            studentAnswers[currentQuestionIndex] = checkedOptions.length > 0 ? checkedOptions.sort().join('') : null;
+            renderCurrentQuestion(); 
+            updateQuestionNavStyle(); 
+            updateNavButtons(); 
+          } else {
+            studentAnswers[currentQuestionIndex] = opt; 
+            renderCurrentQuestion(); 
+            updateQuestionNavStyle(); 
+            updateNavButtons(); 
+          }
+        }); 
+      }); 
+      updateProgressBar(); 
+    }
     function updateProgressBar() { const answeredCount = studentAnswers.filter(a => a !== null).length, totalCount = currentPaper.questionCount; progressBar.style.width = `${(answeredCount / totalCount) * 100}%`; progressText.textContent = `${answeredCount} / ${totalCount} 题`; }
     function updateNavButtons() { prevQuestionBtn.disabled = currentQuestionIndex === 0; nextQuestionBtn.disabled = currentQuestionIndex === currentPaper.questionCount - 1; // 修复后的代码：明确判断是否有填空题数量，而不是判断图片字段
 submitAllBtn.disabled = 
@@ -2346,11 +2494,23 @@ submitAllBtn.disabled =
       submitAllBtn.disabled = true; submitAllBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 正在极速交卷中...';
       stopTimer();
       let score = 0; const scoreDetails = [];
-      // 👇 就是在这个外面加上了 if 判断 👇
       if (currentPaper.questionCount > 0) { 
-          studentAnswers.forEach((answer, index) => { const isCorrect = answer === currentPaper.answers[index]; if (isCorrect) score += currentPaper.singlePoints; scoreDetails.push({ questionNumber: index + 1, isCorrect: isCorrect, correctAnswer: currentPaper.answers[index], yourAnswer: answer }); }); 
+          studentAnswers.forEach((answer, index) => {
+              const standard = currentPaper.answers[index] || '';
+              const qtype = currentPaper.questionTypes && currentPaper.questionTypes[index] ? currentPaper.questionTypes[index] : 'single';
+              const isMultiple = qtype === 'multiple';
+              const qInfo = getQuestionScore(answer, standard, isMultiple, currentPaper.singlePoints);
+              score += qInfo.score;
+              scoreDetails.push({
+                  questionNumber: index + 1,
+                  status: qInfo.status,
+                  statusText: qInfo.text,
+                  scoreEarned: qInfo.score,
+                  correctAnswer: standard,
+                  yourAnswer: answer || '未填'
+              });
+          }); 
       }
-      // 👆 加上了一对大括号闭合 👆
       if (currentPaper.fillInBlankCount > 0) score += (fbSelfScore || 0);
       let allAnswers = await getData(ANSWER_STORAGE_KEY) || [];
       const previousRecords = allAnswers.filter(a => a.paperId === currentPaper.id && a.studentId === userId);
@@ -2394,7 +2554,7 @@ submitAllBtn.disabled =
       if (!url) return;
       window.open(url, '_blank');
     }
-    function showScoreDetailModal(score, totalPoints, details, message, timeElapsed) { finalScoreDisplay.textContent = `${score}/${totalPoints}分`; const scoreRankInfo = getCurrentPaperScoreRankInfo(score); if (scoreRankDisplay) scoreRankDisplay.textContent = scoreRankInfo && scoreRankInfo.rank ? `本套题最高分：${scoreRankInfo.bestScore}分，排名：第${scoreRankInfo.rank}名` : '本套题最高分排名：暂无'; refreshScoreRankList(); scoreMessage.innerHTML = message; scoreDetailList.innerHTML = ''; const timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; scoreDetailList.innerHTML = `<div class="p-2 rounded-lg bg-blue-100 text-blue-700 font-bold"><i class="fa fa-hourglass-half mr-2"></i> 答题耗时：${timeDisplay}</div>`; details.forEach(item => { const detailItem = document.createElement('div'); detailItem.className = `p-2 rounded-lg ${item.isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`; detailItem.innerHTML = `<strong>第${item.questionNumber}题：</strong> ${item.isCorrect ? '正确' : '错误'}<span class="ml-2"> | </span> 正确答案: ${item.correctAnswer}`; scoreDetailList.appendChild(detailItem); });
+    function showScoreDetailModal(score, totalPoints, details, message, timeElapsed) { finalScoreDisplay.textContent = `${score}/${totalPoints}分`; const scoreRankInfo = getCurrentPaperScoreRankInfo(score); if (scoreRankDisplay) scoreRankDisplay.textContent = scoreRankInfo && scoreRankInfo.rank ? `本套题最高分：${scoreRankInfo.bestScore}分，排名：第${scoreRankInfo.rank}名` : '本套题最高分排名：暂无'; refreshScoreRankList(); scoreMessage.innerHTML = message; scoreDetailList.innerHTML = ''; const timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; scoreDetailList.innerHTML = `<div class="p-2 rounded-lg bg-blue-100 text-blue-700 font-bold"><i class="fa fa-hourglass-half mr-2"></i> 答题耗时：${timeDisplay}</div>`; details.forEach(item => { const detailItem = document.createElement('div'); let classColor = 'bg-red-100 text-red-700'; if (item.status === 'correct') { classColor = 'bg-green-100 text-green-700'; } else if (item.status === 'partial') { classColor = 'bg-amber-100 text-amber-700'; } detailItem.className = `p-2 rounded-lg ${classColor}`; detailItem.innerHTML = `<strong>第${item.questionNumber}题：</strong> ${item.statusText}<span class="ml-2"> | </span> 你的答案: <span class="font-bold">${item.yourAnswer}</span><span class="ml-2"> | </span> 正确答案: <span class="font-bold">${item.correctAnswer}</span> <span class="ml-2 font-bold text-xs bg-white/50 px-1.5 py-0.5 rounded shadow-sm">+${item.scoreEarned}分</span>`; scoreDetailList.appendChild(detailItem); });
       if (currentPaper && currentPaper.fillInBlankCount > 0 && uploadedFbImages && uploadedFbImages.length > 0) {
         let fbVideosHtml = ''; if (currentPaper.fillBlankVideos && currentPaper.fillBlankVideos.some(v => v)) { fbVideosHtml = '<div class="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100"><h5 class="text-sm font-bold text-indigo-800 mb-2">填空题视频讲解</h5><div class="space-y-2">'; currentPaper.fillBlankVideos.forEach((video, i) => { if (video) fbVideosHtml += `<div class="flex items-center space-x-2"><span class="text-xs font-medium text-gray-600 w-16">第 ${i + 1} 题:</span><button onclick="playExplanationVideo('./video/${video}', '第 ${i + 1} 道填空题讲解')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1 rounded-full hover:bg-indigo-50 transition-colors flex items-center shadow-sm"><i class="fa fa-play-circle mr-1.5 text-indigo-600"></i> 观看视频</button></div>`; }); fbVideosHtml += '</div></div>'; } 
         let stuImagesHtml = ''; if (Array.isArray(uploadedFbImages)) { stuImagesHtml = uploadedFbImages.map(url => `<img src="${url}" class="w-full h-auto max-h-[300px] rounded object-contain cursor-pointer hover:opacity-90 mb-2" onclick="showImagePreview(this.src)" />`).join(''); } else { stuImagesHtml = `<img src="${uploadedFbImages}" class="w-full h-auto max-h-[300px] rounded object-contain cursor-pointer hover:opacity-90" onclick="showImagePreview(this.src)" />`; }

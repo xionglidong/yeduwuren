@@ -282,6 +282,40 @@
     function escapeHtmlText(value) {
       return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
     }
+    function getQuestionScore(answer, standard, isMultiple, singlePoints) {
+      const studentAns = answer || '';
+      const stdAns = standard || '';
+      if (isMultiple) {
+        if (!studentAns || !stdAns) return { score: 0, status: 'incorrect', text: '错误' };
+        const stdOptions = stdAns.split('');
+        const studentOptions = studentAns.split('');
+        let hasWrong = false;
+        let correctCount = 0;
+        for (let char of studentOptions) {
+          if (stdOptions.includes(char)) correctCount++;
+          else hasWrong = true;
+        }
+        if (hasWrong || correctCount === 0) {
+          return { score: 0, status: 'incorrect', text: '错误' };
+        } else {
+          if (correctCount === stdOptions.length) {
+            return { score: 6, status: 'correct', text: '全对' };
+          } else if (stdOptions.length === 2) {
+            if (correctCount === 1) return { score: 3, status: 'partial', text: '部分对' };
+          } else if (stdOptions.length === 3) {
+            if (correctCount === 1) return { score: 2, status: 'partial', text: '部分对' };
+            else if (correctCount === 2) return { score: 4, status: 'partial', text: '部分对' };
+          }
+        }
+        return { score: 0, status: 'incorrect', text: '错误' };
+      } else {
+        if (studentAns === stdAns) {
+          const pts = parseFloat(singlePoints) || 0;
+          return { score: pts, status: 'correct', text: '正确' };
+        }
+        return { score: 0, status: 'incorrect', text: '错误' };
+      }
+    }
     function normalizeTags(tags) {
       if (Array.isArray(tags)) return Array.from(new Set(tags.map((item) => String(item || '').trim()).filter(Boolean)));
       return Array.from(new Set(String(tags || '').split(/[，,]/).map((item) => String(item || '').trim()).filter(Boolean)));
@@ -370,15 +404,33 @@
         choiceBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-400 py-6">暂无选择题作答</td></tr>';
       } else {
         choiceBody.innerHTML = studentAnswers.map((answer, index) => {
-          const correct = standardAnswers[index];
-          const isCorrect = answer === correct;
-          const optionText = correct ? (options[correct] || '') : '';
+          const correct = standardAnswers[index] || '';
+          const isMultiple = payload.paperContent?.questionTypes && payload.paperContent.questionTypes[index] === 'multiple';
+          const qInfo = getQuestionScore(answer, correct, isMultiple, payload.paperContent?.singlePoints);
+          
+          let colorClass = 'text-red-700';
+          let statusText = '回答错误';
+          if (qInfo.status === 'correct') {
+            colorClass = 'text-green-700';
+            statusText = '回答正确';
+          } else if (qInfo.status === 'partial') {
+            colorClass = 'text-amber-600';
+            statusText = `部分对 (+${qInfo.score}分)`;
+          } else {
+            statusText = `回答错误 (+0分)`;
+          }
+
+          let optionText = '';
+          if (correct) {
+            optionText = correct.split('').map(opt => `${opt}: ${options[opt] || ''}`).join('; ');
+          }
+          
           return `<tr class="question-item">
-            <td class="font-bold text-gray-700">${index + 1}</td>
-            <td class="${isCorrect ? 'text-green-700' : 'text-red-700'} font-bold">${escapeHtmlText(answer || '未作答')}</td>
+            <td class="font-bold text-gray-700">${index + 1} (${isMultiple ? '多选' : '单选'})</td>
+            <td class="${colorClass} font-bold">${escapeHtmlText(answer || '未作答')}</td>
             <td class="font-bold text-gray-800">${escapeHtmlText(correct || '--')}</td>
-            <td class="font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}">${isCorrect ? '回答正确' : '回答错误'}</td>
-            <td class="text-gray-600">${escapeHtmlText(optionText || '无选项内容')}</td>
+            <td class="font-bold ${colorClass}">${statusText}</td>
+            <td class="text-gray-600 text-xs">${escapeHtmlText(optionText || '无选项内容')}</td>
           </tr>`;
         }).join('');
       }

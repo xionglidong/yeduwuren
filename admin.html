@@ -96,6 +96,9 @@
     .animate-fade-in {
       animation: fadeIn 0.25s ease-out;
     }
+    .result-correct { background-color: #e6ffed; color: #10b981; border-left: 3px solid #10b981; }
+    .result-incorrect { background-color: #fee2e2; color: #ef4444; border-left: 3px solid #ef4444; }
+    .result-partial { background-color: #fef3c7; color: #d97706; border-left: 3px solid #d97706; }
   </style>
 </head>
 
@@ -147,7 +150,8 @@
               <div id="paperGradeWrap"><label class="block text-sm font-medium text-gray-600 mb-1">所属年级 <span class="text-red-500">*</span></label><select id="paperGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="grade1">高一</option><option value="grade2">高二</option><option value="grade3">高三</option></select></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">套卷名称 <span class="text-red-500">*</span></label><input type="text" id="paperName" placeholder="如：第一套海淀期末考试题" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">选择题数量 <span class="text-red-500">*</span></label><input type="number" id="paperQuestionCount" min="0" max="50" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">选择题单题分值 <span class="text-red-500">*</span></label><input type="number" id="paperQuestionPoints" min="1" max="20" value="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
+              <div><label class="block text-sm font-medium text-gray-600 mb-1">单选题单题分值 <span class="text-red-500">*</span></label><input type="number" id="paperQuestionPoints" min="1" max="20" value="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
+              <div><label class="block text-sm font-medium text-gray-600 mb-1">多选题单题分值 <span class="text-gray-400">(系统默认值)</span></label><input type="number" id="paperMultipleQuestionPoints" value="6" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed"></div>
               <div><label class="block text-sm font-medium text-gray-600 mb-1">填空/简答题数量</label><input type="number" id="paperFillBlankCount" min="0" max="20" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
               <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
                 <div>
@@ -251,10 +255,7 @@
             </div>
             <div class="space-y-4">
               <h3 class="text-lg font-medium text-gray-800">正确答案（用于判分）</h3>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">第1题正确答案 <span class="text-red-500">*</span></label><select id="answer1" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">第2题正确答案 <span class="text-red-500">*</span></label><select id="answer2" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">第3题正确答案 <span class="text-red-500">*</span></label><select id="answer3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
-              <div id="dynamicAnswers"></div>
+              <div id="dynamicAnswers" class="space-y-4"></div>
             </div>
           </div>
           <button id="addPaperBtn" class="mt-6 px-8 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center text-base"><i class="fa fa-save mr-2"></i> 确认添加套卷</button>
@@ -1146,14 +1147,54 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       }, 0);
     }
 
+    function getQuestionScore(answer, standard, isMultiple, singlePoints) {
+      const studentAns = answer || '';
+      const stdAns = standard || '';
+      if (isMultiple) {
+        if (!studentAns || !stdAns) return { score: 0, status: 'incorrect', text: '错误' };
+        const stdOptions = stdAns.split('');
+        const studentOptions = studentAns.split('');
+        let hasWrong = false;
+        let correctCount = 0;
+        for (let char of studentOptions) {
+          if (stdOptions.includes(char)) correctCount++;
+          else hasWrong = true;
+        }
+        if (hasWrong || correctCount === 0) {
+          return { score: 0, status: 'incorrect', text: '错误' };
+        } else {
+          if (correctCount === stdOptions.length) {
+            return { score: 6, status: 'correct', text: '全对' };
+          } else if (stdOptions.length === 2) {
+            if (correctCount === 1) return { score: 3, status: 'partial', text: '部分对' };
+          } else if (stdOptions.length === 3) {
+            if (correctCount === 1) return { score: 2, status: 'partial', text: '部分对' };
+            else if (correctCount === 2) return { score: 4, status: 'partial', text: '部分对' };
+          }
+        }
+        return { score: 0, status: 'incorrect', text: '错误' };
+      } else {
+        if (studentAns === stdAns) {
+          const pts = parseFloat(singlePoints) || 0;
+          return { score: pts, status: 'correct', text: '正确' };
+        }
+        return { score: 0, status: 'incorrect', text: '错误' };
+      }
+    }
+
     function getRecordTotalScore(record, paper) {
       if (!record || !paper) return parseFloat(record && record.score) || 0;
       let total = 0;
       const answers = Array.isArray(record.answers) ? record.answers : [];
       const standardAnswers = Array.isArray(paper.answers) ? paper.answers : [];
       const singlePoints = parseFloat(paper.singlePoints) || 0;
+      const questionTypes = Array.isArray(paper.questionTypes) ? paper.questionTypes : [];
+      
       answers.forEach((answer, index) => {
-        if (answer === standardAnswers[index]) total += singlePoints;
+        const isMultiple = questionTypes[index] === 'multiple';
+        const standard = standardAnswers[index] || '';
+        const qInfo = getQuestionScore(answer, standard, isMultiple, singlePoints);
+        total += qInfo.score;
       });
       total += getRecordFillBlankScore(record, paper);
       return total;
@@ -1263,7 +1304,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           fillBlankVideos: Array.isArray(paper.fillBlankVideos) ? paper.fillBlankVideos : [],
           fillInBlankAnswerImage: paper.fillInBlankAnswerImage || '',
           fbPointsArray: Array.isArray(paper.fbPointsArray) ? paper.fbPointsArray : [],
-          fillInBlankPoints: paper.fillInBlankPoints || 0
+          fillInBlankPoints: paper.fillInBlankPoints || 0,
+          questionTypes: Array.isArray(paper.questionTypes) ? paper.questionTypes : [],
+          singlePoints: parseFloat(paper.singlePoints) || 0
         }
       };
       const storageKey = `${TEMP_ANSWER_REPORT_STORAGE_KEY}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -1287,26 +1330,70 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     function generateAnswerSelects() { 
         const count = parseInt(paperQuestionCount.value) || 0; 
         const optionsPanel = document.getElementById('optionA').parentNode.parentNode;
-        const answersPanel = document.getElementById('answer1').parentNode.parentNode;
+        const answersPanel = document.getElementById('dynamicAnswers').parentNode;
         const singlePointsInput = document.getElementById('paperQuestionPoints').parentNode;
+        const multiplePointsInput = document.getElementById('paperMultipleQuestionPoints').parentNode;
         
         if (count === 0) {
-            optionsPanel.style.display = 'none'; answersPanel.style.display = 'none'; singlePointsInput.style.display = 'none';
+            optionsPanel.style.display = 'none'; answersPanel.style.display = 'none';
+            singlePointsInput.style.display = 'none'; multiplePointsInput.style.display = 'none';
         } else {
-            optionsPanel.style.display = 'block'; answersPanel.style.display = 'block'; singlePointsInput.style.display = 'block';
+            optionsPanel.style.display = 'block'; answersPanel.style.display = 'block';
+            singlePointsInput.style.display = 'block'; multiplePointsInput.style.display = 'block';
         }
 
-        if (document.getElementById('answer1')) document.getElementById('answer1').parentNode.style.display = count >= 1 ? 'block' : 'none';
-        if (document.getElementById('answer2')) document.getElementById('answer2').parentNode.style.display = count >= 2 ? 'block' : 'none';
-        if (document.getElementById('answer3')) document.getElementById('answer3').parentNode.style.display = count >= 3 ? 'block' : 'none';
-
         dynamicAnswers.innerHTML = ''; 
-        for (let i = 4; i <= count; i++) { 
+        for (let i = 1; i <= count; i++) { 
             const answerDiv = document.createElement('div'); 
-            answerDiv.innerHTML = `<label class="block text-sm font-medium text-gray-600 mb-1">第${i}题正确答案</label><select id="answer${i}" class="w-full px-3 py-2 border rounded-lg"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>`; 
+            answerDiv.className = 'p-3 bg-gray-50 border rounded-lg space-y-2';
+            answerDiv.innerHTML = `
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-bold text-gray-700">第 ${i} 题</span>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs text-gray-500">题型:</span>
+                  <select id="qtype_${i}" class="qtype-select px-2 py-1 border rounded text-xs focus:ring-1 focus:ring-purple-500" onchange="toggleQTypeUI(${i})">
+                    <option value="single">单选题</option>
+                    <option value="multiple">多选题 (6分)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- 单选题答案选择 UI -->
+              <div id="single_ui_${i}" class="q-ui-single">
+                <select id="answer_single_${i}" class="w-full px-3 py-2 border rounded-lg text-sm bg-white">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+              </div>
+              
+              <!-- 多选题答案选择 UI -->
+              <div id="multiple_ui_${i}" class="q-ui-multiple hidden flex items-center space-x-4 bg-white p-2 border rounded-lg">
+                <label class="inline-flex items-center"><input type="checkbox" name="answer_mult_${i}" value="A" class="form-checkbox text-purple-600"><span class="ml-1 text-sm font-medium">A</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" name="answer_mult_${i}" value="B" class="form-checkbox text-purple-600"><span class="ml-1 text-sm font-medium">B</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" name="answer_mult_${i}" value="C" class="form-checkbox text-purple-600"><span class="ml-1 text-sm font-medium">C</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" name="answer_mult_${i}" value="D" class="form-checkbox text-purple-600"><span class="ml-1 text-sm font-medium">D</span></label>
+              </div>
+            `; 
             dynamicAnswers.appendChild(answerDiv); 
         } 
     }
+
+    window.toggleQTypeUI = function(i) {
+      const qtypeSelect = document.getElementById(`qtype_${i}`);
+      if (!qtypeSelect) return;
+      const qtype = qtypeSelect.value;
+      const singleUi = document.getElementById(`single_ui_${i}`);
+      const multipleUi = document.getElementById(`multiple_ui_${i}`);
+      if (qtype === 'multiple') {
+        singleUi.classList.add('hidden');
+        multipleUi.classList.remove('hidden');
+      } else {
+        singleUi.classList.remove('hidden');
+        multipleUi.classList.add('hidden');
+      }
+    };
     
     function scrollToForm() { document.querySelector('#paper .bg-white.rounded-xl.shadow-md.p-6.mb-8.fade-in').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => paperName.focus(), 500); }
 
@@ -1704,10 +1791,25 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       if (questionCount === 0 && fillBlankCount === 0) return alert('套卷不能没有任何题目');
       
       const answers = []; 
+      const questionTypes = [];
       if (questionCount > 0) {
           if (!singlePoints) return alert('请填写选择题单题分值');
           if (!optionAVal || !optionBVal || !optionCVal || !optionDVal) return alert('请填写所有选择题选项内容');
-          for (let i = 1; i <= questionCount; i++) { const answer = document.getElementById(`answer${i}`)?.value || 'A'; answers.push(answer); }
+          for (let i = 1; i <= questionCount; i++) {
+              const qtype = document.getElementById(`qtype_${i}`)?.value || 'single';
+              let answer = '';
+              if (qtype === 'multiple') {
+                const checked = Array.from(document.querySelectorAll(`input[name="answer_mult_${i}"]:checked`)).map(el => el.value);
+                if (checked.length < 2 || checked.length > 3) {
+                  return alert(`添加失败：第 ${i} 题为多选题，正确选项个数必须为 2 个或 3 个！`);
+                }
+                answer = checked.sort().join('');
+              } else {
+                answer = document.getElementById(`answer_single_${i}`)?.value || 'A';
+              }
+              answers.push(answer);
+              questionTypes.push(qtype);
+          }
       }
 
       let fbPointsArray = [], totalFbPoints = 0;
@@ -1736,7 +1838,19 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         } catch (e) { alert('图片上传服务器失败，请重试'); return; }
       }
       
-      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, isArchived: false, archivedAt: '', categoryId: '', categoryIds: [], targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: (questionCount * singlePoints) + totalFbPoints, answers, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
+      let totalSelectionPoints = 0;
+      if (questionCount > 0) {
+        questionTypes.forEach(qtype => {
+          if (qtype === 'multiple') {
+            totalSelectionPoints += 6;
+          } else {
+            totalSelectionPoints += singlePoints;
+          }
+        });
+      }
+      const totalPoints = totalSelectionPoints + totalFbPoints;
+      
+      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, isArchived: false, archivedAt: '', categoryId: '', categoryIds: [], targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: totalPoints, answers, questionTypes, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
       const papers = await getData(PAPER_STORAGE_KEY) || []; 
       papers.push(newPaper); 
       await saveData(PAPER_STORAGE_KEY, papers);
@@ -1758,7 +1872,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
       renderAllPaperLists();
       
-      if (paperType) paperType.value = 'test'; paperName.value = ''; paperQuestionCount.value = '0'; paperQuestionPoints.value = '2'; paperFillBlankCount.value = '0'; paperFillBlankAnswerImage.value = ''; 
+      if (paperType) paperType.value = 'test'; paperName.value = ''; paperQuestionCount.value = '0'; paperQuestionPoints.value = '2'; if (document.getElementById('paperMultipleQuestionPoints')) document.getElementById('paperMultipleQuestionPoints').value = '6'; paperFillBlankCount.value = '0'; paperFillBlankAnswerImage.value = ''; 
       const pContainer = document.getElementById('previewContainer'); if(pContainer) pContainer.classList.add('hidden'); 
       const aImgPreview = document.getElementById('answerImagePreview'); if(aImgPreview) aImgPreview.src = ''; 
       const adminPreviewGrid = document.getElementById('adminPreviewGrid'); if(adminPreviewGrid) adminPreviewGrid.innerHTML = '';
@@ -1766,11 +1880,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       adminFillBlankAnswerFiles = [];
 
       generateAnswerSelects(); 
-      if (typeof generateFbPointsConfig === 'function') generateFbPointsConfig();
-      
-      if(document.getElementById('answer1')) document.getElementById('answer1').value = 'A'; 
-      if(document.getElementById('answer2')) document.getElementById('answer2').value = 'A'; 
-      if(document.getElementById('answer3')) document.getElementById('answer3').value = 'A'; 
+      if (typeof generateFbPointsConfig === 'function') generateFbPointsConfig(); 
       optionA.value = ''; optionB.value = ''; optionC.value = ''; optionD.value = '';
       syncPaperFormByType();
       if (paperAllowRedo) paperAllowRedo.checked = false;
@@ -4165,8 +4275,32 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
                 fillBlankHtml = `<div class="mt-4 pt-4 border-t border-gray-100"><div class="flex justify-between items-center mb-3"><h5 class="font-bold text-gray-700">填空题详情</h5><div class="flex items-center space-x-2"><span class="text-sm font-medium text-gray-600">得分: ${answer.fillInBlankScore || 0}分</span><button type="button" id="${btnId}" class="text-xs bg-primary text-white px-3 py-1.5 rounded shadow-md hover:bg-primary/90 transition-all font-bold cursor-pointer relative z-50"><i class="fa fa-pencil pointer-events-none"></i> 详细判分</button></div></div><div class="grid grid-cols-2 gap-4"><div class="border rounded p-2"><p class="text-xs text-center text-gray-500 mb-1">学生答卷</p><div class="max-h-48 overflow-y-auto p-1 space-y-2">${stuImgHtml}</div></div><div class="border rounded p-2 bg-green-50"><p class="text-xs text-center text-green-600 mb-1">参考答案</p><img src="${paper.fillInBlankAnswerImage || ''}" class="w-full h-32 object-contain cursor-zoom-in hover:opacity-90" onclick="showAdminImagePreview(this.src)"></div></div></div>`; 
             } 
-            let questionsHtml = '';
-             if (paper && answer.answers) questionsHtml = `<div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => { const isCorrect = ans === paper.answers[i]; return `<div class="flex items-center ${isCorrect ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'} p-2 rounded"><span class="w-16 font-bold">第${i + 1}题</span><span class="flex-1">你的答案：<span class="font-bold">${ans}</span></span><span class="mx-2 text-gray-300">|</span><span class="flex-1">正确答案：<span class="font-bold">${paper.answers[i]}</span></span></div>`; }).join('')}</div>`; 
+             if (paper && answer.answers) {
+               questionsHtml = `<div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => {
+                 const isMultiple = paper.questionTypes && paper.questionTypes[i] === 'multiple';
+                 const standard = paper.answers[i] || '';
+                 const qInfo = getQuestionScore(ans, standard, isMultiple, paper.singlePoints);
+                 let styleClass = '';
+                 let statusLabel = '';
+                 if (qInfo.status === 'correct') {
+                   styleClass = 'text-green-700 bg-green-50';
+                   statusLabel = `全对 (+${qInfo.score}分)`;
+                 } else if (qInfo.status === 'partial') {
+                   styleClass = 'text-amber-700 bg-amber-50';
+                   statusLabel = `部分对 (+${qInfo.score}分)`;
+                 } else {
+                   styleClass = 'text-red-700 bg-red-50';
+                   statusLabel = `错误 (+0分)`;
+                 }
+                 return `<div class="flex items-center ${styleClass} p-2 rounded">
+                   <span class="w-24 font-bold">第${i + 1}题 (${isMultiple ? '多选' : '单选'})</span>
+                   <span class="flex-1">你的答案：<span class="font-bold">${ans || '未作答'}</span></span>
+                   <span class="mx-2 text-gray-300">|</span>
+                   <span class="flex-1">正确答案：<span class="font-bold">${standard}</span></span>
+                   <span class="ml-2 font-semibold text-xs">${statusLabel}</span>
+                 </div>`;
+               }).join('')}</div>`;
+             } 
             
             let draftHtml = '';
             if (answer.draftImages && answer.draftImages.length > 0) {
@@ -4280,10 +4414,26 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             if (ans.answers && ans.answers.length > 0) {
                 ans.answers.forEach((choice, idx) => {
                     if (idx < paper.questionCount) {
-                        if (['A', 'B', 'C', 'D'].includes(choice)) {
-                            mcqStats[idx][choice].push(ans.studentName); // 记录选该选项的学生姓名
+                        const standard = paper.answers[idx] || '';
+                        const qtype = paper.questionTypes && paper.questionTypes[idx] ? paper.questionTypes[idx] : 'single';
+                        const isMultiple = qtype === 'multiple';
+                        const qInfo = getQuestionScore(choice, standard, isMultiple, paper.singlePoints);
+                        
+                        const choosed = choice ? choice.split('') : [];
+                        choosed.forEach(char => {
+                            if (['A', 'B', 'C', 'D'].includes(char)) {
+                                if (!mcqStats[idx][char].includes(ans.studentName)) {
+                                    mcqStats[idx][char].push(ans.studentName);
+                                }
+                            }
+                        });
+                        
+                        if (qInfo.score > 0) {
+                            correctCount++;
                         }
-                        if (choice === paper.answers[idx]) { mcqStats[idx].correct++; correctCount++; }
+                        if (qInfo.status === 'correct') {
+                            mcqStats[idx].correct++;
+                        }
                     }
                 });
             }
@@ -4365,7 +4515,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                                 const names = stat[opt];
                                 const count = names.length;
                                 const percent = Math.round((count / paperAnswers.length) * 100);
-                                const isCorrectOpt = opt === correctAns;
+                                const isCorrectOpt = correctAns.includes(opt);
                                 const barColor = isCorrectOpt ? 'bg-green-400' : (count > 0 ? 'bg-red-400' : 'bg-gray-200');
                                 
                                 // 点击人数弹出学生名单
