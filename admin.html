@@ -247,13 +247,6 @@
               </div>
             </div>
             <div class="space-y-4">
-              <h3 class="text-lg font-medium text-gray-800">选项模板</h3>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">选项A <span class="text-red-500">*</span></label><textarea id="optionA" class="option-input w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea></div>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">选项B <span class="text-red-500">*</span></label><textarea id="optionB" class="option-input w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea></div>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">选项C <span class="text-red-500">*</span></label><textarea id="optionC" class="option-input w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea></div>
-              <div><label class="block text-sm font-medium text-gray-600 mb-1">选项D <span class="text-red-500">*</span></label><textarea id="optionD" class="option-input w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea></div>
-            </div>
-            <div class="space-y-4">
               <h3 class="text-lg font-medium text-gray-800">正确答案（用于判分）</h3>
               <div id="dynamicAnswers" class="space-y-4"></div>
             </div>
@@ -432,53 +425,40 @@
         <div class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in">
           <div class="flex items-start justify-between gap-4 mb-5">
             <div>
-              <h2 class="text-xl font-semibold text-gray-700 flex items-center"><i class="fa fa-archive text-amber-500 mr-2"></i> 已归档套题</h2>
-              <p class="text-sm text-gray-500 mt-2">归档后的套题不会出现在教师端题库管理，也不会在学生端任务、自学成才配套题、作答记录等区域继续显示。</p>
+              <h2 class="text-xl font-semibold text-gray-700 flex items-center"><i class="fa fa-archive text-amber-500 mr-2"></i> 已归档套题与分类</h2>
+              <p class="text-sm text-gray-500 mt-2">在此管理已归档的套卷分类，以及单独归档的练习套题。</p>
             </div>
-            <span id="archivedPaperCountBadge" class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700 border border-amber-100">0 套</span>
+            <span id="archivedPaperCountBadge" class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700 border border-amber-100">0 项</span>
           </div>
-          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div class="border border-blue-100 rounded-2xl p-4 bg-blue-50/40">
-              <div class="flex items-center justify-between gap-3 mb-4">
-                <h3 class="font-bold text-blue-800 flex items-center"><i class="fa fa-book mr-2"></i>高一归档</h3>
-                <select id="archivedGrade1TypeFilter" class="px-3 py-1.5 border border-blue-200 rounded-lg text-sm bg-white">
-                  <option value="all">全部类型</option>
-                  <option value="test">课上测试</option>
-                  <option value="homework">课后作业</option>
-                  <option value="correction">改错任务</option>
-                  <option value="custom">自定义题库</option>
-                </select>
-              </div>
-              <div id="archivedGrade1PaperList" class="space-y-3"></div>
-              <div id="archivedGrade1PaperPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left Pane: 归档分类 -->
+            <div class="border border-purple-100 rounded-2xl p-5 bg-purple-50/20">
+              <h3 class="font-bold text-purple-800 flex items-center mb-4 text-base"><i class="fa fa-folder-open mr-2"></i>已归档分类</h3>
+              <div id="archivedCategoriesList" class="space-y-4"></div>
             </div>
-            <div class="border border-emerald-100 rounded-2xl p-4 bg-emerald-50/40">
-              <div class="flex items-center justify-between gap-3 mb-4">
-                <h3 class="font-bold text-emerald-800 flex items-center"><i class="fa fa-book mr-2"></i>高二归档</h3>
-                <select id="archivedGrade2TypeFilter" class="px-3 py-1.5 border border-emerald-200 rounded-lg text-sm bg-white">
-                  <option value="all">全部类型</option>
-                  <option value="test">课上测试</option>
-                  <option value="homework">课后作业</option>
-                  <option value="correction">改错任务</option>
-                  <option value="custom">自定义题库</option>
-                </select>
+
+            <!-- Right Pane: 单独归档的套题 -->
+            <div class="border border-blue-100 rounded-2xl p-5 bg-blue-50/20">
+              <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                <h3 class="font-bold text-blue-800 flex items-center text-base"><i class="fa fa-file-text mr-2"></i>单独归档套题</h3>
+                <div class="flex items-center gap-2">
+                  <select id="archivedGradeFilter" class="px-2.5 py-1.5 border border-blue-200 rounded-lg text-xs bg-white">
+                    <option value="all">全部年级</option>
+                    <option value="grade1">高一</option>
+                    <option value="grade2">高二</option>
+                    <option value="grade3">高三</option>
+                  </select>
+                  <select id="archivedTypeFilter" class="px-2.5 py-1.5 border border-blue-200 rounded-lg text-xs bg-white">
+                    <option value="all">全部类型</option>
+                    <option value="test">课上测试</option>
+                    <option value="homework">课后作业</option>
+                    <option value="correction">改错任务</option>
+                    <option value="custom">自定义题库</option>
+                  </select>
+                </div>
               </div>
-              <div id="archivedGrade2PaperList" class="space-y-3"></div>
-              <div id="archivedGrade2PaperPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
-            </div>
-            <div class="border border-purple-100 rounded-2xl p-4 bg-purple-50/40">
-              <div class="flex items-center justify-between gap-3 mb-4">
-                <h3 class="font-bold text-purple-800 flex items-center"><i class="fa fa-book mr-2"></i>高三归档</h3>
-                <select id="archivedGrade3TypeFilter" class="px-3 py-1.5 border border-purple-200 rounded-lg text-sm bg-white">
-                  <option value="all">全部类型</option>
-                  <option value="test">课上测试</option>
-                  <option value="homework">课后作业</option>
-                  <option value="correction">改错任务</option>
-                  <option value="custom">自定义题库</option>
-                </select>
-              </div>
-              <div id="archivedGrade3PaperList" class="space-y-3"></div>
-              <div id="archivedGrade3PaperPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
+              <div id="archivedIndividualPapersList" class="space-y-3"></div>
+              <div id="archivedIndividualPapersPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
             </div>
           </div>
         </div>
@@ -546,7 +526,8 @@
 
   <div id="answerDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[60] backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="detailModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="detailPaperTitle">答题详情</h3><button id="closeDetailModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="answerDetailContent" class="max-h-96 overflow-y-auto pr-2"></div></div></div>
   <div id="studentModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="studentModalContent"><h3 class="text-xl font-bold text-gray-800 mb-4" id="studentModalTitle">添加学生</h3><div class="space-y-4"><div><label class="block text-gray-700 mb-1">姓名</label><input type="text" id="studentNameInput" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-gray-700 mb-1">学号</label><input type="text" id="studentIdInput" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-gray-700 mb-1">年级</label><select id="studentGradeInput" class="w-full px-4 py-2 border rounded-lg"><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option></select></div><div><label class="block text-gray-700 mb-1">积分</label><input type="number" id="studentPointsInput" min="0" value="0" class="w-full px-4 py-2 border rounded-lg"></div></div><div class="flex justify-end space-x-3 mt-6"><button id="cancelStudentModal" class="px-4 py-2 bg-gray-200 rounded-lg">取消</button><button id="saveStudentBtn" class="px-4 py-2 bg-primary text-white rounded-lg">保存</button></div></div></div>
-  <div id="imagePreviewModal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[60] backdrop-blur-sm cursor-zoom-out"><img id="fullScreenPreviewImage" src="" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl transform transition-transform scale-95 opacity-0"></div>
+
+<div id="imagePreviewModal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[60] backdrop-blur-sm cursor-zoom-out"><img id="fullScreenPreviewImage" src="" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl transform transition-transform scale-95 opacity-0"></div>
   <div id="studentHistoryModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="studentHistoryModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="studentHistoryModalTitle">记录</h3><button id="closeStudentHistoryModal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="max-h-[60vh] overflow-y-auto pr-2" id="studentHistoryList"></div></div></div>
   <div id="schoolScoreModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[55] backdrop-blur-sm">
     <div class="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="schoolScoreModalContent">
@@ -563,7 +544,7 @@
           <h4 class="font-bold text-indigo-800 flex items-center"><i class="fa fa-bar-chart mr-2"></i><span id="schoolScoreFormTitle">新增成绩</span></h4>
           <button id="cancelSchoolScoreEditBtn" class="hidden px-3 py-1.5 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50">取消编辑</button>
         </div>
-        <div class="grid md:grid-cols-3 gap-4">
+        <div class="grid md:grid-cols-5 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-600 mb-1">名称</label>
             <input type="text" id="schoolScoreNameInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：期中考试">
@@ -576,6 +557,25 @@
             <label class="block text-sm font-medium text-gray-600 mb-1">总分</label>
             <input type="number" id="schoolScoreTotalInput" min="0" step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：100">
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">班级排名</label>
+            <input type="number" id="schoolScoreClassRankInput" min="1" step="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：5">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">年级排名</label>
+            <input type="number" id="schoolScoreGradeRankInput" min="1" step="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="如：12">
+          </div>
+        </div>
+        <div class="mt-4 border-t border-indigo-100/50 pt-3">
+          <label class="block text-sm font-medium text-gray-600 mb-1 flex items-center"><i class="fa fa-image mr-1 text-indigo-500"></i>上传答题卡图片 (可多张)</label>
+          <div class="flex items-center gap-3">
+            <input type="file" id="schoolScoreImagesInput" multiple accept="image/*" class="hidden">
+            <button type="button" onclick="document.getElementById('schoolScoreImagesInput').click()" class="px-3 py-1.5 border border-indigo-200 rounded-lg bg-white text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center text-xs font-semibold">
+              <i class="fa fa-cloud-upload mr-1.5"></i>选择答题卡照片
+            </button>
+            <span id="schoolScoreImagesStatus" class="text-xs text-gray-400">未上传图片</span>
+          </div>
+          <div id="schoolScoreImagesPreview" class="flex flex-wrap gap-3 mt-3 hidden"></div>
         </div>
         <div class="flex justify-end mt-4">
           <button id="saveSchoolScoreBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"><i class="fa fa-save mr-2"></i>保存成绩</button>
@@ -589,6 +589,9 @@
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名称</th>
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分数</th>
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总分</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">班级排名</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">年级排名</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">答题卡</th>
               <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
             </tr>
           </thead>
@@ -763,7 +766,6 @@
     const paperGrade = document.getElementById('paperGrade'), paperGradeWrap = document.getElementById('paperGradeWrap'), paperType = document.getElementById('paperType'), paperName = document.getElementById('paperName'), paperQuestionCount = document.getElementById('paperQuestionCount'), paperQuestionPoints = document.getElementById('paperQuestionPoints'), paperAllowRedo = document.getElementById('paperAllowRedo');
     const paperFillBlankCount = document.getElementById('paperFillBlankCount'), paperFillBlankPoints = document.getElementById('paperFillBlankPoints'), paperFillBlankAnswerImage = document.getElementById('paperFillBlankAnswerImage'), previewContainer = document.getElementById('previewContainer'), answerImagePreview = document.getElementById('answerImagePreview'), imagePreviewModal = document.getElementById('imagePreviewModal'), fullScreenPreviewImage = document.getElementById('fullScreenPreviewImage'), clearFillBlankAnswersBtn = document.getElementById('clearFillBlankAnswersBtn');
     let adminFillBlankAnswerFiles = [];
-    const optionA = document.getElementById('optionA'), optionB = document.getElementById('optionB'), optionC = document.getElementById('optionC'), optionD = document.getElementById('optionD'), dynamicAnswers = document.getElementById('dynamicAnswers'), addPaperBtn = document.getElementById('addPaperBtn');
     // Refactored question library UI variables
     const refactoredPaperListContainer = document.getElementById('refactoredPaperListContainer');
     const categoriesContainer = document.getElementById('categoriesContainer');
@@ -784,9 +786,11 @@
     const expandedCategoryIds = new Set();
     const editingCategoryIds = new Set();
     const PAPER_CATEGORIES_KEY = 'paperCategories';
-    const archivedGrade1PaperList = document.getElementById('archivedGrade1PaperList'), archivedGrade2PaperList = document.getElementById('archivedGrade2PaperList'), archivedGrade3PaperList = document.getElementById('archivedGrade3PaperList');
-    const archivedGrade1PaperPagination = document.getElementById('archivedGrade1PaperPagination'), archivedGrade2PaperPagination = document.getElementById('archivedGrade2PaperPagination'), archivedGrade3PaperPagination = document.getElementById('archivedGrade3PaperPagination');
-    const archivedGrade1TypeFilter = document.getElementById('archivedGrade1TypeFilter'), archivedGrade2TypeFilter = document.getElementById('archivedGrade2TypeFilter'), archivedGrade3TypeFilter = document.getElementById('archivedGrade3TypeFilter');
+    const archivedCategoriesList = document.getElementById('archivedCategoriesList');
+    const archivedIndividualPapersList = document.getElementById('archivedIndividualPapersList');
+    const archivedIndividualPapersPagination = document.getElementById('archivedIndividualPapersPagination');
+    const archivedGradeFilter = document.getElementById('archivedGradeFilter');
+    const archivedTypeFilter = document.getElementById('archivedTypeFilter');
     const dailyRecordList = document.getElementById('dailyRecordList'), recordDateFilter = document.getElementById('recordDateFilter'), noRecordsHint = document.getElementById('noRecordsHint');
     const prizeName = document.getElementById('prizeName'), prizePoints = document.getElementById('prizePoints'), prizeDesc = document.getElementById('prizeDesc'), addPrizeBtn = document.getElementById('addPrizeBtn'), prizeList = document.getElementById('prizeList');
     const exportAllDataBtn = document.getElementById('exportAllDataBtn'), selectImportFileBtn = document.getElementById('selectImportFileBtn'), importFileInput = document.getElementById('importFileInput'), importFileName = document.getElementById('importFileName');
@@ -803,7 +807,7 @@
     const pdfSelectModal = document.getElementById('pdfSelectModal'), pdfSelectModalContent = document.getElementById('pdfSelectModalContent'), closePdfSelectModalBtn = document.getElementById('closePdfSelectModalBtn'), pdfSelectSearch = document.getElementById('pdfSelectSearch'), pdfSelectRefreshBtn = document.getElementById('pdfSelectRefreshBtn'), pdfSelectList = document.getElementById('pdfSelectList'), pdfSelectPagination = document.getElementById('pdfSelectPagination');
     const forumResourceTitle = document.getElementById('forumResourceTitle'), forumResourcePdfFile = document.getElementById('forumResourcePdfFile'), forumResourcePdfSelectBtn = document.getElementById('forumResourcePdfSelectBtn'), addForumResourceBtn = document.getElementById('addForumResourceBtn'), forumResourceList = document.getElementById('forumResourceList'), forumResourcePagination = document.getElementById('forumResourcePagination');
     const paperPdfFile = document.getElementById('paperPdfFile'), paperPdfSelectBtn = document.getElementById('paperPdfSelectBtn');
-    const schoolScoreModal = document.getElementById('schoolScoreModal'), schoolScoreModalContent = document.getElementById('schoolScoreModalContent'), schoolScoreModalTitle = document.getElementById('schoolScoreModalTitle'), closeSchoolScoreModal = document.getElementById('closeSchoolScoreModal'), schoolScoreFormTitle = document.getElementById('schoolScoreFormTitle'), schoolScoreNameInput = document.getElementById('schoolScoreNameInput'), schoolScoreValueInput = document.getElementById('schoolScoreValueInput'), schoolScoreTotalInput = document.getElementById('schoolScoreTotalInput'), saveSchoolScoreBtn = document.getElementById('saveSchoolScoreBtn'), cancelSchoolScoreEditBtn = document.getElementById('cancelSchoolScoreEditBtn'), schoolScoreList = document.getElementById('schoolScoreList'), schoolScorePagination = document.getElementById('schoolScorePagination');
+    const schoolScoreModal = document.getElementById('schoolScoreModal'), schoolScoreModalContent = document.getElementById('schoolScoreModalContent'), schoolScoreModalTitle = document.getElementById('schoolScoreModalTitle'), closeSchoolScoreModal = document.getElementById('closeSchoolScoreModal'), schoolScoreFormTitle = document.getElementById('schoolScoreFormTitle'), schoolScoreNameInput = document.getElementById('schoolScoreNameInput'), schoolScoreValueInput = document.getElementById('schoolScoreValueInput'), schoolScoreTotalInput = document.getElementById('schoolScoreTotalInput'), schoolScoreClassRankInput = document.getElementById('schoolScoreClassRankInput'), schoolScoreGradeRankInput = document.getElementById('schoolScoreGradeRankInput'), schoolScoreImagesInput = document.getElementById('schoolScoreImagesInput'), schoolScoreImagesPreview = document.getElementById('schoolScoreImagesPreview'), schoolScoreImagesStatus = document.getElementById('schoolScoreImagesStatus'), saveSchoolScoreBtn = document.getElementById('saveSchoolScoreBtn'), cancelSchoolScoreEditBtn = document.getElementById('cancelSchoolScoreEditBtn'), schoolScoreList = document.getElementById('schoolScoreList'), schoolScorePagination = document.getElementById('schoolScorePagination');
     const SELF_LEARNING_PAPER_PAGE_SIZE = 8;
     const SELF_LEARNING_LIST_PAGE_SIZE = 5;
     const SELF_LEARNING_WATCH_PAGE_SIZE = 5;
@@ -814,7 +818,7 @@
     let selfLearningWatchPageState = {};
     let selfLearningInteractionModalState = { contentId: '', type: 'likes', page: 1, title: '' };
     let videoAnalyticsModalState = { videoName: '', page: 1, rows: [] };
-    let currentSchoolScoreStudentId = '', currentSchoolScoreStudentName = '', currentEditingSchoolScoreId = null, schoolScorePage = 1;
+    let currentSchoolScoreStudentId = '', currentSchoolScoreStudentName = '', currentEditingSchoolScoreId = null, schoolScorePage = 1, currentSchoolScoreImages = [];
     let cachedVideoLibrary = [];
     let videoSelectState = { targetInputId: '', mode: 'path', page: 1, keyword: '' };
     let videoManagerPage = 1;
@@ -833,8 +837,19 @@
     function showLoginError(message) { loginError.textContent = message; loginError.classList.remove('hidden'); loginScreen.querySelector('.login-container').classList.add('shake'); setTimeout(() => loginScreen.querySelector('.login-container').classList.remove('shake'), 500); }
     function showMainContent() { loginScreen.classList.add('hidden'); mainContent.classList.remove('hidden'); initSystem(); }
     async function handleLogout() { if (confirm('确定要退出登录吗？')) { await removeData(ADMIN_SESSION_KEY); window.location.reload(); } }
-    function isArchivedPaper(paper) {
-      return !!(paper && paper.isArchived);
+    let g_categories = [];
+    function isArchivedPaper(paper, categories = null) {
+      if (!paper) return false;
+      if (paper.isArchived) return true;
+      const cats = categories || g_categories;
+      if (cats && cats.length > 0) {
+        const catIds = getPaperCategoryIds(paper);
+        if (catIds.length > 0) {
+          const archivedCatIds = cats.filter(c => c.isArchived).map(c => c.id);
+          if (catIds.some(id => archivedCatIds.includes(id))) return true;
+        }
+      }
+      return false;
     }
     function switchTab(targetTabId) { 
         tabPanes.forEach(pane => pane.classList.add('hidden')); 
@@ -1055,14 +1070,8 @@
       if (pdfSelectRefreshBtn) pdfSelectRefreshBtn.addEventListener('click', fetchPdfLibrary);
       if (forumResourcePdfSelectBtn) forumResourcePdfSelectBtn.addEventListener('click', () => openPdfSelectModal('forumResourcePdfFile', 'filename'));
       if (addForumResourceBtn) addForumResourceBtn.addEventListener('click', addForumResourceItem);
-      [archivedGrade1TypeFilter, archivedGrade2TypeFilter, archivedGrade3TypeFilter].forEach((select, index) => {
-        if (!select) return;
-        const gradeKey = ['grade1', 'grade2', 'grade3'][index];
-        select.addEventListener('change', () => {
-          archivedPaperPageState[gradeKey] = 1;
-          renderArchivedPaperList();
-        });
-      });
+      if (archivedGradeFilter) archivedGradeFilter.addEventListener('change', () => { window.archivedIndivPage = 1; renderArchivedPaperList(); });
+      if (archivedTypeFilter) archivedTypeFilter.addEventListener('change', () => { window.archivedIndivPage = 1; renderArchivedPaperList(); });
       fetchVideoLibrary();
       fetchPdfLibrary();
     }
@@ -1280,7 +1289,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         record: {
           submitTime: record.submitTime || '',
           timeElapsed: record.timeElapsed || 0,
-          timeDisplay: formatDuration(record.timeElapsed || 0),
+          actualTimeElapsed: record.actualTimeElapsed !== undefined ? record.actualTimeElapsed : (record.timeElapsed || 0),
+          timeDisplay: formatDuration(record.actualTimeElapsed !== undefined ? record.actualTimeElapsed : (record.timeElapsed || 0)),
           totalScore,
           attemptRank: calculateAttemptRankForScore(paperRecords, paper, totalScore),
           attemptCount: paperRecords.length,
@@ -1295,7 +1305,11 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           fillInBlankScore: getRecordFillBlankScore(record, paper),
           draftImages: Array.isArray(record.draftImages) ? record.draftImages : [],
           correctionImages: Array.isArray(record.correctionImages) ? record.correctionImages : [],
-          correctionTime: record.correctionTime || ''
+          correctionTime: record.correctionTime || '',
+          recommendedTime: record.recommendedTime || 0,
+          totalPauseDuration: record.totalPauseDuration || 0,
+          pauseCount: record.pauseCount || 0,
+          pauseIntervals: Array.isArray(record.pauseIntervals) ? record.pauseIntervals : []
         },
         paperContent: {
           answers: Array.isArray(paper.answers) ? paper.answers : [],
@@ -1329,16 +1343,13 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
     }
     function generateAnswerSelects() { 
         const count = parseInt(paperQuestionCount.value) || 0; 
-        const optionsPanel = document.getElementById('optionA').parentNode.parentNode;
         const answersPanel = document.getElementById('dynamicAnswers').parentNode;
         const singlePointsInput = document.getElementById('paperQuestionPoints').parentNode;
         const multiplePointsInput = document.getElementById('paperMultipleQuestionPoints').parentNode;
         
         if (count === 0) {
-            optionsPanel.style.display = 'none'; answersPanel.style.display = 'none';
             singlePointsInput.style.display = 'none'; multiplePointsInput.style.display = 'none';
         } else {
-            optionsPanel.style.display = 'block'; answersPanel.style.display = 'block';
             singlePointsInput.style.display = 'block'; multiplePointsInput.style.display = 'block';
         }
 
@@ -1777,7 +1788,6 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const pdfRaw = paperPdfFile ? paperPdfFile.value.trim() : '';
       const pdfFile = pdfRaw.startsWith('pdf/') ? pdfRaw.slice(4) : (pdfRaw.startsWith('/pdf/') ? pdfRaw.slice(5) : pdfRaw);
       const questionCount = parseInt(paperQuestionCount.value) || 0, singlePoints = parseFloat(paperQuestionPoints.value) || 0;
-      const optionAVal = optionA.value.trim(), optionBVal = optionB.value.trim(), optionCVal = optionC.value.trim(), optionDVal = optionD.value.trim();
       const fillBlankCount = parseInt(paperFillBlankCount.value) || 0;
       const allowRedo = !!(paperAllowRedo && paperAllowRedo.checked);
       const scopeRadio = document.querySelector('input[name="paperScope"]:checked');
@@ -1794,7 +1804,6 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const questionTypes = [];
       if (questionCount > 0) {
           if (!singlePoints) return alert('请填写选择题单题分值');
-          if (!optionAVal || !optionBVal || !optionCVal || !optionDVal) return alert('请填写所有选择题选项内容');
           for (let i = 1; i <= questionCount; i++) {
               const qtype = document.getElementById(`qtype_${i}`)?.value || 'single';
               let answer = '';
@@ -1850,7 +1859,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       }
       const totalPoints = totalSelectionPoints + totalFbPoints;
       
-      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, isArchived: false, archivedAt: '', categoryId: '', categoryIds: [], targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: totalPoints, answers, questionTypes, options: { A: optionAVal, B: optionBVal, C: optionCVal, D: optionDVal }, createTime: new Date().toLocaleString() };
+      const newPaper = { id: 'p' + Date.now(), type, grade, name, questionCount, singlePoints, fillInBlankCount: fillBlankCount, fbPointsArray: fbPointsArray, fillInBlankAnswerImage: fillBlankImageBase64, allowRedo: allowRedo, isArchived: false, archivedAt: '', categoryId: '', categoryIds: [], targetStudentIds: targetStudentIds, pdfFile: pdfFile, totalPoints: totalPoints, answers, questionTypes, createTime: new Date().toLocaleString() };
       const papers = await getData(PAPER_STORAGE_KEY) || []; 
       papers.push(newPaper); 
       await saveData(PAPER_STORAGE_KEY, papers);
@@ -1881,7 +1890,6 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
       generateAnswerSelects(); 
       if (typeof generateFbPointsConfig === 'function') generateFbPointsConfig(); 
-      optionA.value = ''; optionB.value = ''; optionC.value = ''; optionD.value = '';
       syncPaperFormByType();
       if (paperAllowRedo) paperAllowRedo.checked = false;
       
@@ -1890,7 +1898,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
     async function renderAllPaperLists() {
         const papers = await getData(PAPER_STORAGE_KEY) || [];
-        const allAnswers = await getData(ANSWER_STORAGE_KEY) || []; // 🚀 终极优化：只读取1次数据
+        const allAnswers = await getData(ANSWER_STORAGE_KEY) || [];
+        g_categories = await getData(PAPER_CATEGORIES_KEY) || [];
         
         // 1. Render refactored dual-pane UI
         await renderRefactoredPaperList(papers, allAnswers);
@@ -2230,12 +2239,32 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       editingCategoryIds.delete(categoryId);
       renderAllPaperLists();
     }
+    
+    async function archiveCategory(categoryId) {
+      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const cat = categories.find(c => c.id === categoryId);
+      if (!cat) return;
+      cat.isArchived = true;
+      cat.archivedAt = new Date().toLocaleString();
+      await saveData(PAPER_CATEGORIES_KEY, categories);
+      renderAllPaperLists();
+    }
+    
+    async function restoreCategory(categoryId) {
+      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const cat = categories.find(c => c.id === categoryId);
+      if (!cat) return;
+      cat.isArchived = false;
+      cat.archivedAt = '';
+      await saveData(PAPER_CATEGORIES_KEY, categories);
+      renderAllPaperLists();
+    }
 
     // Refactored dual-pane render function
     async function renderRefactoredPaperList(papers, allAnswers) {
       if (!refactoredPaperListContainer || !categoriesContainer) return;
       
-      const categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const categories = (await getData(PAPER_CATEGORIES_KEY) || []).filter(c => !c.isArchived);
       const activePapers = papers.filter((p) => !isArchivedPaper(p));
 
       // 1. Render Left Side Set List
@@ -2319,6 +2348,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
               
               <!-- Action buttons -->
               <div class="flex flex-wrap gap-2 pt-2 border-t border-dashed border-gray-100">
+                <button type="button" class="rename-paper px-2.5 py-1.5 bg-sky-50 text-sky-600 hover:bg-sky-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-pencil mr-1"></i>重命名</button>
                 <button type="button" class="edit-paper-scope px-2.5 py-1.5 bg-violet-50 text-violet-600 hover:bg-violet-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-users mr-1"></i>编辑范围</button>
                 <button type="button" class="toggle-redo px-2.5 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'} mr-1"></i>${redoEnabled ? '关闭重做' : '开启重做'}</button>
                 <button type="button" class="view-answers px-2.5 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs rounded-lg font-medium transition-colors" data-id="${paper.id}"><i class="fa fa-list mr-1"></i>${answerCount}人明细</button>
@@ -2347,6 +2377,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           });
           
           // Action button listeners
+          paperItem.querySelector('.rename-paper').addEventListener('click', function () { renamePaper(this.dataset.id); });
           paperItem.querySelector('.edit-paper-scope').addEventListener('click', function () { openPaperScopeEditModal(this.dataset.id); });
           paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
           paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
@@ -2414,6 +2445,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
               <div class="flex items-center gap-1">
                 <button type="button" class="edit-category-btn text-gray-400 hover:text-purple-600 transition-colors p-1" data-category-id="${cat.id}" title="修改名称">
                   <i class="fa fa-pencil"></i>
+                </button>
+                <button type="button" class="archive-category-btn text-gray-400 hover:text-amber-600 transition-colors p-1" data-category-id="${cat.id}" title="归档分类">
+                  <i class="fa fa-archive"></i>
                 </button>
                 <button type="button" class="delete-category-btn text-gray-400 hover:text-red-600 transition-colors p-1" data-category-id="${cat.id}" title="删除分类">
                   <i class="fa fa-trash"></i>
@@ -2523,6 +2557,17 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                 e.preventDefault();
                 editingCategoryIds.delete(this.dataset.categoryId);
                 renderAllPaperLists();
+              }
+            });
+          }
+          
+          // Archive category listener
+          const archiveBtn = catCard.querySelector('.archive-category-btn');
+          if (archiveBtn) {
+            archiveBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              if (confirm(`确定要归档分类 "${cat.name}" 吗？归档后该分类在题库和学生端将不可见。`)) {
+                archiveCategory(this.dataset.categoryId);
               }
             });
           }
@@ -3664,94 +3709,232 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       alert('自学内容添加成功');
     }
     
-    async function renderPaperList(container, papers, allAnswers) { // 🚀 接收传入的数据，不再重复请求
+    async function renderPaperList(container, papers, allAnswers) {
         container.innerHTML = ''; 
         if (papers.length === 0) return container.innerHTML = '<div class="text-center text-gray-500 py-4">暂无套卷</div>'; 
         papers.forEach(paper => { const paperAnswers = allAnswers.filter(a => a.paperId === paper.id); const answerCount = paperAnswers.length; const avgScore = answerCount > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / answerCount).toFixed(1) : 'N/A'; const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试')); const redoEnabled = !!paper.allowRedo; const scopeSummary = getPaperScopeSummary(paper); const paperItem = document.createElement('div'); paperItem.className = 'border rounded-lg p-3 bg-white hover:shadow-md transition-shadow'; paperItem.innerHTML = `<div class="flex justify-between items-start"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-indigo-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore}</p><p class="text-xs mt-1 text-amber-600">范围: ${scopeSummary}</p><p class="text-xs mt-1 ${redoEnabled ? 'text-green-600' : 'text-gray-500'}">重做: ${redoEnabled ? '已开启' : '未开启'}</p></div><div style="flex-direction:column;align-items:start" class="flex items-center"><button class="text-violet-600 edit-paper-scope text-sm whitespace-nowrap" data-id="${paper.id}"><i class="fa fa-users"></i> 编辑范围</button><button class="text-emerald-600 toggle-redo text-sm whitespace-nowrap mt-1" data-id="${paper.id}" data-redo="${redoEnabled ? '1' : '0'}"><i class="fa ${redoEnabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${redoEnabled ? '关闭重做' : '开启重做'}</button><button class="text-blue-500 view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list"></i> ${answerCount}人作答明细</button><button class="text-purple-600 view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart"></i> 数据分析</button><button class="text-green-600 config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog"></i> 配置答案</button><button class="text-amber-600 archive-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-archive"></i> 归档</button><button class="text-red-500 delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash"></i> 删除套卷</button></div></div>`; container.appendChild(paperItem);
-    paperItem.querySelector('.edit-paper-scope').addEventListener('click', function () { openPaperScopeEditModal(this.dataset.id); });
-    paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
-    paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
-            paperItem.querySelector('.view-analysis').addEventListener('click', function () { showPaperAnalysis(this.dataset.id); });
-            paperItem.querySelector('.config-answers').addEventListener('click', function () { openAnswerConfigModal(this.dataset.id); });
-            paperItem.querySelector('.archive-paper').addEventListener('click', function () { if (confirm(`确定要归档"${paper.name}"吗？归档后学生端将不再显示该套题相关数据。`)) archivePaper(this.dataset.id); });
-            paperItem.querySelector('.delete-paper').addEventListener('click', function () { if (confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) deletePaper(this.dataset.id); });
+        paperItem.querySelector('.edit-paper-scope').addEventListener('click', function () { openPaperScopeEditModal(this.dataset.id); });
+        paperItem.querySelector('.toggle-redo').addEventListener('click', function () { togglePaperRedoStatus(this.dataset.id, this.dataset.redo === '1'); });
+        paperItem.querySelector('.view-answers').addEventListener('click', function () { showAnswerDetails(this.dataset.id); });
+        paperItem.querySelector('.view-analysis').addEventListener('click', function () { showPaperAnalysis(this.dataset.id); });
+        paperItem.querySelector('.config-answers').addEventListener('click', function () { openAnswerConfigModal(this.dataset.id); });
+        paperItem.querySelector('.archive-paper').addEventListener('click', function () { if (confirm(`确定要归档"${paper.name}"吗？归档后学生端将不再显示该套题相关数据。`)) archivePaper(this.dataset.id); });
+        paperItem.querySelector('.delete-paper').addEventListener('click', function () { if (confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) deletePaper(this.dataset.id); });
     }); 
     }
             async function renderArchivedPaperList(paperList, answerList) {
               const papers = Array.isArray(paperList) ? paperList : (await getData(PAPER_STORAGE_KEY) || []);
               const allAnswers = Array.isArray(answerList) ? answerList : (await getData(ANSWER_STORAGE_KEY) || []);
-              const archivedPapers = papers.filter((paper) => isArchivedPaper(paper)).sort((a, b) => new Date(String(b.archivedAt || b.createTime || '').replace(/-/g, '/')).getTime() - new Date(String(a.archivedAt || a.createTime || '').replace(/-/g, '/')).getTime());
-              if (archivedPaperCountBadge) archivedPaperCountBadge.textContent = `${archivedPapers.length} 套`;
-              const gradeConfigs = [
-                { grade: 'grade1', listEl: archivedGrade1PaperList, paginationEl: archivedGrade1PaperPagination, filterEl: archivedGrade1TypeFilter, emptyClass: 'text-blue-400' },
-                { grade: 'grade2', listEl: archivedGrade2PaperList, paginationEl: archivedGrade2PaperPagination, filterEl: archivedGrade2TypeFilter, emptyClass: 'text-emerald-400' },
-                { grade: 'grade3', listEl: archivedGrade3PaperList, paginationEl: archivedGrade3PaperPagination, filterEl: archivedGrade3TypeFilter, emptyClass: 'text-purple-400' }
-              ];
-              const buildArchivedCardHtml = (paper) => {
-                const paperAnswers = allAnswers.filter((a) => a.paperId === paper.id);
-                const typeLabel = paper.type === 'homework' ? '📚 作业' : (paper.type === 'correction' ? '📸 改错' : (paper.type === 'custom' ? '🧩 自定义' : '📝 测试'));
-                const gradeLabel = paper.grade === 'grade1' ? '高一' : (paper.grade === 'grade2' ? '高二' : (paper.grade === 'grade3' ? '高三' : '未设置'));
-                const avgScore = paperAnswers.length > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / paperAnswers.length).toFixed(1) : 'N/A';
-                return `<div class="border border-amber-100 rounded-xl p-4 bg-gradient-to-r from-amber-50 via-white to-white"><div class="flex justify-between items-start gap-4"><div><h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-amber-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4><p class="text-sm text-gray-500 mt-1">${gradeLabel} · ${paper.questionCount}题 · 总分${paper.totalPoints}分</p><p class="text-xs text-blue-500 mt-1">平均分: ${avgScore} · ${paperAnswers.length} 人作答</p><p class="text-xs text-amber-700 mt-1">归档时间: ${paper.archivedAt || '未知'}</p></div><div class="flex flex-col items-start"><button class="text-emerald-600 restore-paper text-sm whitespace-nowrap" data-id="${paper.id}"><i class="fa fa-undo mr-1"></i>取消归档</button><button class="text-blue-500 archived-view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list mr-1"></i>作答明细</button><button class="text-purple-600 archived-view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart mr-1"></i>数据分析</button><button class="text-green-600 archived-config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog mr-1"></i>配置答案</button><button class="text-red-500 archived-delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash mr-1"></i>删除套卷</button></div></div></div>`;
-              };
-              gradeConfigs.forEach((cfg) => {
-                if (!cfg.listEl || !cfg.paginationEl) return;
-                const typeValue = cfg.filterEl ? cfg.filterEl.value : 'all';
-                const gradePapers = archivedPapers.filter((paper) => paper.grade === cfg.grade && (typeValue === 'all' || (paper.type || 'test') === typeValue));
-                if (gradePapers.length === 0) {
-                  cfg.listEl.innerHTML = `<div class="text-center py-10 border border-dashed border-gray-200 rounded-xl bg-white ${cfg.emptyClass}">暂无匹配归档套题</div>`;
-                  cfg.paginationEl.classList.add('hidden');
-                  cfg.paginationEl.innerHTML = '';
-                  return;
-                }
-                const totalPages = Math.max(1, Math.ceil(gradePapers.length / ARCHIVED_PAPER_PAGE_SIZE));
-                let currentPage = archivedPaperPageState[cfg.grade] || 1;
-                if (currentPage > totalPages) currentPage = totalPages;
-                if (currentPage < 1) currentPage = 1;
-                archivedPaperPageState[cfg.grade] = currentPage;
-                const startIndex = (currentPage - 1) * ARCHIVED_PAPER_PAGE_SIZE;
-                const pageItems = gradePapers.slice(startIndex, startIndex + ARCHIVED_PAPER_PAGE_SIZE);
-                cfg.listEl.innerHTML = pageItems.map(buildArchivedCardHtml).join('');
-                cfg.listEl.querySelectorAll('.restore-paper').forEach((btn) => btn.addEventListener('click', function () { restorePaper(this.dataset.id); }));
-                cfg.listEl.querySelectorAll('.archived-view-answers').forEach((btn) => btn.addEventListener('click', function () { showAnswerDetails(this.dataset.id); }));
-                cfg.listEl.querySelectorAll('.archived-view-analysis').forEach((btn) => btn.addEventListener('click', function () { showPaperAnalysis(this.dataset.id); }));
-                cfg.listEl.querySelectorAll('.archived-config-answers').forEach((btn) => btn.addEventListener('click', function () { openAnswerConfigModal(this.dataset.id); }));
-                cfg.listEl.querySelectorAll('.archived-delete-paper').forEach((btn) => btn.addEventListener('click', function () { const paper = gradePapers.find((item) => item.id === this.dataset.id); if (paper && confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) deletePaper(this.dataset.id); }));
-                if (gradePapers.length <= ARCHIVED_PAPER_PAGE_SIZE) {
-                  cfg.paginationEl.classList.add('hidden');
-                  cfg.paginationEl.innerHTML = '';
-                  return;
-                }
-                const pagerItems = buildCompactPageItems(currentPage, totalPages);
-                cfg.paginationEl.classList.remove('hidden');
-                cfg.paginationEl.innerHTML = `
-                  <button class="archived-paper-prev px-2.5 py-1 rounded border text-sm ${currentPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-grade="${cfg.grade}" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
-                  ${pagerItems.map((item) => {
-                    if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
-                    const active = item === currentPage;
-                    return `<button class="archived-paper-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${active ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-grade="${cfg.grade}" data-page="${item}">${item}</button>`;
-                  }).join('')}
-                  <button class="archived-paper-next px-2.5 py-1 rounded border text-sm ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-grade="${cfg.grade}" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
-                `;
-                const prevBtn = cfg.paginationEl.querySelector('.archived-paper-prev');
-                const nextBtn = cfg.paginationEl.querySelector('.archived-paper-next');
-                if (prevBtn) prevBtn.addEventListener('click', function () { const gradeKey = this.dataset.grade; if ((archivedPaperPageState[gradeKey] || 1) > 1) { archivedPaperPageState[gradeKey] -= 1; renderArchivedPaperList(papers, allAnswers); } });
-                if (nextBtn) nextBtn.addEventListener('click', function () { const gradeKey = this.dataset.grade; archivedPaperPageState[gradeKey] = (archivedPaperPageState[gradeKey] || 1) + 1; renderArchivedPaperList(papers, allAnswers); });
-                cfg.paginationEl.querySelectorAll('.archived-paper-page').forEach((btn) => {
-                  btn.addEventListener('click', function () {
-                    const gradeKey = this.dataset.grade;
-                    const page = parseInt(this.dataset.page, 10);
-                    if (!gradeKey || Number.isNaN(page)) return;
-                    archivedPaperPageState[gradeKey] = page;
-                    renderArchivedPaperList(papers, allAnswers);
-                  });
-                });
+              const categories = await getData(PAPER_CATEGORIES_KEY) || [];
+              
+              const archivedCategories = categories.filter(c => c.isArchived);
+              const archivedCatIds = archivedCategories.map(c => c.id);
+              
+              const individuallyArchivedPapers = papers.filter(paper => {
+                if (!paper.isArchived) return false;
+                const catIds = getPaperCategoryIds(paper);
+                return !catIds.some(id => archivedCatIds.includes(id));
               });
+
+              // 1. Render Left Pane: Archived Categories
+              const archivedCategoriesList = document.getElementById('archivedCategoriesList');
+              if (archivedCategoriesList) {
+                archivedCategoriesList.innerHTML = '';
+                if (archivedCategories.length === 0) {
+                  archivedCategoriesList.innerHTML = `<div class="text-center py-10 text-sm text-gray-500 border border-dashed border-gray-200 rounded-xl bg-white text-purple-400">暂无已归档分类</div>`;
+                } else {
+                  archivedCategories.forEach(cat => {
+                    const catPapers = papers.filter(p => getPaperCategoryIds(p).includes(cat.id));
+                    const papersHtml = catPapers.length === 0
+                      ? `<p class="text-xs text-gray-400 italic">该分类下暂无套题</p>`
+                      : catPapers.map(p => `
+                          <div class="flex items-center justify-between text-xs py-1.5 border-b border-gray-100 last:border-0">
+                            <span class="text-gray-700 font-medium">${p.name}</span>
+                            <span class="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">${getPaperTypeLabel(p.type)}</span>
+                          </div>
+                        `).join('');
+
+                    const catEl = document.createElement('div');
+                    catEl.className = 'bg-white border border-purple-100 rounded-xl p-4 shadow-sm';
+                    catEl.innerHTML = `
+                      <div class="flex justify-between items-start mb-3 gap-2">
+                        <div>
+                          <h4 class="font-bold text-gray-800 flex items-center"><i class="fa fa-folder text-yellow-500 mr-2"></i>${cat.name}</h4>
+                          <p class="text-[10px] text-gray-400 mt-1">包含 ${catPapers.length} 套题 · 归档时间: ${cat.archivedAt || '未知'}</p>
+                        </div>
+                        <div class="flex gap-2">
+                          <button class="restore-category px-2.5 py-1 bg-green-50 text-green-600 hover:bg-green-100 text-xs rounded font-semibold transition-colors" data-id="${cat.id}"><i class="fa fa-undo mr-1"></i>还原分类</button>
+                          <button class="delete-category text-red-500 hover:text-red-700 text-xs font-semibold p-1" data-id="${cat.id}" title="删除分类"><i class="fa fa-trash"></i></button>
+                        </div>
+                      </div>
+                      <div class="mt-2 bg-gray-50/50 rounded-lg p-3 space-y-1">
+                        ${papersHtml}
+                      </div>
+                    `;
+                    archivedCategoriesList.appendChild(catEl);
+                  });
+                  
+                  archivedCategoriesList.querySelectorAll('.restore-category').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                      restoreCategory(this.dataset.id);
+                    });
+                  });
+                  archivedCategoriesList.querySelectorAll('.delete-category').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                      deleteCategory(this.dataset.id);
+                    });
+                  });
+                }
+              }
+
+              // 2. Render Right Pane: Individually Archived Papers
+              const archivedIndividualPapersList = document.getElementById('archivedIndividualPapersList');
+              const archivedIndividualPapersPagination = document.getElementById('archivedIndividualPapersPagination');
+              const archivedGradeFilter = document.getElementById('archivedGradeFilter');
+              const archivedTypeFilter = document.getElementById('archivedTypeFilter');
+
+              if (archivedIndividualPapersList) {
+                archivedIndividualPapersList.innerHTML = '';
+                const gradeVal = archivedGradeFilter ? archivedGradeFilter.value : 'all';
+                const typeVal = archivedTypeFilter ? archivedTypeFilter.value : 'all';
+
+                let filteredIndivPapers = individuallyArchivedPapers;
+                if (gradeVal !== 'all') {
+                  filteredIndivPapers = filteredIndivPapers.filter(p => p.grade === gradeVal);
+                }
+                if (typeVal !== 'all') {
+                  filteredIndivPapers = filteredIndivPapers.filter(p => (p.type || 'test') === typeVal);
+                }
+
+                filteredIndivPapers.sort((a, b) => new Date(String(b.archivedAt || b.createTime || '').replace(/-/g, '/')).getTime() - new Date(String(a.archivedAt || a.createTime || '').replace(/-/g, '/')).getTime());
+
+                if (filteredIndivPapers.length === 0) {
+                  archivedIndividualPapersList.innerHTML = `<div class="text-center py-10 border border-dashed border-gray-200 rounded-xl bg-white text-blue-400">暂无归档的套题</div>`;
+                  if (archivedIndividualPapersPagination) {
+                    archivedIndividualPapersPagination.classList.add('hidden');
+                    archivedIndividualPapersPagination.innerHTML = '';
+                  }
+                } else {
+                  const INDIV_PAGE_SIZE = 5;
+                  const totalPages = Math.max(1, Math.ceil(filteredIndivPapers.length / INDIV_PAGE_SIZE));
+                  let currentPage = window.archivedIndivPage || 1;
+                  if (currentPage > totalPages) currentPage = totalPages;
+                  if (currentPage < 1) currentPage = 1;
+                  window.archivedIndivPage = currentPage;
+                  
+                  const startIndex = (currentPage - 1) * INDIV_PAGE_SIZE;
+                  const pageItems = filteredIndivPapers.slice(startIndex, startIndex + INDIV_PAGE_SIZE);
+
+                  pageItems.forEach(paper => {
+                    const paperAnswers = allAnswers.filter((a) => a.paperId === paper.id);
+                    const typeLabel = getPaperTypeLabel(paper.type);
+                    const gradeLabel = getPaperGradeLabel(paper.grade);
+                    const avgScore = paperAnswers.length > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / paperAnswers.length).toFixed(1) : 'N/A';
+
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'border border-amber-100 rounded-xl p-4 bg-gradient-to-r from-amber-50 via-white to-white';
+                    itemEl.innerHTML = `
+                      <div class="flex justify-between items-start gap-4">
+                        <div>
+                          <h4 class="font-medium text-gray-800"><span class="text-xs text-white bg-amber-500 px-2 py-0.5 rounded-full mr-1">${typeLabel}</span>${paper.name}</h4>
+                          <p class="text-sm text-gray-500 mt-1">${gradeLabel} · ${paper.questionCount}题 · 总分${paper.totalPoints}分</p>
+                          <p class="text-xs text-blue-500 mt-1">平均分: ${avgScore} · ${paperAnswers.length} 人作答</p>
+                          <p class="text-xs text-amber-700 mt-1">归档时间: ${paper.archivedAt || '未知'}</p>
+                        </div>
+                        <div class="flex flex-col items-start gap-1">
+                          <button class="text-emerald-600 restore-paper text-sm whitespace-nowrap" data-id="${paper.id}"><i class="fa fa-undo mr-1"></i>还原</button>
+                          <button class="text-blue-500 archived-view-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-list mr-1"></i>作答明细</button>
+                          <button class="text-purple-600 archived-view-analysis text-sm whitespace-nowrap mt-1 font-bold" data-id="${paper.id}"><i class="fa fa-pie-chart mr-1"></i>数据分析</button>
+                          <button class="text-green-600 archived-config-answers text-sm whitespace-nowrap mt-1" data-id="${paper.id}"><i class="fa fa-cog mr-1"></i>配置答案</button>
+                          <button class="text-amber-600 archived-rename-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-pencil mr-1"></i>重命名</button>
+                          <button class="text-red-500 archived-delete-paper text-sm mt-1" data-id="${paper.id}"><i class="fa fa-trash mr-1"></i>删除</button>
+                        </div>
+                      </div>
+                    `;
+                    archivedIndividualPapersList.appendChild(itemEl);
+                  });
+
+                  archivedIndividualPapersList.querySelectorAll('.restore-paper').forEach(btn => btn.addEventListener('click', function() { restorePaper(this.dataset.id); }));
+                  archivedIndividualPapersList.querySelectorAll('.archived-view-answers').forEach(btn => btn.addEventListener('click', function() { showAnswerDetails(this.dataset.id); }));
+                  archivedIndividualPapersList.querySelectorAll('.archived-view-analysis').forEach(btn => btn.addEventListener('click', function() { showPaperAnalysis(this.dataset.id); }));
+                  archivedIndividualPapersList.querySelectorAll('.archived-config-answers').forEach(btn => btn.addEventListener('click', function() { openAnswerConfigModal(this.dataset.id); }));
+                  archivedIndividualPapersList.querySelectorAll('.archived-rename-paper').forEach(btn => btn.addEventListener('click', function() { renamePaper(this.dataset.id); }));
+                  archivedIndividualPapersList.querySelectorAll('.archived-delete-paper').forEach(btn => btn.addEventListener('click', function() {
+                    const paper = filteredIndivPapers.find(p => p.id === this.dataset.id);
+                    if (paper && confirm(`确定要删除"${paper.name}"吗？相关数据也将被删除。`)) {
+                      deletePaper(this.dataset.id);
+                    }
+                  }));
+
+                  if (archivedIndividualPapersPagination) {
+                    if (totalPages <= 1) {
+                      archivedIndividualPapersPagination.classList.add('hidden');
+                      archivedIndividualPapersPagination.innerHTML = '';
+                    } else {
+                      archivedIndividualPapersPagination.classList.remove('hidden');
+                      const pagerItems = buildCompactPageItems(currentPage, totalPages);
+                      archivedIndividualPapersPagination.innerHTML = `
+                        <button class="indiv-prev px-2.5 py-1 rounded border text-sm ${currentPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+                        ${pagerItems.map(item => {
+                          if (item === 'ellipsis') return '<span class="px-2 text-gray-400 select-none">...</span>';
+                          return `<button class="indiv-page min-w-[32px] px-2.5 py-1 rounded border text-sm ${item === currentPage ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" data-page="${item}">${item}</button>`;
+                        }).join('')}
+                        <button class="indiv-next px-2.5 py-1 rounded border text-sm ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+                      `;
+                      
+                      archivedIndividualPapersPagination.querySelector('.indiv-prev').addEventListener('click', () => {
+                        if (window.archivedIndivPage > 1) {
+                          window.archivedIndivPage--;
+                          renderArchivedPaperList(papers, allAnswers);
+                        }
+                      });
+                      archivedIndividualPapersPagination.querySelector('.indiv-next').addEventListener('click', () => {
+                        if (window.archivedIndivPage < totalPages) {
+                          window.archivedIndivPage++;
+                          renderArchivedPaperList(papers, allAnswers);
+                        }
+                      });
+                      archivedIndividualPapersPagination.querySelectorAll('.indiv-page').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                          window.archivedIndivPage = parseInt(this.dataset.page);
+                          renderArchivedPaperList(papers, allAnswers);
+                        });
+                      });
+                    }
+                  }
+                }
+              }
+
+              if (archivedPaperCountBadge) {
+                archivedPaperCountBadge.textContent = `${archivedCategories.length}分类 / ${individuallyArchivedPapers.length}套题`;
+              }
             }
             async function togglePaperRedoStatus(paperId, isEnabled) { let papers = await getData(PAPER_STORAGE_KEY) || []; const idx = papers.findIndex(p => p.id === paperId); if (idx === -1) return; papers[idx].allowRedo = !isEnabled; await saveData(PAPER_STORAGE_KEY, papers); renderAllPaperLists(); }
             async function archivePaper(paperId) { let papers = await getData(PAPER_STORAGE_KEY) || []; const idx = papers.findIndex(p => p.id === paperId); if (idx === -1) return; papers[idx].isArchived = true; papers[idx].archivedAt = new Date().toLocaleString(); await saveData(PAPER_STORAGE_KEY, papers); renderAllPaperLists(); }
             async function restorePaper(paperId) { let papers = await getData(PAPER_STORAGE_KEY) || []; const idx = papers.findIndex(p => p.id === paperId); if (idx === -1) return; papers[idx].isArchived = false; papers[idx].archivedAt = ''; await saveData(PAPER_STORAGE_KEY, papers); renderAllPaperLists(); }
             async function deletePaper(paperId) { let papers = await getData(PAPER_STORAGE_KEY) || []; papers = papers.filter(p => p.id !== paperId); await saveData(PAPER_STORAGE_KEY, papers); let answers = await getData(ANSWER_STORAGE_KEY) || []; answers = answers.filter(a => a.paperId !== paperId); await saveData(ANSWER_STORAGE_KEY, answers); renderAllPaperLists(); }
+            async function renamePaper(paperId) {
+              const papers = await getData(PAPER_STORAGE_KEY) || [];
+              const paper = papers.find(p => p.id === paperId);
+              if (!paper) return;
+              const newName = prompt(`请输入套题 "${paper.name}" 的新标题:`, paper.name);
+              if (newName === null) return;
+              const trimmed = newName.trim();
+              if (!trimmed) {
+                alert("套题标题不能为空！");
+                return;
+              }
+              if (trimmed === paper.name) return;
+              const isDuplicate = papers.some(p => p.name.trim() === trimmed);
+              if (isDuplicate) {
+                alert(`已存在名为 "${trimmed}" 的套题，请使用其他标题。`);
+                return;
+              }
+              paper.name = trimmed;
+              await saveData(PAPER_STORAGE_KEY, papers);
+              renderAllPaperLists();
+              alert("重命名成功！");
+            }
     
     // 🚀 核心：强绑定按钮点击事件，绝不丢失
     async function showAnswerDetails(paperId, targetStudentId = null) { 
@@ -4053,10 +4236,11 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         renderAllPaperLists(); 
         alert(`✅ 答案及视频配置已保存，并已重新判分 ${regradeCount} 份答卷`); 
     } 
-    const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilter = document.getElementById('studentGradeFilter'), studentModal = document.getElementById('studentModal'), studentModalContent = document.getElementById('studentModalContent'), studentNameInput = document.getElementById('studentNameInput'), studentIdInput = document.getElementById('studentIdInput'), studentGradeInput = document.getElementById('studentGradeInput'), studentPointsInput = document.getElementById('studentPointsInput'), cancelStudentModal = document.getElementById('cancelStudentModal'), saveStudentBtn = document.getElementById('saveStudentBtn');
+
+const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilter = document.getElementById('studentGradeFilter'), studentModal = document.getElementById('studentModal'), studentModalContent = document.getElementById('studentModalContent'), studentNameInput = document.getElementById('studentNameInput'), studentIdInput = document.getElementById('studentIdInput'), studentGradeInput = document.getElementById('studentGradeInput'), studentPointsInput = document.getElementById('studentPointsInput'), cancelStudentModal = document.getElementById('cancelStudentModal'), saveStudentBtn = document.getElementById('saveStudentBtn');
     let isEditingStudent = false, studentSortField = 'points', studentSortDirection = 'desc';
 
-    function initStudentManagement() { loadStudentPointsList(); exportStudentsBtn.addEventListener('click', exportStudentData); addStudentBtn.addEventListener('click', openAddStudentModal); cancelStudentModal.addEventListener('click', closeStudentModal); saveStudentBtn.addEventListener('click', handleSaveStudent); studentModal.addEventListener('click', e => e.target === studentModal && closeStudentModal()); if (studentGradeFilter) studentGradeFilter.addEventListener('change', loadStudentPointsList); document.getElementById('sortByIdBtn').addEventListener('click', () => handleStudentSort('id')); document.getElementById('sortByPointsBtn').addEventListener('click', () => handleStudentSort('points')); if (closeSchoolScoreModal) closeSchoolScoreModal.addEventListener('click', closeSchoolScoreModalPanel); if (schoolScoreModal) schoolScoreModal.addEventListener('click', e => e.target === schoolScoreModal && closeSchoolScoreModalPanel()); if (saveSchoolScoreBtn) saveSchoolScoreBtn.addEventListener('click', handleSaveSchoolScore); if (cancelSchoolScoreEditBtn) cancelSchoolScoreEditBtn.addEventListener('click', resetSchoolScoreForm); }
+    function initStudentManagement() { loadStudentPointsList(); exportStudentsBtn.addEventListener('click', exportStudentData); addStudentBtn.addEventListener('click', openAddStudentModal); cancelStudentModal.addEventListener('click', closeStudentModal); saveStudentBtn.addEventListener('click', handleSaveStudent); studentModal.addEventListener('click', e => e.target === studentModal && closeStudentModal()); if (studentGradeFilter) studentGradeFilter.addEventListener('change', loadStudentPointsList); document.getElementById('sortByIdBtn').addEventListener('click', () => handleStudentSort('id')); document.getElementById('sortByPointsBtn').addEventListener('click', () => handleStudentSort('points')); if (closeSchoolScoreModal) closeSchoolScoreModal.addEventListener('click', closeSchoolScoreModalPanel); if (schoolScoreModal) schoolScoreModal.addEventListener('click', e => e.target === schoolScoreModal && closeSchoolScoreModalPanel()); if (saveSchoolScoreBtn) saveSchoolScoreBtn.addEventListener('click', handleSaveSchoolScore); if (cancelSchoolScoreEditBtn) cancelSchoolScoreEditBtn.addEventListener('click', resetSchoolScoreForm); if (schoolScoreImagesInput) schoolScoreImagesInput.addEventListener('change', handleSchoolScoreImagesUpload); }
     function handleStudentSort(field) { if (studentSortField === field) studentSortDirection = studentSortDirection === 'asc' ? 'desc' : 'asc'; else { studentSortField = field; studentSortDirection = 'desc'; } loadStudentPointsList(); }
     
    async function loadStudentPointsList() {
@@ -4075,7 +4259,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
      studentsArray.forEach(student => {
         const row = document.createElement('tr');
         // 🚀 核心修复：将flex加在内部的div盒子上，而不是直接加在td上，彻底防止被浏览器挤压隐藏！
-        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${student.isArchived ? 'text-gray-400 line-through' : 'text-gray-900'}">${student.name}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.grade || '未设置'}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">${student.points}分</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.lastUpdate || '未知'}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex flex-wrap items-center gap-2"><button class="text-blue-500 hover:text-blue-700 view-student-history-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-history mr-1"></i> 记录</button><button class="text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 transition-transform hover:scale-105 school-score-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-bar-chart mr-1"></i> 校内成绩</button><button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || '高一'}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
+        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${student.isArchived ? 'text-gray-400 line-through' : 'text-gray-900'}">${student.name}</÷td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.grade || '未设置'}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">${student.points}分</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.lastUpdate || '未知'}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex flex-wrap items-center gap-2"><button class="text-blue-500 hover:text-blue-700 view-student-history-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-history mr-1"></i> 记录</button><button class="text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 transition-transform hover:scale-105 school-score-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-bar-chart mr-1"></i> 校内成绩</button>
+          <button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || '高一'}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
         studentList.appendChild(row);
       });
       document.querySelectorAll('.edit-student-btn').forEach(btn => btn.addEventListener('click', openEditStudentModal));
@@ -4098,12 +4283,60 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       return [...new Set(items)];
     }
 
+    function updateSchoolScoreImagesUI() {
+      if (!schoolScoreImagesPreview || !schoolScoreImagesStatus) return;
+      if (currentSchoolScoreImages.length > 0) {
+        schoolScoreImagesStatus.textContent = `已上传 ${currentSchoolScoreImages.length} 张图片`;
+        schoolScoreImagesPreview.classList.remove('hidden');
+        schoolScoreImagesPreview.innerHTML = currentSchoolScoreImages.map((url, idx) => `
+          <div class="relative w-16 h-16 border rounded-lg overflow-hidden group shadow-sm bg-gray-50">
+            <img src="${url}" class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onclick="showAdminImagePreview(this.src)" />
+            <button type="button" onclick="currentSchoolScoreImages.splice(${idx}, 1); updateSchoolScoreImagesUI();" class="absolute top-0 right-0 bg-red-500/85 text-white rounded-bl w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors"><i class="fa fa-times"></i></button>
+          </div>
+        `).join('');
+      } else {
+        schoolScoreImagesStatus.textContent = '未上传图片';
+        schoolScoreImagesPreview.classList.add('hidden');
+        schoolScoreImagesPreview.innerHTML = '';
+      }
+    }
+
+    async function handleSchoolScoreImagesUpload(e) {
+      if (!schoolScoreImagesInput || !schoolScoreImagesInput.files || schoolScoreImagesInput.files.length === 0) return;
+      const files = schoolScoreImagesInput.files;
+      const statusText = document.getElementById('schoolScoreImagesStatus');
+      if (statusText) statusText.innerHTML = '<i class="fa fa-spinner fa-spin mr-1 text-indigo-500"></i> 上传中...';
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const rawBase64 = await getBase64(files[i]);
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: rawBase64 })
+          });
+          const data = await res.json();
+          if (data && data.url) {
+            currentSchoolScoreImages.push(data.url);
+          }
+        }
+      } catch (err) {
+        alert('图片上传失败，请重试');
+      } finally {
+        schoolScoreImagesInput.value = '';
+        updateSchoolScoreImagesUI();
+      }
+    }
+
     function resetSchoolScoreForm() {
       currentEditingSchoolScoreId = null;
       schoolScoreFormTitle.textContent = '新增成绩';
       schoolScoreNameInput.value = '';
       schoolScoreValueInput.value = '';
       schoolScoreTotalInput.value = '';
+      if (schoolScoreClassRankInput) schoolScoreClassRankInput.value = '';
+      if (schoolScoreGradeRankInput) schoolScoreGradeRankInput.value = '';
+      currentSchoolScoreImages = [];
+      updateSchoolScoreImagesUI();
       cancelSchoolScoreEditBtn.classList.add('hidden');
       saveSchoolScoreBtn.innerHTML = '<i class="fa fa-save mr-2"></i>保存成绩';
     }
@@ -4122,7 +4355,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       currentSchoolScoreStudentId = studentId;
       currentSchoolScoreStudentName = studentName;
       schoolScoreModalTitle.textContent = `${studentName} - 校内成绩`;
-      schoolScoreList.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400"><i class="fa fa-spinner fa-spin mr-2"></i>加载中...</td></tr>';
+      schoolScoreList.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400"><i class="fa fa-spinner fa-spin mr-2"></i>加载中...</td></tr>';
       resetSchoolScoreForm();
       schoolScoreModal.classList.remove('hidden');
       setTimeout(() => {
@@ -4145,11 +4378,17 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
       schoolScoreList.innerHTML = '';
       if (pageItems.length === 0) {
-        schoolScoreList.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">暂无校内成绩记录</td></tr>';
+        schoolScoreList.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400">暂无校内成绩记录</td></tr>';
       } else {
         pageItems.forEach((item) => {
           const row = document.createElement('tr');
-          row.innerHTML = `<td class="px-5 py-4 text-sm font-medium text-gray-800">${item.name}</td><td class="px-5 py-4 text-sm text-indigo-600 font-bold">${item.score}</td><td class="px-5 py-4 text-sm text-gray-600 font-medium">${item.totalScore}</td><td class="px-5 py-4 text-right text-sm"><button class="text-indigo-600 hover:text-indigo-800 font-medium mr-4 edit-school-score-btn" data-score-id="${item.id}"><i class="fa fa-edit mr-1"></i>修改</button><button class="text-red-500 hover:text-red-700 font-medium delete-school-score-btn" data-score-id="${item.id}"><i class="fa fa-trash mr-1"></i>删除</button></td>`;
+          let imagesHtml = '-';
+          if (Array.isArray(item.images) && item.images.length > 0) {
+            imagesHtml = `<div class="flex flex-wrap gap-1">` + item.images.map(url => `
+              <img src="${url}" class="w-8 h-8 rounded border object-cover cursor-zoom-in hover:opacity-85" onclick="showAdminImagePreview(this.src)" />
+            `).join('') + `</div>`;
+          }
+          row.innerHTML = `<td class="px-5 py-4 text-sm font-medium text-gray-800">${item.name}</td><td class="px-5 py-4 text-sm text-indigo-600 font-bold">${item.score}</td><td class="px-5 py-4 text-sm text-gray-600 font-medium">${item.totalScore}</td><td class="px-5 py-4 text-sm text-gray-600 font-medium">${item.classRank || '-'}</td><td class="px-5 py-4 text-sm text-gray-600 font-medium">${item.gradeRank || '-'}</td><td class="px-5 py-4 text-sm">${imagesHtml}</td><td class="px-5 py-4 text-right text-sm"><button class="text-indigo-600 hover:text-indigo-800 font-medium mr-4 edit-school-score-btn" data-score-id="${item.id}"><i class="fa fa-edit mr-1"></i>修改</button><button class="text-red-500 hover:text-red-700 font-medium delete-school-score-btn" data-score-id="${item.id}"><i class="fa fa-trash mr-1"></i>删除</button></td>`;
           schoolScoreList.appendChild(row);
         });
       }
@@ -4186,6 +4425,10 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       schoolScoreNameInput.value = item.name || '';
       schoolScoreValueInput.value = item.score ?? '';
       schoolScoreTotalInput.value = item.totalScore ?? '';
+      if (schoolScoreClassRankInput) schoolScoreClassRankInput.value = item.classRank ?? '';
+      if (schoolScoreGradeRankInput) schoolScoreGradeRankInput.value = item.gradeRank ?? '';
+      currentSchoolScoreImages = Array.isArray(item.images) ? [...item.images] : [];
+      updateSchoolScoreImagesUI();
       cancelSchoolScoreEditBtn.classList.remove('hidden');
       saveSchoolScoreBtn.innerHTML = '<i class="fa fa-save mr-2"></i>更新成绩';
       schoolScoreNameInput.focus();
@@ -4196,6 +4439,8 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const name = schoolScoreNameInput.value.trim();
       const score = parseFloat(schoolScoreValueInput.value);
       const totalScore = parseFloat(schoolScoreTotalInput.value);
+      const classRank = schoolScoreClassRankInput && schoolScoreClassRankInput.value.trim() ? parseInt(schoolScoreClassRankInput.value, 10) : '';
+      const gradeRank = schoolScoreGradeRankInput && schoolScoreGradeRankInput.value.trim() ? parseInt(schoolScoreGradeRankInput.value, 10) : '';
       if (!name) return alert('请填写成绩名称');
       if (Number.isNaN(score) || score < 0) return alert('请输入有效分数');
       if (Number.isNaN(totalScore) || totalScore <= 0) return alert('请输入有效总分');
@@ -4212,6 +4457,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         target.name = name;
         target.score = score;
         target.totalScore = totalScore;
+        target.classRank = classRank;
+        target.gradeRank = gradeRank;
+        target.images = [...currentSchoolScoreImages];
         target.updateTime = new Date().toLocaleString();
       } else {
         student.schoolScores.unshift({
@@ -4219,6 +4467,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           name,
           score,
           totalScore,
+          classRank,
+          gradeRank,
+          images: [...currentSchoolScoreImages],
           createTime: new Date().toLocaleString(),
           updateTime: new Date().toLocaleString()
         });
@@ -4275,6 +4526,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
 
                 fillBlankHtml = `<div class="mt-4 pt-4 border-t border-gray-100"><div class="flex justify-between items-center mb-3"><h5 class="font-bold text-gray-700">填空题详情</h5><div class="flex items-center space-x-2"><span class="text-sm font-medium text-gray-600">得分: ${answer.fillInBlankScore || 0}分</span><button type="button" id="${btnId}" class="text-xs bg-primary text-white px-3 py-1.5 rounded shadow-md hover:bg-primary/90 transition-all font-bold cursor-pointer relative z-50"><i class="fa fa-pencil pointer-events-none"></i> 详细判分</button></div></div><div class="grid grid-cols-2 gap-4"><div class="border rounded p-2"><p class="text-xs text-center text-gray-500 mb-1">学生答卷</p><div class="max-h-48 overflow-y-auto p-1 space-y-2">${stuImgHtml}</div></div><div class="border rounded p-2 bg-green-50"><p class="text-xs text-center text-green-600 mb-1">参考答案</p><img src="${paper.fillInBlankAnswerImage || ''}" class="w-full h-32 object-contain cursor-zoom-in hover:opacity-90" onclick="showAdminImagePreview(this.src)"></div></div></div>`; 
             } 
+            let questionsHtml = ''
              if (paper && answer.answers) {
                questionsHtml = `<div class="space-y-2 mt-2 text-sm">${answer.answers.map((ans, i) => {
                  const isMultiple = paper.questionTypes && paper.questionTypes[i] === 'multiple';
@@ -4321,7 +4573,9 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
             }
 
             const answerStorageIndex = allAnswers.indexOf(answer);
-            const card = document.createElement('div'); card.className = 'border rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md'; card.innerHTML = `<div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-3"><div class="w-2 h-12 rounded-full ${isPerfect ? 'bg-green-500' : 'bg-primary'}"></div><div><h4 class="font-bold text-gray-800">${paperName}</h4><p class="text-xs text-gray-500">${answer.submitTime} 提交</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${isPerfect ? 'text-green-600' : 'text-primary'}">${displayScore} <span class="text-xs text-gray-400 font-normal">/${totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><button type="button" class="text-sky-600 hover:text-white bg-sky-50 hover:bg-sky-500 border border-sky-200 px-2 py-1 rounded transition shadow-sm text-xs relative z-50 mr-2 data-export-history-btn" data-export-answer-index="${answerStorageIndex}" data-paper-id="${answer.paperId}" onclick="event.stopPropagation();"><i class="fa fa-file-pdf-o"></i> 存PDF</button><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div class="hidden p-4 border-t border-gray-100 bg-white">${questionsHtml}${draftHtml}${fillBlankHtml}${correctionHtml}</div>`; studentHistoryList.appendChild(card); 
+            const card = document.createElement('div');
+            card.className = 'border rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md';
+            card.innerHTML = `<div class="p-4 bg-gray-50 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.fa-chevron-down').classList.toggle('rotate-180');"><div class="flex items-center space-x-3"><div class="w-2 h-12 rounded-full ${isPerfect ? 'bg-green-500' : 'bg-primary'}"></div><div><h4 class="font-bold text-gray-800">${paperName}</h4><p class="text-xs text-gray-500">${answer?.submitTime} 提交</p></div></div><div class="flex items-center space-x-6"><div class="text-right"><span class="block text-lg font-bold ${isPerfect ? 'text-green-600' : 'text-primary'}">${displayScore} <span class="text-xs text-gray-400 font-normal">/${totalPoints}分</span></span><span class="text-xs text-gray-500">耗时: ${timeDisplay}</span></div><button type="button" class="text-sky-600 hover:text-white bg-sky-50 hover:bg-sky-500 border border-sky-200 px-2 py-1 rounded transition shadow-sm text-xs relative z-50 mr-2 data-export-history-btn" data-export-answer-index="${answerStorageIndex}" data-paper-id="${answer?.paperId}" onclick="event.stopPropagation();"><i class="fa fa-file-pdf-o"></i> 存PDF</button><i class="fa fa-chevron-down text-gray-400 transition-transform duration-200"></i></div></div><div class="hidden p-4 border-t border-gray-100 bg-white">${questionsHtml}${draftHtml}${fillBlankHtml}${correctionHtml}</div>`; studentHistoryList.appendChild(card); 
         }); 
         
         // 渲染完 HTML 后，立刻手动把事件装在按钮上
@@ -4490,6 +4744,83 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                     <canvas id="scoreChart"></canvas>
                 </div>
             </div>`;
+
+        // 学生实际用时排名逻辑
+        const studentBestTimes = new Map();
+        paperAnswers.forEach(ans => {
+            const studentId = ans.studentId || '';
+            if (!studentId) return;
+            const time = ans.actualTimeElapsed || 0;
+            const score = getRecordTotalScore(ans, paper);
+            const recTime = ans.recommendedTime || 0;
+            const submitTime = ans.submitTime || '';
+            
+            const prev = studentBestTimes.get(studentId);
+            if (time > 0) {
+                if (!prev || time < prev.timeElapsed) {
+                    studentBestTimes.set(studentId, {
+                        studentId: studentId,
+                        studentName: ans.studentName,
+                        timeElapsed: time,
+                        recommendedTime: recTime,
+                        score: score,
+                        submitTime: submitTime
+                    });
+                }
+            }
+        });
+        
+        const sortedStudentsByTime = Array.from(studentBestTimes.values()).sort((a, b) => a.timeElapsed - b.timeElapsed);
+        
+        let prevTimeValue = null;
+        let prevTimeRankValue = 0;
+        let timeTableRowsHtml = '';
+        
+        sortedStudentsByTime.forEach((item, index) => {
+            if (prevTimeValue === null || item.timeElapsed !== prevTimeValue) {
+                prevTimeRankValue = index + 1;
+                prevTimeValue = item.timeElapsed;
+            }
+            const formattedTime = `${String(Math.floor(item.timeElapsed / 60)).padStart(2, '0')}:${String(item.timeElapsed % 60).padStart(2, '0')}`;
+            const recTimeStr = item.recommendedTime ? `${item.recommendedTime} 分钟` : '未设置';
+            timeTableRowsHtml += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-5 py-3 whitespace-nowrap text-sm font-bold text-emerald-600">第 ${prevTimeRankValue} 名</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">${item.studentName} (${item.studentId})</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm font-black text-emerald-600">${formattedTime}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500">${recTimeStr}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-primary font-bold">${item.score}分</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500">${item.submitTime}</td>
+                </tr>
+            `;
+        });
+
+        if (timeTableRowsHtml === '') {
+            timeTableRowsHtml = `<tr><td colspan="6" class="px-5 py-6 text-center text-sm text-gray-500">暂无学生实际用时记录</td></tr>`;
+        }
+
+        html += `
+            <h4 class="font-bold text-gray-700 mt-6 mb-3 border-l-4 border-emerald-500 pl-2 flex items-center">
+                <i class="fa fa-clock-o text-emerald-500 mr-2"></i>学生实际用时排名
+            </h4>
+            <div class="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm mb-8">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">排名</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">姓名 (学号)</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">实际用时</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">推荐用时</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">得分</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">提交时间</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${timeTableRowsHtml}
+                </tbody>
+              </table>
+            </div>
+        `;
 
         // 3. 点击展开的单题详情区域
         if (paper.questionCount > 0) {

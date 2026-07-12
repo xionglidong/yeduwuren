@@ -451,7 +451,7 @@
     window.addEventListener('beforeunload', function (e) { if (!answerCardModal.classList.contains('hidden') && studentAnswers.some(a => a !== null)) { e.preventDefault(); e.returnValue = '您正在答题中，离开可能丢失未提交的进度！'; } });
     function updateLogoutButtonState() { const logoutBtn = document.getElementById('logout-btn'), mobileLogoutBtn = document.getElementById('mobile-logout-btn'); if (userName) { logoutBtn.classList.remove('hidden'); mobileLogoutBtn.classList.remove('hidden'); } else { logoutBtn.classList.add('hidden'); mobileLogoutBtn.classList.add('hidden'); } }
     async function handleLogout() { if (!userName) return; const modal = document.getElementById('logoutSummaryModal'), content = document.getElementById('logoutSummaryContent'), summaryText = document.getElementById('logoutSummaryText'), today = new Date().toLocaleDateString(), papers = await getVisiblePapers() || [], allAnswers = filterActiveAnswerRecords(await getData(ANSWER_STORAGE_KEY) || [], papers), todayRecords = allAnswers.filter(record => { if (record.studentId !== userId) return false; const recordDate = new Date(record.submitTime.replace(/-/g, '/')).toLocaleDateString(); return recordDate === today; }); const paperCount = todayRecords.length; let todayTotalQuestions = 0, totalCorrect = 0, totalPointsEarned = 0; for (const record of todayRecords) { const paper = papers.find(p => p.id === record.paperId); totalPointsEarned += paper ? getRecordTotalScore(record, paper) : (parseFloat(record.score) || 0); if (paper) { todayTotalQuestions += paper.questionCount; if (paper.fillInBlankCount > 0) todayTotalQuestions += parseInt(paper.fillInBlankCount); if (record.answers && paper.answers) record.answers.forEach((ans, idx) => { if (ans === paper.answers[idx]) totalCorrect++; }); if (record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) totalCorrect += record.fillInBlankDetails.filter(Boolean).length; } else if (record.answers) todayTotalQuestions += record.answers.length; } const todayAccuracy = todayTotalQuestions > 0 ? Math.round((totalCorrect / todayTotalQuestions) * 100) : 0; const myAllRecords = allAnswers.filter(r => r.studentId === userId); let lifeTimeTotalQuestions = 0, lifeTimeCorrect = 0; myAllRecords.forEach(record => { const paper = papers.find(p => p.id === record.paperId); if (paper) { let qCount = paper.questionCount; if (paper.fillInBlankCount) qCount += parseInt(paper.fillInBlankCount); lifeTimeTotalQuestions += qCount; if (record.answers && paper.answers) record.answers.forEach((ans, idx) => { if (ans === paper.answers[idx]) lifeTimeCorrect++; }); if (record.fillInBlankDetails && Array.isArray(record.fillInBlankDetails)) lifeTimeCorrect += record.fillInBlankDetails.filter(Boolean).length; } }); const lifeTimeAccuracy = lifeTimeTotalQuestions > 0 ? Math.round((lifeTimeCorrect / lifeTimeTotalQuestions) * 100) : 0; let motivationalText = "继续加油！"; if (lifeTimeTotalQuestions === 0) motivationalText = "千里之行始于足下，期待你明天的进步！"; else if (lifeTimeTotalQuestions < 50) { if (lifeTimeAccuracy < 60) motivationalText = "万事开头难，别灰心，坚持练习一定会有收获！"; else if (lifeTimeAccuracy < 85) motivationalText = "不错的开始！保持这个节奏，继续挑战自我！"; else motivationalText = "开局完美！天赋异禀的你，未来可期！"; } else if (lifeTimeTotalQuestions < 200) { if (lifeTimeAccuracy < 60) motivationalText = "做题量上来了，建议多花点时间复盘错题，质量比数量更重要哦！"; else if (lifeTimeAccuracy < 85) motivationalText = "稳扎稳打，你的努力正在转化为实力的提升！"; else motivationalText = "状态火热！保持高正确率，你就是明日之星！"; } else { if (lifeTimeAccuracy < 60) motivationalText = "勤奋的你刷了很多题，试着慢下来复盘一下错题，磨刀不误砍柴工！"; else if (lifeTimeAccuracy < 85) motivationalText = "你是练习场上的常客了，保持现在的状态，坚持就是胜利！"; else motivationalText = "独孤求败！如此高的正确率和刷题量，你就是传说中的学霸！"; } summaryText.innerHTML = `<div class="space-y-6"><p class="text-gray-600"><span class="font-bold text-primary text-lg">${userName}</span> 同学，今日收获</p><div class="grid grid-cols-2 gap-3"><div class="bg-blue-50 p-4 rounded-2xl border border-blue-100"><p class="text-xs text-blue-500 font-bold mb-1">完成试卷</p><p class="text-2xl font-black text-blue-700">${paperCount}<span class="text-sm ml-1">套</span></p></div><div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100"><p class="text-xs text-indigo-500 font-bold mb-1">训练题目</p><p class="text-2xl font-black text-indigo-700">${todayTotalQuestions}<span class="text-sm ml-1">道</span></p></div><div class="bg-green-50 p-4 rounded-2xl border border-green-100"><p class="text-xs text-green-500 font-bold mb-1">平均正确率</p><p class="text-2xl font-black text-green-700">${todayAccuracy}%</p></div><div class="bg-orange-50 p-4 rounded-2xl border border-orange-100"><p class="text-xs text-orange-500 font-bold mb-1">获得积分</p><p class="text-2xl font-black text-orange-700">+${totalPointsEarned}</p></div></div><div class="relative bg-gray-50 p-5 rounded-2xl border border-gray-100 overflow-hidden"><i class="fa fa-quote-left absolute -top-2 -left-1 text-gray-200 text-4xl opacity-50"></i><p class="relative z-10 text-gray-600 italic leading-relaxed text-sm">${motivationalText}</p></div></div>`; modal.classList.remove('hidden'); setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10); }
-    async function performLogout() { document.getElementById('logoutSummaryModal').classList.add('hidden'); userName = ''; userId = ''; userPoints = 0; userGrade = ''; studentInfo = {}; await saveData(STUDENT_INFO_KEY, {}); studentNameInput.value = ''; studentIdInput.value = ''; document.getElementById('login-card').classList.remove('hidden'); userPointsCard.classList.add('hidden'); exchangeHistory.classList.add('hidden'); examContainer.classList.add('hidden'); document.getElementById('module-tabs').classList.add('hidden');document.getElementById('message-board-section').classList.add('hidden'); if (learningCustomSection) learningCustomSection.classList.add('hidden'); updateLogoutButtonState(); if (editPrizesBtn) editPrizesBtn.classList.add('hidden'); showGeneralModal('已退出', '您已成功退出登录', 'success'); }
+    async function performLogout() { document.getElementById('logoutSummaryModal').classList.add('hidden'); userName = ''; userId = ''; userPoints = 0; userGrade = ''; studentInfo = {}; await saveData(STUDENT_INFO_KEY, {}); studentNameInput.value = ''; studentIdInput.value = ''; document.getElementById('login-card').classList.remove('hidden'); userPointsCard.classList.add('hidden'); exchangeHistory.classList.add('hidden'); examContainer.classList.add('hidden'); document.getElementById('module-tabs').classList.add('hidden');document.getElementById('message-board-section').classList.add('hidden'); if (learningCustomSection) learningCustomSection.classList.add('hidden'); const statsDashboard = document.getElementById('stats-dashboard'); if (statsDashboard) statsDashboard.classList.add('hidden'); updateLogoutButtonState(); if (editPrizesBtn) editPrizesBtn.classList.add('hidden'); showGeneralModal('已退出', '您已成功退出登录', 'success'); }
     function closeLogoutSummaryModal() { const modal = document.getElementById('logoutSummaryModal'), content = document.getElementById('logoutSummaryContent'); content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); }, 300); }
     function startTimer() { if (timerInterval) clearInterval(timerInterval); updateTimerDisplay(); timerInterval = setInterval(() => { secondsElapsed++; updateTimerDisplay(); if(currentPaper && studentAnswers.length > 0) localStorage.setItem('draft_' + currentPaper.id, JSON.stringify({ answers: studentAnswers, time: secondsElapsed, fbImages: uploadedFbImages, draftImages: uploadedDraftImages }));; }, 1000); }
     function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
@@ -670,8 +670,17 @@
       const segments = withoutQuery.split('/').filter(Boolean);
       return segments.length ? segments[segments.length - 1] : withoutQuery;
     }
-    function isArchivedPaper(paper) {
-      return !!(paper && paper.isArchived);
+    function isArchivedPaper(paper, categories = []) {
+      if (!paper) return false;
+      if (paper.isArchived) return true;
+      if (categories && categories.length > 0) {
+        const catIds = getPaperCategoryIds(paper);
+        if (catIds.length > 0) {
+          const archivedCatIds = categories.filter(c => c.isArchived).map(c => c.id);
+          if (catIds.some(id => archivedCatIds.includes(id))) return true;
+        }
+      }
+      return false;
     }
     function filterActiveAnswerRecords(records, papers) {
       const activePaperIds = new Set((papers || []).map((paper) => paper.id));
@@ -1293,6 +1302,7 @@
           allAnswerRecords = allAnswers;
           showGeneralModal('改错提交成功', '您的改错草稿纸照片已成功提交保存！', 'success');
           closeCorrectionModal();
+          closeCategoryModal();
           await loadAndRenderPapers();
         } else {
           alert('未找到该套题的答题记录，无法提交改错。');
@@ -1690,7 +1700,7 @@
     }
     
     function getPaperTypeLabel(type) {
-      return type === 'homework' ? '📚 作业' : (type === 'correction' ? '📸 改错' : (type === 'custom' ? '🧩 自定义' : '📝 测试'));
+      return type === 'homework' ? '📚 作业' : (type === 'correction' ? '📸 改错' : (type === 'custom' ? '🧩 自定义' : ''));
     }
     
     function getPaperGradeLabel(grade) {
@@ -1698,7 +1708,8 @@
     }
 
     async function getVisiblePapers() {
-      const papers = (await getData(PAPER_STORAGE_KEY) || []).filter((paper) => !isArchivedPaper(paper));
+      const categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const papers = (await getData(PAPER_STORAGE_KEY) || []).filter((paper) => !isArchivedPaper(paper, categories));
       if (!userId) return papers;
       return papers.filter(p => !p.targetStudentIds || p.targetStudentIds.length === 0 || p.targetStudentIds.includes(userId));
     }
@@ -1859,7 +1870,11 @@
             const latestDisplayScore = getRecordTotalScore(latestRecord, paper);
             let correctionBtnHtml = '';
             if (latestDisplayScore < paper.totalPoints) {
-              correctionBtnHtml = `<button class="text-red-500 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-100 transition-all correction-btn" data-paper-id="${paper.id}"><i class="fa fa-pencil-square mr-1"></i>改错</button>`;
+              if (latestRecord.correctionImages && latestRecord.correctionImages.length > 0) {
+                correctionBtnHtml = `<span class="text-green-600 px-3 py-1.5 bg-green-50 text-xs font-bold rounded-lg whitespace-nowrap"><i class="fa fa-check mr-1"></i>已改错</span>`;
+              } else {
+                correctionBtnHtml = `<button class="text-red-500 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-100 transition-all correction-btn" data-paper-id="${paper.id}"><i class="fa fa-pencil-square mr-1"></i>改错</button>`;
+              }
             }
             if (canRedo) {
               statusHtml = `<span class="ml-2 text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full whitespace-nowrap">最高分 ${bestScore}/${paper.totalPoints} · 可重做</span>`;
@@ -2154,7 +2169,11 @@
           
           let correctionBtnHtml = '';
           if (latestDisplayScore < paper.totalPoints) {
-            correctionBtnHtml = `<button class="text-red-500 text-indigo-600 hover:text-indigo-800 text-sm correction-btn block mt-2" data-paper-id="${paper.id}"><i class="fa fa-pencil-square mr-1"></i> 改错</button>`;
+            if (latestRecord.correctionImages && latestRecord.correctionImages.length > 0) {
+              correctionBtnHtml = `<span class="text-green-600 text-sm font-semibold block mt-2 whitespace-nowrap"><i class="fa fa-check mr-1"></i>已改错</span>`;
+            } else {
+              correctionBtnHtml = `<button class="text-red-500 text-indigo-600 hover:text-indigo-800 text-sm correction-btn block mt-2" data-paper-id="${paper.id}"><i class="fa fa-pencil-square mr-1"></i> 改错</button>`;
+            }
           }
           buttonHtml = `
             <div class="flex flex-col items-end">
@@ -2172,10 +2191,13 @@
         paperItem.addEventListener('click', function (e) { if (!e.target.closest('.view-history-btn') && !e.target.closest('.correction-btn')) openAnswerCard(this.dataset.paperId); });
         if (hasAnswered) paperItem.querySelector('.view-history-btn').addEventListener('click', function () { showHistoryDetailModal(paper.id); });
         if (hasAnswered && getRecordTotalScore(latestRecord, paper) < paper.totalPoints) {
-          paperItem.querySelector('.correction-btn').addEventListener('click', function (e) {
-            e.stopPropagation();
-            openCorrectionModal(paper.id);
-          });
+          const corrBtn = paperItem.querySelector('.correction-btn');
+          if (corrBtn) {
+            corrBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              openCorrectionModal(paper.id);
+            });
+          }
         }
         container.appendChild(paperItem);
       });
@@ -2426,24 +2448,23 @@
         <div class="mb-4">
           <h4 class="text-lg font-medium flex items-center">
             ${badgeHtml}
-            <span>${questionNumber}. 这是第${questionNumber}题，考查相关知识点</span>
+            <span>第${questionNumber}题</span>
           </h4>
           ${pointsHtml}
         </div>
         <div class="space-y-2 mt-4">
-          ${Object.entries(currentPaper.options).map(([key, value]) => {
+          ${["A","B","C","D"].map(key => {
             const isSelected = isMultiple ? currentAns.includes(key) : currentAns === key;
             const containerClass = isSelected ? 'bg-primary/10 border-primary/30' : '';
             const indicatorShape = isMultiple ? 'rounded' : 'rounded-full';
             const indicatorBg = isSelected ? 'bg-primary border-primary text-white' : 'border-gray-300';
             const indicatorContent = isSelected ? '<i class="fa fa-check text-xs"></i>' : key;
             return `
-              <div class="option-item p-3 border rounded-lg cursor-pointer ${containerClass}" data-option="${key}">
+              <div class="option-item p-3 border rounded-lg cursor-pointer ${containerClass}" data-option="${key}" gotonext>
                 <div class="flex items-center">
                   <div class="w-6 h-6 ${indicatorShape} border ${indicatorBg} flex items-center justify-center mr-3 text-xs font-bold">
                     ${indicatorContent}
                   </div>
-                  <span class="text-sm font-medium text-gray-700">${value}</span>
                 </div>
               </div>
             `;
@@ -2469,7 +2490,8 @@
             studentAnswers[currentQuestionIndex] = opt; 
             renderCurrentQuestion(); 
             updateQuestionNavStyle(); 
-            updateNavButtons(); 
+            updateNavButtons();
+            goToNextQuestion()
           }
         }); 
       }); 
