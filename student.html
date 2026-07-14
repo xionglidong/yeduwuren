@@ -2330,7 +2330,7 @@
           mcContainer.classList.add('hidden'); navContainer.classList.add('hidden'); prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden');
           document.getElementById('progressBar').parentElement.classList.add('hidden'); document.getElementById('progressText').classList.add('hidden');
       } else {
-          modalPaperInfo.textContent = `选择题共${currentPaper.questionCount}题 · 每题${currentPaper.singlePoints}分 · 总分${currentPaper.totalPoints}分`;
+          modalPaperInfo.textContent = `选择题共${currentPaper.questionCount}题 · 总分${currentPaper.totalPoints}分`;
           mcContainer.classList.remove('hidden'); navContainer.classList.remove('hidden'); prevBtn.classList.remove('hidden'); nextBtn.classList.remove('hidden');
           document.getElementById('progressBar').parentElement.classList.remove('hidden'); document.getElementById('progressText').classList.remove('hidden');
           generateQuestionNav(); renderCurrentQuestion(); 
@@ -2452,18 +2452,17 @@
           </h4>
           ${pointsHtml}
         </div>
-        <div class="space-y-2 mt-4">
+        <div class="space-y-2 mt-4" style="display: flex;justify-content: space-between;gap: 50px;">
           ${["A","B","C","D"].map(key => {
             const isSelected = isMultiple ? currentAns.includes(key) : currentAns === key;
             const containerClass = isSelected ? 'bg-primary/10 border-primary/30' : '';
             const indicatorShape = isMultiple ? 'rounded' : 'rounded-full';
             const indicatorBg = isSelected ? 'bg-primary border-primary text-white' : 'border-gray-300';
-            const indicatorContent = isSelected ? '<i class="fa fa-check text-xs"></i>' : key;
             return `
-              <div class="option-item p-3 border rounded-lg cursor-pointer ${containerClass}" data-option="${key}" gotonext>
+              <div class="option-item p-3 border rounded-lg cursor-pointer ${containerClass}" data-option="${key}" gotonext style="flex:1;display: flex;align-items: center;justify-content: center;margin-top: 0">
                 <div class="flex items-center">
-                  <div class="w-6 h-6 ${indicatorShape} border ${indicatorBg} flex items-center justify-center mr-3 text-xs font-bold">
-                    ${indicatorContent}
+                  <div class="w-6 h-6 ${indicatorShape} border ${indicatorBg} flex items-center justify-center text-xs font-bold">
+                    ${key}
                   </div>
                 </div>
               </div>
