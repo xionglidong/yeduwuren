@@ -167,6 +167,7 @@
               </div>
             </div>
 
+
             <div class="score-panel" style="flex-shrink: 0;">
             <div class="score-hero">
               <div class="flex items-start justify-between">
@@ -210,6 +211,34 @@
           
 
 
+        </div>
+      </div>
+    </section>
+
+    <section id="timerRecordSection" class="mb-6">
+      <h2 class="section-title text-lg mb-4"><i class="fa fa-clock-o text-indigo-500 mr-2"></i>用时与中途记录</h2>
+      <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="bg-white rounded-xl border px-4 py-2 flex flex-col justify-center">
+            <span class="text-xs text-gray-400 font-bold mb-0.5">推荐时长</span>
+            <span id="reportRecommendedTime" class="font-extrabold text-gray-900 text-base">--</span>
+          </div>
+          <div class="bg-white rounded-xl border px-4 py-2 flex flex-col justify-center">
+            <span class="text-xs text-gray-400 font-bold mb-0.5">实际做题时间</span>
+            <span id="reportActualTime" class="font-extrabold text-gray-900 text-base">--</span>
+          </div>
+          <div class="bg-white rounded-xl border px-4 py-2 flex flex-col justify-center">
+            <span class="text-xs text-gray-400 font-bold mb-0.5">中途事项数量</span>
+            <span id="reportEventsCount" class="font-extrabold text-gray-900 text-base">--</span>
+          </div>
+        </div>
+        
+        <div id="reportEventsSection" class="bg-white border border-gray-150 rounded-xl p-4 hidden animate-fadeIn" style="margin-top: 15px; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0;">
+          <h5 class="font-bold text-gray-700 flex items-center mb-2" style="font-size: 13px;">
+            <i class="fa fa-list-ul text-indigo-500 mr-2"></i><span>中途事项记录</span>
+          </h5>
+          <ul id="reportEventsList" class="space-y-1 text-xs text-gray-650 pl-4" style="list-style-type: decimal; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+          </ul>
         </div>
       </div>
     </section>
@@ -383,6 +412,28 @@
 	      document.getElementById('attemptRank').textContent = payload.record?.attemptRank ? `第 ${payload.record.attemptRank} 名` : '--';
 	      document.getElementById('paperAverageScore').textContent = `${payload.paper?.averageScore ?? 0}分`;
 	      document.getElementById('bestScore').textContent = `${payload.record?.paperHighestScore ?? payload.record?.bestScore ?? 0}分`;
+	      
+        // 渲染推荐用时、实际用时和中途事项
+        const recTime = payload.record?.recommendedTime || 0;
+        document.getElementById('reportRecommendedTime').textContent = recTime ? `${recTime} 分钟` : '未设置';
+        
+        const actTime = payload.record?.actualTimeElapsed || 0;
+        const actMin = Math.floor(actTime / 60);
+        const actSec = actTime % 60;
+        const isBreach = actTime > 7200 || payload.record?.timeDisplay === '超过2小时(违约)' || payload.record?.actualTimeElapsed === '超过2小时(违约)';
+        document.getElementById('reportActualTime').textContent = isBreach ? '超过2小时(违约)' : `${actMin}分${actSec}秒`;
+        
+        const events = Array.isArray(payload.record?.interimEvents) ? payload.record.interimEvents : [];
+        document.getElementById('reportEventsCount').textContent = `${events.length} 个`;
+        
+        const eventsSection = document.getElementById('reportEventsSection');
+        const eventsList = document.getElementById('reportEventsList');
+        if (events.length > 0 && eventsSection && eventsList) {
+          eventsSection.classList.remove('hidden');
+          eventsList.innerHTML = events.map(e => `<li>${escapeHtmlText(e)}</li>`).join('');
+        } else if (eventsSection) {
+          eventsSection.classList.add('hidden');
+        }
 	      const normalizedTags = normalizeTags(payload.record?.tags || []);
 	      const tagPanel = document.getElementById('tagPanel');
 	      if (normalizedTags.length === 0) {

@@ -131,7 +131,7 @@
       </div>
     </section>
 
-    <section class="grid grid-cols-4 gap-4 mb-6">
+    <section class="grid grid-cols-5 gap-3 mb-6">
         <div class="p-4 bg-green-50 rounded-xl border border-green-100 text-center relative overflow-hidden group hover:shadow-md transition">
           <div class="text-xs text-green-600 font-bold mb-1 uppercase tracking-wider">阶段正确率</div>
           <div class="flex flex-col items-center justify-center">
@@ -163,6 +163,14 @@
              <span class="mt-1 text-xs text-red-400">需重点复习</span>
           </div>
           <i class="fa fa-times-circle absolute -bottom-4 -right-4 text-6xl text-red-100 opacity-50 group-hover:scale-110 transition"></i>
+        </div>
+        <div class="p-4 bg-violet-50 rounded-xl border border-violet-100 text-center relative overflow-hidden group hover:shadow-md transition">
+          <div class="text-xs text-violet-600 font-bold mb-1 uppercase tracking-wider">阶段学习时长</div>
+          <div class="flex flex-col items-center justify-center">
+             <span class="text-2xl font-black text-violet-700" id="rptLearningTime">--小时</span>
+             <span id="rptRankLearningTime" class="mt-1 text-xs px-2 py-0.5 bg-violet-200 text-violet-800 rounded-full font-bold">排名 --</span>
+          </div>
+          <i class="fa fa-clock-o absolute -bottom-4 -right-4 text-6xl text-violet-100 opacity-50 group-hover:scale-110 transition"></i>
         </div>
     </section>
 
@@ -403,6 +411,10 @@
         document.getElementById('rptAvg').innerText = myStats.avg.toFixed(1);
         document.getElementById('rptCount').innerText = myStats.count;
         document.getElementById('rptWrong').innerText = myStats.wrong;
+        
+        const myLearningTime = calculateLearningTimeMinutes(records);
+        const lTimeEl = document.getElementById('rptLearningTime');
+        if (lTimeEl) lTimeEl.innerText = Math.round(myLearningTime / 60 * 10) / 10 + '小时';
 
         // 计算排名并更新顶部徽章 (保留)
         const allStudentPhaseStats = [];
@@ -415,7 +427,8 @@
                 });
             }
             const stats = calculateStats(sRecs, g_papers);
-            allStudentPhaseStats.push({ id: sid, points: g_allPts[sid].points, acc: stats.acc, avg: stats.avg, count: stats.count });
+            const lTime = calculateLearningTimeMinutes(sRecs);
+            allStudentPhaseStats.push({ id: sid, points: g_allPts[sid].points, acc: stats.acc, avg: stats.avg, count: stats.count, learningTime: lTime });
         }
         
         const getRank = (field) => {
@@ -427,6 +440,7 @@
         renderRankBadge('rptRankAcc', getRank('acc'), true); 
         renderRankBadge('rptRankAvg', getRank('avg'), true); 
         renderRankBadge('rptRankCount', getRank('count'), true); 
+        renderRankBadge('rptRankLearningTime', getRank('learningTime'), true); 
 
         // 🚀 中部：按照Type将记录分发到三个列表
         const testRecs = records.filter(r => { const p = g_papers.find(x=>x.id===r.paperId); return p && (p.type === 'test' || !p.type); });
@@ -528,6 +542,18 @@
             avg: records.length > 0 ? totalScore / records.length : 0,
             wrong: wrong
         };
+    }
+    function calculateLearningTimeMinutes(records) {
+        let totalSeconds = 0;
+        records.forEach(record => {
+            const isBreached = record.actualTimeElapsed >= 7200 || record.timeElapsed >= 7200 || record.timeDisplay === '超过2小时(违约)' || record.actualTimeElapsed === '超过2小时(违约)' || record.isDefault === true;
+            if (isBreached) return;
+            const seconds = parseInt(record.actualTimeElapsed, 10) || record.timeElapsed || 0;
+            if (seconds > 0 && seconds < 7200) {
+                totalSeconds += seconds;
+            }
+        });
+        return Math.round(totalSeconds / 60);
     }
 
     function getRankTitle(points) {

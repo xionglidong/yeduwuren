@@ -1307,6 +1307,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
           correctionImages: Array.isArray(record.correctionImages) ? record.correctionImages : [],
           correctionTime: record.correctionTime || '',
           recommendedTime: record.recommendedTime || 0,
+          interimEvents: Array.isArray(record.interimEvents) ? record.interimEvents : [],
           totalPauseDuration: record.totalPauseDuration || 0,
           pauseCount: record.pauseCount || 0,
           pauseIntervals: Array.isArray(record.pauseIntervals) ? record.pauseIntervals : []

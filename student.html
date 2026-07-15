@@ -71,7 +71,7 @@
     <div class="text-center mb-10"><h2 class="text-3xl font-bold mb-4">学生答题入口</h2><p class="text-gray-600">请填写个人信息并查看积分相关信息</p></div>
     <div id="login-card" class="bg-white rounded-xl shadow-md p-6 mb-8"><div class="grid md:grid-cols-3 gap-4 items-end"><div><label class="block text-gray-700 mb-2">姓名</label><input type="text" id="student-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入姓名"></div><div><label class="block text-gray-700 mb-2">学号</label><input type="text" id="student-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入学号"></div><div><button id="login-btn" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition-all w-full">登录 <i class="fa fa-sign-in ml-1"></i></button></div></div></div>
     <div id="user-points-card" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden"><div class="flex items-center justify-between"><div><h3 class="text-xl font-bold flex items-center"><i class="fa fa-user-circle text-primary mr-2"></i><span id="user-name-display"></span><span class="text-sm text-gray-500 ml-2" id="user-id-display"></span></h3><p class="text-gray-600 mt-1">当前排名: <span id="user-rank"></span></p></div><div class="text-right"><p class="text-3xl font-bold text-accent" id="user-points">0分</p></div></div><div class="mt-4 pt-4 border-t"><p class="text-gray-600 mt-1 mb-1">当前称号: <span id="currentRankSpan" class="text-sm text-gray-500 mr-5" style="font-size: 18px;"></span> 距离: <span id="nextRankSpan" class="text-sm text-gray-500" style="font-size: 18px;"></span> </p><div class="flex items-center"><div class="w-full bg-gray-200 rounded-full h-2.5"><div id="points-progress" class="bg-accent h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div>
-    <div id="stats-dashboard" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 hidden fade-in"><div id="statPapersCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 hover:shadow-lg duration-200 cursor-pointer border border-blue-200 hover:border-blue-400 relative group"><div class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm"><i class="fa fa-hand-pointer-o mr-1"></i>点击查看</div><div><p class="text-sm text-gray-500 font-medium flex items-center">已做任务<i class="fa fa-angle-right ml-1 text-blue-500"></i></p><p class="text-3xl font-bold text-gray-800 mt-1" id="stat-papers">0</p></div><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-xl shadow-sm group-hover:bg-blue-200 transition-colors"><i class="fa fa-book"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">做题总数</p><p class="text-3xl font-bold text-indigo-600 mt-1" id="stat-total-questions">0</p><p class="text-xs text-indigo-500 mt-1 font-medium" id="stat-total-questions-rank">排名：暂无</p></div><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500 text-xl shadow-sm"><i class="fa fa-pencil"></i></div></div><div id="statWrongQuestionsCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 hover:shadow-lg duration-200 cursor-pointer border border-red-200 hover:border-red-400 relative group"><div class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm"><i class="fa fa-hand-pointer-o mr-1"></i>点击查看</div><div><p class="text-sm text-gray-500 font-medium flex items-center">累计错题<i class="fa fa-angle-right ml-1 text-red-500"></i></p><p class="text-3xl font-bold text-red-500 mt-1" id="stat-wrong-questions">0</p></div><div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500 text-xl shadow-sm group-hover:bg-red-200 transition-colors"><i class="fa fa-times-circle"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">正确率</p><p class="text-3xl font-bold text-green-600 mt-1" id="stat-accuracy">0%</p><p class="text-xs text-green-600 mt-1 font-medium" id="stat-accuracy-rank">排名：暂无</p></div><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-500 text-xl shadow-sm"><i class="fa fa-pie-chart"></i></div></div></div>
+    <div id="stats-dashboard" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8 hidden fade-in"><div id="statPapersCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 hover:shadow-lg duration-200 cursor-pointer border border-blue-200 hover:border-blue-400 relative group"><div class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm"><i class="fa fa-hand-pointer-o mr-1"></i>点击查看</div><div><p class="text-sm text-gray-500 font-medium flex items-center">已做任务<i class="fa fa-angle-right ml-1 text-blue-500"></i></p><p class="text-3xl font-bold text-gray-800 mt-1" id="stat-papers">0</p></div><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-xl shadow-sm group-hover:bg-blue-200 transition-colors"><i class="fa fa-book"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">做题总数</p><p class="text-3xl font-bold text-indigo-600 mt-1" id="stat-total-questions">0</p><p class="text-xs text-indigo-500 mt-1 font-medium" id="stat-total-questions-rank">排名：暂无</p></div><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500 text-xl shadow-sm"><i class="fa fa-pencil"></i></div></div><div id="statWrongQuestionsCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 hover:shadow-lg duration-200 cursor-pointer border border-red-200 hover:border-red-400 relative group"><div class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm"><i class="fa fa-hand-pointer-o mr-1"></i>点击查看</div><div><p class="text-sm text-gray-500 font-medium flex items-center">累计错题<i class="fa fa-angle-right ml-1 text-red-500"></i></p><p class="text-3xl font-bold text-red-500 mt-1" id="stat-wrong-questions">0</p></div><div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500 text-xl shadow-sm group-hover:bg-red-200 transition-colors"><i class="fa fa-times-circle"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">正确率</p><p class="text-3xl font-bold text-green-600 mt-1" id="stat-accuracy">0%</p><p class="text-xs text-green-600 mt-1 font-medium" id="stat-accuracy-rank">排名：暂无</p></div><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-500 text-xl shadow-sm"><i class="fa fa-pie-chart"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">学习时长</p><p class="text-2xl font-bold text-violet-600 mt-1" id="stat-learning-time">0分钟</p><p class="text-xs text-violet-500 mt-1 font-medium" id="stat-learning-time-rank">排名：暂无</p></div><div class="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center text-violet-500 text-xl shadow-sm"><i class="fa fa-clock-o"></i></div></div></div>
     
     <!-- Category Practice Section on Student End -->
     <div id="student-category-section" class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-150 hidden fade-in">
@@ -161,11 +161,82 @@
         </div>
       </div>
     </div>
-    <div id="answerCardModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div style="height: 800px;overflow: scroll;padding: 20px;" class="bg-white rounded-xl p-8 max-w-lg w-full mx-4 transform transition-all scale-95 opacity-0" id="modalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="modalPaperTitle"></h3><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="mb-6 space-y-3"><div class="flex justify-between items-center text-sm font-medium"><span class="flex items-center text-primary"><i class="fa fa-clock-o mr-2"></i> 耗时: <span id="timerDisplay">00:00</span></span><span id="progressText" class="text-gray-600">0 / 0 题</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div id="progressBar" class="bg-secondary h-2 rounded-full" style="width: 0%"></div></div></div><div class="mb-6 flex items-center"><span id="modalPaperInfo" class="bg-blue-100 text-blue-500 px-4 py-2 rounded-full text-sm font-medium"></span></div><div class="flex flex-wrap gap-2 mb-6" id="questionNav"></div><div class="answer-card p-6 mb-4 border border-gray-200" id="questionContent"><div class="text-center text-gray-500 py-6">请选择左侧题目开始作答</div></div><div class="flex justify-evenly"><button id="prevQuestionBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>上一题</button><button id="nextQuestionBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>下一题</button></div><div id="draftUploadSection" class="mt-4 mb-4 hidden bg-white rounded-xl border border-gray-200 p-6"></div><div id="fillBlankSection" class="mt-4 mb-4 hidden bg-white rounded-xl border border-gray-200 p-6"></div><button id="submitAllBtn" style="display: block;margin: 40px auto 0;" class="px-8 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>提交所有答案</button></div></div>
+    <div id="answerCardModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div style="height: 800px;overflow: scroll;padding: 20px;" class="bg-white rounded-xl p-8 max-w-lg w-full mx-4 transform transition-all scale-95 opacity-0 relative" id="modalContent">
+        <!-- Dropdown button to show overlay when overlay is hidden -->
+        <div id="timerOverlayDropdown" class="hidden absolute top-0 left-1/2 -translate-x-1/2 z-40">
+          <button id="showTimerOverlayBtn" type="button" class="bg-indigo-600 text-white px-4 py-1.5 rounded-b-xl shadow-lg hover:bg-indigo-700 transition-all font-bold text-xs">
+            <i class="fa fa-chevron-down mr-1"></i> 显示倒计时 & 事项
+          </button>
+        </div>
+
+        <!-- Timer Countdown Overlay -->
+        <div id="timerOverlay" class="absolute inset-0 bg-white z-50 flex flex-col items-center justify-start p-6 space-y-6 overflow-y-auto transition-transform duration-300 ease-out">
+          <!-- Close button in overlay for safety -->
+          <div class="w-full flex justify-between items-center border-b pb-3 mb-2 shrink-0">
+            <h3 class="text-base font-bold text-indigo-900 flex items-center"><i class="fa fa-hourglass-half mr-2"></i> 答题计时准备</h3>
+            <button id="closeTimerOverlayTotalBtn" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times text-lg"></i></button>
+          </div>
+
+          <!-- Analog Clock Face -->
+          <div class="relative w-40 h-40 rounded-full border-4 border-indigo-600 bg-white flex items-center justify-center shadow-lg shrink-0">
+            <div class="absolute w-3 h-3 bg-indigo-700 rounded-full z-20"></div>
+            <!-- Hand -->
+            <div id="timerClockHand" class="absolute w-1 bg-indigo-600 rounded-full origin-bottom z-10" style="height: 60px; bottom: 50%; transform: rotate(360deg);"></div>
+            <svg class="absolute w-full h-full" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#e0e7ff" stroke-width="1.5" stroke-dasharray="1 7.85"/>
+              <text x="50" y="75" text-anchor="middle" id="timerCountdownDigital" class="fill-indigo-600 font-bold text-[10px]">00:00</text>
+            </svg>
+          </div>
+
+          <!-- Info: Paper Title -->
+          <div class="text-center shrink-0">
+            <h4 class="font-bold text-gray-800 text-lg" id="timerOverlayPaperTitle">套题加载中...</h4>
+            <p class="text-xs text-gray-400 mt-1">答题限时2小时以内</p>
+          </div>
+
+          <!-- Form area: input recommended time -->
+          <div class="flex flex-col items-center space-y-3 shrink-0" id="timerSetupArea">
+            <div class="flex items-center space-x-3">
+              <span class="text-sm font-semibold text-gray-600">推荐用时:</span>
+              <input type="number" id="timerRecommendedInput" min="1" max="120" value="60" class="w-20 text-center px-3 py-1.5 border-2 border-indigo-150 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold text-indigo-700" />
+              <span class="text-sm font-semibold text-gray-600">分钟</span>
+            </div>
+            <button id="startTimerOverlayBtn" type="button" class="w-56 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-100 flex items-center justify-center space-x-2">
+              <i class="fa fa-play"></i> <span>开始做卷计时</span>
+            </button>
+          </div>
+
+          <!-- Active timer state message -->
+          <div id="timerActiveMsg" class="hidden text-center text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 animate-pulse shrink-0">
+            ⏱️ 答题计时进行中...
+          </div>
+
+          <!-- Event adding area -->
+          <div id="timerEventsArea" class="w-full max-w-sm bg-gray-50 border border-gray-150 rounded-2xl p-4 shrink-0 hidden">
+            <h5 class="text-xs font-bold text-gray-700 mb-2 flex items-center justify-between">
+              <span>中途事项记录</span>
+              <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-[9px] font-bold" id="timerEventsCount">0</span>
+            </h5>
+            <div class="flex gap-2 mb-3">
+              <input type="text" id="timerEventInput" placeholder="在此记录中途事项（如：喝水、去洗手间）" class="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+              <button id="addTimerEventBtn" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all">添加</button>
+            </div>
+            <ul id="timerEventsList" class="text-xs text-gray-600 max-h-24 overflow-y-auto pr-1" style="display: flex;align-items: center;">
+              <li class="text-gray-400 text-center py-2 text-[10px]">暂无记录</li>
+            </ul>
+          </div>
+
+          <!-- Slide-up button -->
+          <div class="pt-4 w-full shrink-0">
+            <button id="hideTimerOverlayBtn" type="button" class="hidden w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-750 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1 border">
+              <i class="fa fa-chevron-up"></i> 查看答题卡
+            </button>
+          </div>
+        </div><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="modalPaperTitle"></h3><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="mb-6 space-y-3"><div class="flex justify-between items-center text-sm font-medium"><span class="flex items-center text-primary"><i class="fa fa-clock-o mr-2"></i> 耗时: <span id="timerDisplay">00:00</span></span><span id="progressText" class="text-gray-600">0 / 0 题</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div id="progressBar" class="bg-secondary h-2 rounded-full" style="width: 0%"></div></div></div><div class="mb-6 flex items-center"><span id="modalPaperInfo" class="bg-blue-100 text-blue-500 px-4 py-2 rounded-full text-sm font-medium"></span></div><div class="flex flex-wrap gap-2 mb-6" id="questionNav"></div><div class="answer-card p-6 mb-4 border border-gray-200" id="questionContent"><div class="text-center text-gray-500 py-6">请选择左侧题目开始作答</div></div><div class="flex justify-evenly"><button id="prevQuestionBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>上一题</button><button id="nextQuestionBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>下一题</button></div><div id="draftUploadSection" class="mt-4 mb-4 hidden bg-white rounded-xl border border-gray-200 p-6"></div><div id="fillBlankSection" class="mt-4 mb-4 hidden bg-white rounded-xl border border-gray-200 p-6"></div><button id="submitAllBtn" style="display: block;margin: 40px auto 0;" class="px-8 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>提交所有答案</button></div></div>
     
     <div id="historyDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[60] backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 transform transition-all scale-95 opacity-0" id="historyDetailContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="historyModalTitle">历史作答详情</h3><button id="closeHistoryDetailModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="historySummary" class="bg-primary/5 p-4 rounded-lg mb-6"><p class="text-lg font-bold text-primary mb-1">得分: <span id="historyScoreDisplay">0/0分</span></p><p class="text-sm text-gray-600">耗时: <span id="historyTimeDisplay">00:00</span> | 提交时间: <span id="historySubmitTime"></span></p><button id="historyViewPdfBtn" class="mt-3 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-sm hidden"><i class="fa fa-file-pdf-o mr-1.5"></i>查看解析</button></div><div class="max-h-96 overflow-y-auto pr-2"><h4 class="font-bold text-gray-700 mb-3">题目对错详情与解析：</h4><div id="historyDetailsList" class="space-y-3"></div></div></div></div>
     <div id="statsListModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[55] backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="statsListContent"><div class="flex justify-between items-start mb-6"><div><h3 class="text-xl font-bold text-gray-800" id="statsListTitle">统计详情</h3><p class="text-sm text-gray-500 mt-1" id="statsListSummary"></p></div><button id="closeStatsListModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="statsListSearchWrap" class="mb-4 hidden"><label for="statsListSearchInput" class="block text-sm font-medium text-gray-600 mb-1">按套题名称搜索</label><input id="statsListSearchInput" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="输入套题名称关键词"></div><div class="border border-gray-200 rounded-xl overflow-hidden"><table class="min-w-full divide-y divide-gray-200"><thead id="statsListHead" class="bg-gray-50"></thead><tbody id="statsListBody" class="bg-white divide-y divide-gray-200"></tbody></table></div><div id="statsListPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div></div></div>
-    <div id="scoreDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 text-center transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="scoreDetailContent"><div class="text-green-500 text-4xl mb-4"><i class="fa fa-trophy"></i></div><h3 class="text-xl font-bold text-gray-800 mb-2" id="scoreModalTitle">作答提交成功！</h3><p class="text-3xl font-bold mb-2 text-primary" id="finalScoreDisplay">0分</p><p class="text-sm font-bold text-indigo-600 mb-4" id="scoreRankDisplay">得分排名：暂无</p><div id="scoreRankListWrap" class="mb-5 text-left"><div class="flex items-center justify-between mb-2"><h4 class="font-bold text-gray-700 flex items-center"><i class="fa fa-list-ol text-indigo-500 mr-2"></i>得分排名</h4></div><div class="border border-gray-200 rounded-xl overflow-hidden"><table class="min-w-full divide-y divide-gray-100"><thead class="bg-indigo-50"><tr><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">姓名</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">首次得分</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">重做得分</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">总分</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">首次得分排名</th></tr></thead><tbody id="scoreRankListBody" class="bg-white divide-y divide-gray-100"></tbody></table></div><div id="scoreRankListPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div><p class="text-gray-600 mb-6" id="scoreMessage"></p><div class="bg-gray-50 p-4 rounded-lg max-h-40 overflow-y-auto mb-6 text-left"><h4 class="font-bold mb-2">得分详情：</h4><div id="scoreDetailList" class="space-y-1 text-sm"></div></div><div class="flex items-center justify-center gap-3"><button id="viewPdfBtn" class="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors hidden"><i class="fa fa-file-pdf-o mr-2"></i>查看解析</button><button id="closeScoreDetailModalBtn" class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">确定</button></div></div></div>
+    <div id="scoreDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 text-center transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="scoreDetailContent"><div class="text-green-500 text-4xl mb-4"><i class="fa fa-trophy"></i></div><h3 class="text-xl font-bold text-gray-800 mb-2" id="scoreModalTitle">作答提交成功！</h3><p class="text-3xl font-bold mb-2 text-primary" id="finalScoreDisplay">0分</p><p class="text-sm font-bold text-indigo-600 mb-4" id="scoreRankDisplay">得分排名：暂无</p><p class="text-sm font-bold text-emerald-600 mb-4" id="scoreTimeRankDisplay">用时排名：暂无</p><div class="mb-5 text-left"><div class="flex border-b border-gray-200 mb-3"><button id="tabScoreRankBtn" type="button" class="py-2 px-4 border-b-2 border-indigo-600 text-sm font-bold text-indigo-600 focus:outline-none"><i class="fa fa-list-ol mr-1.5"></i>得分排名</button><button id="tabTimeRankBtn" type="button" class="py-2 px-4 border-b-2 border-transparent text-sm font-bold text-gray-500 hover:text-indigo-600 focus:outline-none"><i class="fa fa-clock-o mr-1.5"></i>用时排名</button></div><div id="scoreRankListWrap" class="block"><div class="border border-gray-200 rounded-xl overflow-hidden"><table class="min-w-full divide-y divide-gray-100"><thead class="bg-indigo-50"><tr><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">姓名</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">首次得分</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">重做得分</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">总分</th><th class="px-3 py-2 text-left text-xs font-bold text-indigo-500">首次得分排名</th></tr></thead><tbody id="scoreRankListBody" class="bg-white divide-y divide-gray-100"></tbody></table></div><div id="scoreRankListPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div><div id="timeRankListWrap" class="hidden"><div class="border border-gray-200 rounded-xl overflow-hidden"><table class="min-w-full divide-y divide-gray-100"><thead class="bg-emerald-50"><tr><th class="px-3 py-2 text-left text-xs font-bold text-emerald-500">姓名</th><th class="px-3 py-2 text-left text-xs font-bold text-emerald-500">首次用时</th><th class="px-3 py-2 text-left text-xs font-bold text-emerald-500">最快用时</th><th class="px-3 py-2 text-left text-xs font-bold text-emerald-500">用时排名</th></tr></thead><tbody id="timeRankListBody" class="bg-white divide-y divide-gray-100"></tbody></table></div><div id="timeRankListPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div></div><p class="text-gray-600 mb-6" id="scoreMessage"></p><div class="bg-gray-50 p-4 rounded-lg max-h-40 overflow-y-auto mb-6 text-left"><h4 class="font-bold mb-2">得分详情：</h4><div id="scoreDetailList" class="space-y-1 text-sm"></div></div><div class="flex items-center justify-center gap-3"><button id="viewPdfBtn" class="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors hidden"><i class="fa fa-file-pdf-o mr-2"></i>查看解析</button><button id="closeScoreDetailModalBtn" class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">确定</button></div></div></div>
     <div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"><div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modal-general-content"><div class="text-center"><div id="modal-icon" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa fa-check text-secondary text-2xl"></i></div><h3 id="modal-title" class="text-xl font-bold mb-2"></h3><p id="modal-message" class="text-gray-600 mb-6"></p><button id="modal-close" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90">确定</button></div></div></div>
     <div id="new-paper-modal" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-lg p-4 z-40 hidden animate-fadeIn"><div class="flex items-center"><i class="fa fa-bell text-accent text-xl mr-2"></i><p class="text-gray-700 mr-4">有新的套卷发布啦！</p><button id="refresh-papers-btn" class="text-primary font-medium">立即查看</button></div></div>
     <div id="videoPlayerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-[60] backdrop-blur-sm"><div class="bg-black rounded-xl p-2 max-w-4xl w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0 relative" id="videoPlayerContent"><button id="closeVideoPlayerBtn" class="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors z-50"><i class="fa fa-times text-2xl"></i></button><div class="aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden"><video id="explanationVideo" controls class="object-contain" style="width: 880px;height: 500px;"><source src="" type="video/mp4"></video></div><div class="mt-2 text-white px-2"><h4 id="videoTitle" class="text-lg font-medium"></h4></div></div></div>
@@ -263,9 +334,10 @@
     let forumPaperNameOptions = [];
     let currentForumModule = 'discussion';
     let currentPaper = null, currentQuestionIndex = 0, studentAnswers = [], studentInfo = {}, studentPointsData = {}, exchangeRecords = [], prizes = [], timerInterval = null, secondsElapsed = 0;
+    let interimEvents = [], isTimingActive = false;
     let uploadedFbImages = [], fbSelfScore = 0, fbIsConfirmed = false, allAnswerRecords = [], fbJudgments = null;
     let statsListModalState = { type: '', page: 1, items: [], keyword: '' };
-    let scoreRankListPage = 1, scoreRankListItems = [];
+    let scoreRankListPage = 1, scoreRankListItems = []; let timeRankListPage = 1, timeRankListItems = []; const TIME_RANK_LIST_PAGE_SIZE = 5;
     let wrongRateLeaderboardPage = 1, wrongRateLeaderboardItems = [];
     let growthQuestionChartInstance = null, growthAccuracyChartInstance = null, growthPeriod = 'week';
     let uploadedDraftImages = []; // 🚀 新增：草稿纸多图数组
@@ -339,6 +411,7 @@
         await loadAndRenderPapers();
         await loadExchangeRecords();
         updatePrizeButtons();
+        await checkDefaultedTimers();
       }
       loginBtn.addEventListener('click', handleLogin);
       document.getElementById('logout-btn').addEventListener('click', handleLogout);
@@ -353,6 +426,11 @@
       document.getElementById('modal-close').addEventListener('click', closeGeneralModal);
       refreshPapersBtn.addEventListener('click', async function () { newPaperModal.classList.add('hidden'); await loadAndRenderPapers(); });
       closeModalBtn.addEventListener('click', closeAnswerModal);
+      document.getElementById('startTimerOverlayBtn').addEventListener('click', startTimerOverlay);
+      document.getElementById('hideTimerOverlayBtn').addEventListener('click', hideTimerOverlay);
+      document.getElementById('showTimerOverlayBtn').addEventListener('click', showTimerOverlay);
+      document.getElementById('addTimerEventBtn').addEventListener('click', addTimerEvent);
+      document.getElementById('closeTimerOverlayTotalBtn').addEventListener('click', closeAnswerModal);
       prevQuestionBtn.addEventListener('click', goToPrevQuestion);
       nextQuestionBtn.addEventListener('click', goToNextQuestion);
       submitAllBtn.addEventListener('click', submitAllAnswers);
@@ -436,6 +514,7 @@
 
       await initPrizes();
       await loadRankingList();
+      initRankTabs();
       updateLogoutButtonState();
     }
    function switchTab(tabName) { 
@@ -455,12 +534,205 @@
     function closeLogoutSummaryModal() { const modal = document.getElementById('logoutSummaryModal'), content = document.getElementById('logoutSummaryContent'); content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); }, 300); }
     function startTimer() { if (timerInterval) clearInterval(timerInterval); updateTimerDisplay(); timerInterval = setInterval(() => { secondsElapsed++; updateTimerDisplay(); if(currentPaper && studentAnswers.length > 0) localStorage.setItem('draft_' + currentPaper.id, JSON.stringify({ answers: studentAnswers, time: secondsElapsed, fbImages: uploadedFbImages, draftImages: uploadedDraftImages }));; }, 1000); }
     function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
-    function updateTimerDisplay() { timerDisplay.textContent = `${String(Math.floor(secondsElapsed / 60)).padStart(2, '0')}:${String(secondsElapsed % 60).padStart(2, '0')}`; }
+    function updateTimerDisplay() {
+      timerDisplay.textContent = `${String(Math.floor(secondsElapsed / 60)).padStart(2, '0')}:${String(secondsElapsed % 60).padStart(2, '0')}`;
+      if (isTimingActive && currentPaper) {
+        const recommendedInput = document.getElementById('timerRecommendedInput');
+        const recommendedMinutes = parseInt(recommendedInput.value, 10) || 60;
+        const totalRecommendedSeconds = recommendedMinutes * 60;
+        
+        const elapsed = Math.min(secondsElapsed, totalRecommendedSeconds);
+        const angle = (elapsed / totalRecommendedSeconds) * 360;
+        const clockHand = document.getElementById('timerClockHand');
+        if (clockHand) {
+          clockHand.style.transform = `rotate(${angle}deg)`;
+        }
+        
+        const remainingSeconds = Math.max(0, totalRecommendedSeconds - secondsElapsed);
+        const remMin = Math.floor(remainingSeconds / 60);
+        const remSec = remainingSeconds % 60;
+        const countdownText = `${String(remMin).padStart(2, '0')}:${String(remSec).padStart(2, '0')}`;
+        const digitalText = document.getElementById('timerCountdownDigital');
+        if (digitalText) {
+          digitalText.textContent = countdownText;
+        }
+        
+        if (remainingSeconds === 0 && !window.g_recommendedTimeLimitAlerted) {
+          window.g_recommendedTimeLimitAlerted = true;
+          showGeneralModal('用时提示', '⏱️ 您的推荐答题时间已到，请抓紧时间作答并交卷！', 'warning');
+        }
+        
+        if (secondsElapsed > 7200) {
+          handleTimerDefault();
+        }
+      }
+    }
+
+    function updateTimerEventsUI() {
+      const list = document.getElementById('timerEventsList');
+      const count = document.getElementById('timerEventsCount');
+      if (count) count.textContent = interimEvents.length;
+      if (list) {
+        list.innerHTML = '';
+        if (interimEvents.length === 0) {
+          list.innerHTML = `<li class="text-gray-400 text-center py-2 text-[10px]">暂无记录</li>`;
+        } else {
+          interimEvents.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'flex items-center space-x-1.5 py-1 border-b border-gray-100/50 last:border-0';
+            li.innerHTML = `<i class="fa fa-angle-right text-indigo-400"></i><span class="break-all text-left w-full" style="margin-right:10px">${item}</span>`;
+            list.appendChild(li);
+          });
+        }
+      }
+    }
+
+    async function addTimerEvent() {
+      const input = document.getElementById('timerEventInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      interimEvents.push(text);
+      input.value = '';
+      updateTimerEventsUI();
+      
+      if (isTimingActive && currentPaper && userId) {
+        let timerRecords = await getData('timerRecords') || {};
+        if (timerRecords[userId] && timerRecords[userId][currentPaper.id]) {
+          timerRecords[userId][currentPaper.id]["中途事项"] = interimEvents;
+          await saveData('timerRecords', timerRecords);
+        }
+      }
+    }
+
+    async function startTimerOverlay() {
+      if (!currentPaper || !userId) return;
+      const input = document.getElementById('timerRecommendedInput');
+      const recommendedVal = parseInt(input.value, 10) || 60;
+      if (recommendedVal <= 0) return alert('请输入有效的推荐用时！');
+      
+      let timerRecords = await getData('timerRecords') || {};
+      if (!timerRecords[userId]) timerRecords[userId] = {};
+      
+      const startTimeStr = new Date().toLocaleString();
+      timerRecords[userId][currentPaper.id] = {
+        "开始时间": startTimeStr,
+        "结束时间": "",
+        "推荐时长": recommendedVal,
+        "中途事项": interimEvents
+      };
+      await saveData('timerRecords', timerRecords);
+      
+      input.disabled = true;
+      document.getElementById('startTimerOverlayBtn').classList.add('hidden');
+      document.getElementById('timerActiveMsg').classList.remove('hidden');
+      document.getElementById('hideTimerOverlayBtn').classList.remove('hidden');
+      document.getElementById('timerEventsArea').classList.remove('hidden');
+      
+      isTimingActive = true;
+      secondsElapsed = 0;
+      startTimer();
+    }
+
+    function hideTimerOverlay() {
+      const overlay = document.getElementById('timerOverlay');
+      const dropdown = document.getElementById('timerOverlayDropdown');
+      if (overlay) {
+        overlay.style.transform = 'translateY(-100%)';
+        setTimeout(() => {
+          if (overlay.style.transform === 'translateY(-100%)') {
+            overlay.classList.add('pointer-events-none', 'opacity-0');
+          }
+        }, 300);
+      }
+      if (dropdown) dropdown.classList.remove('hidden');
+    }
+
+    function showTimerOverlay() {
+      const overlay = document.getElementById('timerOverlay');
+      const dropdown = document.getElementById('timerOverlayDropdown');
+      if (overlay) {
+        overlay.classList.remove('pointer-events-none', 'opacity-0');
+        overlay.style.transform = 'translateY(0)';
+      }
+      if (dropdown) dropdown.classList.add('hidden');
+      
+      const eventsArea = document.getElementById('timerEventsArea');
+      if (eventsArea) {
+        if (isTimingActive) {
+          eventsArea.classList.remove('hidden');
+        } else {
+          eventsArea.classList.add('hidden');
+        }
+      }
+    }
+
+    async function handleTimerDefault() {
+      stopTimer();
+      closeAnswerModal();
+      
+      let timerRecords = await getData('timerRecords') || {};
+      if (timerRecords[userId] && timerRecords[userId][currentPaper.id]) {
+        const rec = timerRecords[userId][currentPaper.id];
+        rec["结束时间"] = new Date().toLocaleString();
+        rec["实际做题时间"] = "超过2小时(违约)";
+        rec["是否违约"] = true;
+      }
+      await saveData('timerRecords', timerRecords);
+      
+      studentPointsData = await getData(STUDENT_POINTS_KEY) || {};
+      if (studentPointsData[userId]) {
+        studentPointsData[userId].points = Math.max(0, (studentPointsData[userId].points || 0) - 50);
+        studentPointsData[userId].lastUpdate = new Date().toLocaleString() + ' (做题超时违约扣除50分)';
+        await saveData(STUDENT_POINTS_KEY, studentPointsData);
+      }
+      
+      showGeneralModal('做题超时', '⚠️ 您已做题超时（超过2小时），本次作答已被强制终止，已扣除 50 积分作为惩罚。', 'error');
+      updateUserPointsDisplay();
+    }
+
+    async function checkDefaultedTimers() {
+      if (!userId) return;
+      let timerRecords = await getData('timerRecords') || {};
+      const userRecs = timerRecords[userId];
+      if (!userRecs) return;
+      
+      let updated = false;
+      let pointsDeducted = 0;
+      
+      for (const paperId in userRecs) {
+        const rec = userRecs[paperId];
+        if (rec["结束时间"] === "") {
+          const startTime = new Date(rec["开始时间"]).getTime();
+          const elapsed = Math.floor((Date.now() - startTime) / 1000);
+          if (elapsed > 7200) {
+            rec["结束时间"] = new Date().toLocaleString();
+            rec["实际做题时间"] = "超过2小时(违约)";
+            rec["是否违约"] = true;
+            updated = true;
+            pointsDeducted += 50;
+          }
+        }
+      }
+      
+      if (updated) {
+        await saveData('timerRecords', timerRecords);
+        studentPointsData = await getData(STUDENT_POINTS_KEY) || {};
+        if (studentPointsData[userId]) {
+          studentPointsData[userId].points = Math.max(0, (studentPointsData[userId].points || 0) - pointsDeducted);
+          studentPointsData[userId].lastUpdate = new Date().toLocaleString() + ` (做题超时自动扣除${pointsDeducted}积分)`;
+          await saveData(STUDENT_POINTS_KEY, studentPointsData);
+          
+          showGeneralModal('超时扣分提示', `⚠️ 检测到您有 ${pointsDeducted/50} 个未完成套题已超过2小时，已被系统标记为违约并累计扣除 ${pointsDeducted} 积分。`, 'error');
+          updateUserPointsDisplay();
+        }
+      }
+    }
     async function initPrizes() { let currentPrizes = await getData(PRIZES_STORAGE_KEY); if (!currentPrizes || currentPrizes.length === 0) { prizes = [ { id: 'p1', name: '学习资料包', points: 500, description: '精选编程学习资料', icon: 'fa-book', iconColor: 'text-primary', bgColor: 'bg-blue-100' }, { id: 'p2', name: '咖啡券', points: 1000, description: '星巴克中杯咖啡', icon: 'fa-coffee', iconColor: 'text-secondary', bgColor: 'bg-green-100' }, { id: 'p3', name: '耳机', points: 3000, description: '无线蓝牙耳机', icon: 'fa-headphones', iconColor: 'text-purple-500', bgColor: 'bg-purple-100' } ]; await saveData(PRIZES_STORAGE_KEY, prizes); } else prizes = currentPrizes; renderPrizes(); }
     function renderPrizes() { prizesContainer.innerHTML = ''; prizes.forEach(prize => { const prizeCard = document.createElement('div'); prizeCard.className = 'border rounded-lg p-4 text-center hover:shadow-md transition-shadow prize-card'; prizeCard.dataset.points = prize.points; prizeCard.dataset.id = prize.id; prizeCard.innerHTML = `<div class="w-16 h-16 ${prize.bgColor} rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa ${prize.icon} ${prize.iconColor} text-2xl"></i></div><h4 class="font-medium mb-1">${prize.name}</h4><p class="text-sm text-gray-500 mb-2">${prize.description}</p><p class="text-accent font-bold">${prize.points}分</p><button class="mt-2 text-sm bg-gray-200 text-gray-500 px-3 py-1 rounded-full prize-btn" data-prize="${prize.name}">积分不足</button>`; prizesContainer.appendChild(prizeCard); }); document.querySelectorAll('.prize-btn').forEach(btn => btn.addEventListener('click', handlePrizeExchange)); if (userName) updatePrizeButtons(); }
     function togglePrizeEditForm() { prizeEditForm.classList.toggle('hidden'); }
     async function savePrizeData() { const prizeName = document.getElementById('prize-name').value.trim(), prizePoints = parseInt(document.getElementById('prize-points').value), prizeDesc = document.getElementById('prize-desc').value.trim(); if (!prizeName || !prizePoints || !prizeDesc) return showGeneralModal('输入错误', '请填写完整的奖品信息', 'warning'); prizes.push({ id: 'prize_' + Date.now(), name: prizeName, points: prizePoints, description: prizeDesc, icon: 'fa-gift', iconColor: 'text-primary', bgColor: 'bg-blue-100' }); await saveData(PRIZES_STORAGE_KEY, prizes); renderPrizes(); togglePrizeEditForm(); document.getElementById('prize-name').value = ''; document.getElementById('prize-points').value = ''; document.getElementById('prize-desc').value = ''; showGeneralModal('成功', '奖品添加成功', 'success'); }
-    async function handleLogin() { const name = studentNameInput.value.trim(), id = studentIdInput.value.trim(); if (!name || !id) return alert('请输入姓名和学号'); studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; if (!studentPointsData[id]) return alert('登录失败：该学号不存在。请联系老师添加账号。'); if (studentPointsData[id].name !== name) return alert('登录失败：姓名与学号不匹配，请检查输入。'); userName = studentPointsData[id].name; userId = id; userGrade = studentPointsData[id].grade || ''; studentInfo = { name: userName, id: userId, grade: userGrade }; await saveData(STUDENT_INFO_KEY, studentInfo); userPoints = studentPointsData[id].points; document.getElementById('user-name-display').textContent = userName; document.getElementById('user-id-display').textContent = `学号: ${userId} 年级：${userGrade || '未设置'}`; updateUserPointsDisplay(); await calculateUserRank(); document.getElementById('login-card').classList.add('hidden'); userPointsCard.classList.remove('hidden'); exchangeHistory.classList.remove('hidden'); examContainer.classList.remove('hidden'); document.getElementById('module-tabs').classList.remove('hidden'); document.getElementById('message-board-section').classList.remove('hidden'); if (learningCustomSection) learningCustomSection.classList.remove('hidden'); learningPanelPageState[studentCategoriesContainer.id] = 1; await loadMessages(); await loadAndRenderPapers(); await renderStudentStats(); await loadExchangeRecords(); updatePrizeButtons(); showGeneralModal('登录成功', `欢迎 ${userName}（学号：${userId}），当前积分：${userPoints}分`, 'success'); updateLogoutButtonState(); }
+    async function handleLogin() { const name = studentNameInput.value.trim(), id = studentIdInput.value.trim(); if (!name || !id) return alert('请输入姓名和学号'); studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; if (!studentPointsData[id]) return alert('登录失败：该学号不存在。请联系老师添加账号。'); if (studentPointsData[id].name !== name) return alert('登录失败：姓名与学号不匹配，请检查输入。'); userName = studentPointsData[id].name; userId = id; userGrade = studentPointsData[id].grade || ''; studentInfo = { name: userName, id: userId, grade: userGrade }; await saveData(STUDENT_INFO_KEY, studentInfo); userPoints = studentPointsData[id].points; document.getElementById('user-name-display').textContent = userName; document.getElementById('user-id-display').textContent = `学号: ${userId} 年级：${userGrade || '未设置'}`; updateUserPointsDisplay(); await calculateUserRank(); document.getElementById('login-card').classList.add('hidden'); userPointsCard.classList.remove('hidden'); exchangeHistory.classList.remove('hidden'); examContainer.classList.remove('hidden'); document.getElementById('module-tabs').classList.remove('hidden'); document.getElementById('message-board-section').classList.remove('hidden'); if (learningCustomSection) learningCustomSection.classList.remove('hidden'); learningPanelPageState[studentCategoriesContainer.id] = 1; await loadMessages(); await loadAndRenderPapers(); await renderStudentStats(); await loadExchangeRecords(); updatePrizeButtons(); showGeneralModal('登录成功', `欢迎 ${userName}（学号：${userId}），当前积分：${userPoints}分`, 'success'); updateLogoutButtonState(); await checkDefaultedTimers(); }
 
     function parseSubmitTime(submitTime) { if (!submitTime) return null; if (submitTime instanceof Date) return submitTime; const normalized = String(submitTime).replace(/-/g, '/'); const dt = new Date(normalized); if (Number.isNaN(dt.getTime())) return null; return dt; }
     function getPeriodStepDays(period) { if (period === 'week') return 7; return 30; }
@@ -948,6 +1220,139 @@
       scoreRankListPage = 1;
       scoreRankListItems = buildCurrentPaperBestScoreRankList();
       renderScoreRankList();
+      refreshTimeRankList();
+    }
+    function buildCurrentPaperBestTimeRankList() {
+      if (!currentPaper) return [];
+      const studentMap = new Map();
+      (allAnswerRecords || []).filter((record) => record.paperId === currentPaper.id).forEach((record) => {
+        const studentIdKey = record.studentId || '';
+        if (!studentIdKey) return;
+        const isBreached = record.actualTimeElapsed >= 7200 || record.timeDisplay === '超过2小时(违约)' || record.actualTimeElapsed === '超过2小时(违约)' || record.isDefault === true;
+        if (isBreached) return;
+        const time = parseInt(record.actualTimeElapsed, 10) || record.timeElapsed || 0;
+        if (time <= 0) return;
+        const studentNameText = record.studentName || (studentPointsData[studentIdKey] && studentPointsData[studentIdKey].name) || studentIdKey || '匿名';
+        const submitTimeValue = parseSubmitTimeValue(record.submitTime);
+        
+        if (!studentMap.has(studentIdKey)) {
+          studentMap.set(studentIdKey, { studentId: studentIdKey, studentName: studentNameText, records: [] });
+        }
+        studentMap.get(studentIdKey).records.push({ timeSpent: time, submitTime: submitTimeValue });
+        if (studentNameText && !studentMap.get(studentIdKey).studentName) {
+           studentMap.get(studentIdKey).studentName = studentNameText;
+        }
+      });
+      
+      const items = Array.from(studentMap.values()).map(item => {
+        item.records.sort((a, b) => a.submitTime - b.submitTime);
+        const firstTime = item.records[0].timeSpent;
+        const bestTime = Math.min(...item.records.map(r => r.timeSpent));
+        return {
+          studentId: item.studentId,
+          studentName: item.studentName,
+          firstTime: firstTime,
+          bestTime: bestTime
+        };
+      });
+      
+      items.sort((a, b) => {
+        if (a.bestTime !== b.bestTime) return a.bestTime - b.bestTime;
+        return String(a.studentName || '').localeCompare(String(b.studentName || ''), 'zh-Hans-CN');
+      });
+      
+      let previousTime = null;
+      let previousRank = 0;
+      items.forEach((item, index) => {
+        if (previousTime === null || item.bestTime !== previousTime) {
+          previousRank = index + 1;
+          previousTime = item.bestTime;
+        }
+        item.bestTimeRank = previousRank;
+      });
+      
+      return items;
+    }
+    function renderTimeRankList() {
+      const tbody = document.getElementById('timeRankListBody');
+      const pagination = document.getElementById('timeRankListPagination');
+      if (!tbody || !pagination) return;
+      
+      const totalPages = Math.max(1, Math.ceil(timeRankListItems.length / TIME_RANK_LIST_PAGE_SIZE));
+      timeRankListPage = Math.min(Math.max(1, timeRankListPage), totalPages);
+      const start = (timeRankListPage - 1) * TIME_RANK_LIST_PAGE_SIZE;
+      const pageItems = timeRankListItems.slice(start, start + TIME_RANK_LIST_PAGE_SIZE);
+      
+      const formatSecs = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}分${s}秒`;
+      };
+      
+      if (pageItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-3 py-6 text-center text-sm text-gray-400">暂无用时排名数据</td></tr>';
+      } else {
+        tbody.innerHTML = pageItems.map((item) => {
+          const isCurrentUser = item.studentId === userId;
+          return `<tr class="${isCurrentUser ? 'bg-emerald-50 font-bold' : 'hover:bg-gray-50'}">` +
+            `<td class="px-3 py-2 text-sm text-gray-700">${escapeHtmlText(item.studentName)}</td>` +
+            `<td class="px-3 py-2 text-sm text-gray-500">${formatSecs(item.firstTime)}</td>` +
+            `<td class="px-3 py-2 text-sm font-black text-emerald-600">${formatSecs(item.bestTime)}</td>` +
+            `<td class="px-3 py-2 text-sm font-bold text-green-600">第${item.bestTimeRank}名</td>` +
+            `</tr>`;
+        }).join('');
+      }
+      
+      if (totalPages <= 1) {
+        pagination.classList.add('hidden');
+        pagination.innerHTML = '';
+        return;
+      }
+      
+      const pageItemsUi = buildPaperPageItems(timeRankListPage, totalPages);
+      pagination.classList.remove('hidden');
+      pagination.innerHTML = `
+        <button data-role="prev" class="px-2.5 py-1 rounded border text-sm ${timeRankListPage === 1 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${timeRankListPage === 1 ? 'disabled' : ''}>上一页</button>
+        ${pageItemsUi.map((item) => item === 'ellipsis' ? '<span class="px-2 text-gray-400 select-none">...</span>' : `<button data-role="page" data-page="${item}" class="min-w-[32px] px-2.5 py-1 rounded border text-sm ${item === timeRankListPage ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">${item}</button>`).join('')}
+        <button data-role="next" class="px-2.5 py-1 rounded border text-sm ${timeRankListPage === totalPages ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" ${timeRankListPage === totalPages ? 'disabled' : ''}>下一页</button>
+      `;
+      
+      const prevBtn = pagination.querySelector('button[data-role="prev"]');
+      const nextBtn = pagination.querySelector('button[data-role="next"]');
+      if (prevBtn) prevBtn.addEventListener('click', () => { if (timeRankListPage > 1) { timeRankListPage -= 1; renderTimeRankList(); } });
+      if (nextBtn) nextBtn.addEventListener('click', () => { if (timeRankListPage < totalPages) { timeRankListPage += 1; renderTimeRankList(); } });
+      pagination.querySelectorAll('button[data-role="page"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          timeRankListPage = parseInt(btn.dataset.page, 10) || 1;
+          renderTimeRankList();
+        });
+      });
+    }
+    function refreshTimeRankList() {
+      timeRankListPage = 1;
+      timeRankListItems = buildCurrentPaperBestTimeRankList();
+      renderTimeRankList();
+    }
+    function initRankTabs() {
+      const tabScoreBtn = document.getElementById('tabScoreRankBtn');
+      const tabTimeBtn = document.getElementById('tabTimeRankBtn');
+      const scoreWrap = document.getElementById('scoreRankListWrap');
+      const timeWrap = document.getElementById('timeRankListWrap');
+      if (!tabScoreBtn || !tabTimeBtn) return;
+      
+      tabScoreBtn.addEventListener('click', () => {
+        tabScoreBtn.className = "py-2 px-4 border-b-2 border-indigo-600 text-sm font-bold text-indigo-600 focus:outline-none";
+        tabTimeBtn.className = "py-2 px-4 border-b-2 border-transparent text-sm font-bold text-gray-500 hover:text-indigo-600 focus:outline-none";
+        scoreWrap.classList.remove('hidden');
+        timeWrap.classList.add('hidden');
+      });
+      
+      tabTimeBtn.addEventListener('click', () => {
+        tabTimeBtn.className = "py-2 px-4 border-b-2 border-emerald-600 text-sm font-bold text-emerald-600 focus:outline-none";
+        tabScoreBtn.className = "py-2 px-4 border-b-2 border-transparent text-sm font-bold text-gray-500 hover:text-indigo-600 focus:outline-none";
+        timeWrap.classList.remove('hidden');
+        scoreWrap.classList.add('hidden');
+      });
     }
     async function renderStudentStats() {
       if (!userId) return;
@@ -964,12 +1369,17 @@
         statAccuracy.textContent = '0%';
         if (statTotalQuestionsRank) statTotalQuestionsRank.textContent = '排名：暂无';
         if (statAccuracyRank) statAccuracyRank.textContent = '排名：暂无';
+        const learningTimeEl = document.getElementById('stat-learning-time');
+        const learningTimeRankEl = document.getElementById('stat-learning-time-rank');
+        if (learningTimeEl) learningTimeEl.textContent = '0分钟';
+        if (learningTimeRankEl) learningTimeRankEl.textContent = '排名：暂无';
         renderWrongRateLeaderboard(allAnswerRecords, papers);
         return;
       }
       const userSummary = summarizeStudentStats(userRecords, papers);
       const questionCountMap = new Map();
       const accuracyMap = new Map();
+      const learningTimeMap = new Map();
       const studentRecordMap = new Map();
       allAnswerRecords.forEach((record) => {
         if (!studentRecordMap.has(record.studentId)) studentRecordMap.set(record.studentId, []);
@@ -979,15 +1389,23 @@
         const summary = summarizeStudentStats(records, papers);
         questionCountMap.set(studentIdKey, summary.totalQuestions);
         accuracyMap.set(studentIdKey, summary.accuracy);
+        const learningMins = calculateStudentLearningTimeMinutes(studentIdKey, records);
+        learningTimeMap.set(studentIdKey, learningMins);
       });
       const totalQuestionsRank = calculateMetricRank(questionCountMap, userId);
       const accuracyRank = calculateMetricRank(accuracyMap, userId);
+      const learningTimeRank = calculateMetricRank(learningTimeMap, userId);
       statPapers.textContent = userSummary.papersCount;
       statTotalQuestions.textContent = userSummary.totalQuestions;
       statWrongQuestions.textContent = userSummary.wrongQuestions;
       statAccuracy.textContent = `${userSummary.accuracy}%`;
       if (statTotalQuestionsRank) statTotalQuestionsRank.textContent = totalQuestionsRank ? `排名：第${totalQuestionsRank}名` : '排名：暂无';
       if (statAccuracyRank) statAccuracyRank.textContent = accuracyRank ? `排名：第${accuracyRank}名` : '排名：暂无';
+      const learningTimeEl = document.getElementById('stat-learning-time');
+      const learningTimeRankEl = document.getElementById('stat-learning-time-rank');
+      const userLearningMins = learningTimeMap.get(userId) || 0;
+      if (learningTimeEl) learningTimeEl.textContent = `${Math.round(userLearningMins / 60 * 10) / 10 }小时`;
+      if (learningTimeRankEl) learningTimeRankEl.textContent = learningTimeRank ? `排名：第${learningTimeRank}名` : '排名：暂无';
       renderWrongRateLeaderboard(allAnswerRecords, papers);
       statsDashboard.classList.remove('hidden');
     }
@@ -1008,6 +1426,39 @@
       if (!bestScores.has(targetStudentId)) return null;
       const higherCount = Array.from(bestScores.values()).filter((score) => score > targetScore).length;
       return higherCount + 1;
+    }
+    function calculatePaperTimeRank(paper, targetStudentId, targetTime) {
+      if (!paper) return null;
+      const bestTimes = new Map();
+      allAnswerRecords.filter((record) => record.paperId === paper.id).forEach((record) => {
+        const isBreached = record.actualTimeElapsed >= 7200 || record.timeDisplay === '超过2小时(违约)' || record.actualTimeElapsed === '超过2小时(违约)' || record.isDefault === true;
+        if (isBreached) return;
+        const time = parseInt(record.actualTimeElapsed, 10) || record.timeElapsed || 0;
+        if (time <= 0) return;
+        const prev = bestTimes.get(record.studentId);
+        if (prev === undefined || time < prev) bestTimes.set(record.studentId, time);
+      });
+      if (targetTime > 0 && targetTime < 7200) {
+        const prev = bestTimes.get(targetStudentId);
+        if (prev === undefined || targetTime < prev) bestTimes.set(targetStudentId, targetTime);
+      }
+      const targetStudentBestTime = bestTimes.get(targetStudentId);
+      if (targetStudentBestTime === undefined) return null;
+      const higherCount = Array.from(bestTimes.values()).filter((time) => time < targetStudentBestTime).length;
+      return higherCount + 1;
+    }
+    function calculateStudentLearningTimeMinutes(studentId, records) {
+      let totalSeconds = 0;
+      records.forEach(record => {
+        if (record.studentId !== studentId) return;
+        const isBreached = record.actualTimeElapsed >= 7200 || record.timeElapsed >= 7200 || record.timeDisplay === '超过2小时(违约)' || record.actualTimeElapsed === '超过2小时(违约)' || record.isDefault === true;
+        if (isBreached) return;
+        const seconds = parseInt(record.actualTimeElapsed, 10) || record.timeElapsed || 0;
+        if (seconds > 0 && seconds < 7200) {
+          totalSeconds += seconds;
+        }
+      });
+      return Math.round(totalSeconds / 60);
     }
     function closeStatsListModal() {
       statsListContent.classList.remove('scale-100', 'opacity-100');
@@ -2304,6 +2755,7 @@
       const papers = await getVisiblePapers() || []; currentPaper = papers.find(p => p.id === paperId); if (!currentPaper) return;
       const latestRecord = await getLatestAnswerRecord(paperId);
       if (latestRecord !== null && !currentPaper.allowRedo) return showGeneralModal('提示', '该套卷您已完成作答，请查看详情。', 'warning');
+      window.g_recommendedTimeLimitAlerted = false;
       
       const draftDataStr = localStorage.getItem('draft_' + paperId);
       if (draftDataStr) {
@@ -2318,11 +2770,56 @@
           uploadedFbImages = [];
           uploadedDraftImages = []; // 🚀 初始化草稿纸
       }
-      // 防止上一套题的填空自评分数泄漏到本套题
       fbSelfScore = 0;
       fbJudgments = null;
       fbIsConfirmed = false;
-      currentQuestionIndex = 0; startTimer();
+      currentQuestionIndex = 0;
+      document.getElementById('timerOverlayPaperTitle').textContent = currentPaper.name;
+      interimEvents = [];
+      document.getElementById('timerEventInput').value = '';
+      updateTimerEventsUI();
+      
+      const recommendedInput = document.getElementById('timerRecommendedInput');
+      recommendedInput.value = 60;
+      recommendedInput.disabled = false;
+      document.getElementById('startTimerOverlayBtn').classList.remove('hidden');
+      document.getElementById('timerActiveMsg').classList.add('hidden');
+      document.getElementById('hideTimerOverlayBtn').classList.add('hidden');
+      
+      let timerRecords = await getData('timerRecords') || {};
+      const userRecs = timerRecords[userId] || {};
+      const activeRec = userRecs[paperId];
+      
+      const eventsArea = document.getElementById('timerEventsArea');
+      
+      if (activeRec && activeRec["结束时间"] === "") {
+        interimEvents = activeRec["中途事项"] || [];
+        updateTimerEventsUI();
+        
+        const recMinutes = parseInt(activeRec["推荐时长"], 10) || 60;
+        recommendedInput.value = recMinutes;
+        recommendedInput.disabled = true;
+        document.getElementById('startTimerOverlayBtn').classList.add('hidden');
+        document.getElementById('timerActiveMsg').classList.remove('hidden');
+        document.getElementById('hideTimerOverlayBtn').classList.remove('hidden');
+        if (eventsArea) eventsArea.classList.remove('hidden');
+        
+        const startTime = new Date(activeRec["开始时间"]).getTime();
+        secondsElapsed = Math.floor((Date.now() - startTime) / 1000);
+        if (secondsElapsed < 0) secondsElapsed = 0;
+        
+        isTimingActive = true;
+        showTimerOverlay();
+        startTimer();
+      } else {
+        isTimingActive = false;
+        stopTimer();
+        secondsElapsed = 0;
+        document.getElementById('timerCountdownDigital').textContent = "00:00";
+        document.getElementById('timerClockHand').style.transform = 'rotate(360deg)';
+        if (eventsArea) eventsArea.classList.add('hidden');
+        showTimerOverlay();
+      }
       modalPaperTitle.textContent = currentPaper.name; 
       const mcContainer = document.getElementById('questionContent'), navContainer = document.getElementById('questionNav'), prevBtn = document.getElementById('prevQuestionBtn'), nextBtn = document.getElementById('nextQuestionBtn');
       if (currentPaper.questionCount === 0) {
@@ -2514,6 +3011,25 @@ submitAllBtn.disabled =
 
       submitAllBtn.disabled = true; submitAllBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 正在极速交卷中...';
       stopTimer();
+      isTimingActive = false;
+      let timerRecords = await getData('timerRecords') || {};
+      if (!timerRecords[userId]) timerRecords[userId] = {};
+      if (!timerRecords[userId][currentPaper.id]) {
+        const recommendedInput = document.getElementById('timerRecommendedInput');
+        const recommendedVal = parseInt(recommendedInput?.value, 10) || 60;
+        timerRecords[userId][currentPaper.id] = {
+          "开始时间": new Date().toLocaleString(),
+          "结束时间": "",
+          "推荐时长": recommendedVal,
+          "中途事项": interimEvents
+        };
+      }
+      const rec = timerRecords[userId][currentPaper.id];
+      rec["结束时间"] = new Date().toLocaleString();
+      const minutes = Math.floor(secondsElapsed / 60);
+      const secs = secondsElapsed % 60;
+      rec["实际做题时间"] = `${minutes}分${secs}秒`;
+      await saveData('timerRecords', timerRecords);
       let score = 0; const scoreDetails = [];
       if (currentPaper.questionCount > 0) { 
           studentAnswers.forEach((answer, index) => {
@@ -2538,7 +3054,8 @@ submitAllBtn.disabled =
       const isFirstSubmission = previousRecords.length === 0;
       const previousBestScore = previousRecords.reduce((best, item) => Math.max(best, getRecordTotalScore(item, currentPaper)), 0);
       // 🚀 核心升级：将多图数组传给服务器
-      const answerRecord = { paperId: currentPaper.id, studentId: userId, studentName: userName, answers: studentAnswers, score: score, totalPoints: currentPaper.totalPoints, timeElapsed: secondsElapsed, isFirstSubmission: isFirstSubmission, fillInBlankStudentImage: uploadedFbImages, fillInBlankScore: fbSelfScore || 0, fillInBlankDetails: fbJudgments, draftImages: uploadedDraftImages, submitTime: new Date().toLocaleString() };
+      const finalRecommendedMinutes = rec ? (parseInt(rec["推荐时长"], 10) || 60) : 60;
+      const answerRecord = { paperId: currentPaper.id, studentId: userId, studentName: userName, answers: studentAnswers, score: score, totalPoints: currentPaper.totalPoints, timeElapsed: secondsElapsed, isFirstSubmission: isFirstSubmission, fillInBlankStudentImage: uploadedFbImages, fillInBlankScore: fbSelfScore || 0, fillInBlankDetails: fbJudgments, draftImages: uploadedDraftImages, submitTime: new Date().toLocaleString(), recommendedTime: finalRecommendedMinutes, interimEvents: interimEvents, actualTimeElapsed: secondsElapsed };
       allAnswers.push(answerRecord); 
       try {
           await saveData(ANSWER_STORAGE_KEY, allAnswers, "submitAllAnswers");
@@ -2575,7 +3092,34 @@ submitAllBtn.disabled =
       if (!url) return;
       window.open(url, '_blank');
     }
-    function showScoreDetailModal(score, totalPoints, details, message, timeElapsed) { finalScoreDisplay.textContent = `${score}/${totalPoints}分`; const scoreRankInfo = getCurrentPaperScoreRankInfo(score); if (scoreRankDisplay) scoreRankDisplay.textContent = scoreRankInfo && scoreRankInfo.rank ? `本套题最高分：${scoreRankInfo.bestScore}分，排名：第${scoreRankInfo.rank}名` : '本套题最高分排名：暂无'; refreshScoreRankList(); scoreMessage.innerHTML = message; scoreDetailList.innerHTML = ''; const timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`; scoreDetailList.innerHTML = `<div class="p-2 rounded-lg bg-blue-100 text-blue-700 font-bold"><i class="fa fa-hourglass-half mr-2"></i> 答题耗时：${timeDisplay}</div>`; details.forEach(item => { const detailItem = document.createElement('div'); let classColor = 'bg-red-100 text-red-700'; if (item.status === 'correct') { classColor = 'bg-green-100 text-green-700'; } else if (item.status === 'partial') { classColor = 'bg-amber-100 text-amber-700'; } detailItem.className = `p-2 rounded-lg ${classColor}`; detailItem.innerHTML = `<strong>第${item.questionNumber}题：</strong> ${item.statusText}<span class="ml-2"> | </span> 你的答案: <span class="font-bold">${item.yourAnswer}</span><span class="ml-2"> | </span> 正确答案: <span class="font-bold">${item.correctAnswer}</span> <span class="ml-2 font-bold text-xs bg-white/50 px-1.5 py-0.5 rounded shadow-sm">+${item.scoreEarned}分</span>`; scoreDetailList.appendChild(detailItem); });
+    function showScoreDetailModal(score, totalPoints, details, message, timeElapsed) {
+      finalScoreDisplay.textContent = `${score}/${totalPoints}分`;
+      const scoreRankInfo = getCurrentPaperScoreRankInfo(score);
+      if (scoreRankDisplay) scoreRankDisplay.textContent = scoreRankInfo && scoreRankInfo.rank ? `本套题最高分：${scoreRankInfo.bestScore}分，排名：第${scoreRankInfo.rank}名` : '本套题最高分排名：暂无';
+      const timeRank = calculatePaperTimeRank(currentPaper, userId, timeElapsed);
+      const scoreTimeRankDisplay = document.getElementById('scoreTimeRankDisplay');
+      if (scoreTimeRankDisplay) {
+        scoreTimeRankDisplay.textContent = timeRank ? `本套题最快用时排名：第${timeRank}名` : '本套题最快用时排名：暂无';
+      }
+      const tabScoreBtn = document.getElementById('tabScoreRankBtn');
+      if (tabScoreBtn) tabScoreBtn.click();
+      refreshScoreRankList();
+      scoreMessage.innerHTML = message;
+      scoreDetailList.innerHTML = '';
+      const timeDisplay = `${String(Math.floor(timeElapsed / 60)).padStart(2, '0')}:${String(timeElapsed % 60).padStart(2, '0')}`;
+      scoreDetailList.innerHTML = `<div class="p-2 rounded-lg bg-blue-100 text-blue-700 font-bold"><i class="fa fa-hourglass-half mr-2"></i> 答题耗时：${timeDisplay}</div>`;
+      details.forEach(item => {
+        const detailItem = document.createElement('div');
+        let classColor = 'bg-red-100 text-red-700';
+        if (item.status === 'correct') {
+          classColor = 'bg-green-100 text-green-700';
+        } else if (item.status === 'partial') {
+          classColor = 'bg-amber-100 text-amber-700';
+        }
+        detailItem.className = `p-2 rounded-lg ${classColor}`;
+        detailItem.innerHTML = `<strong>第${item.questionNumber}题：</strong> ${item.statusText}<span class="ml-2"> | </span> 你的答案: <span class="font-bold">${item.yourAnswer}</span><span class="ml-2"> | </span> 正确答案: <span class="font-bold">${item.correctAnswer}</span> <span class="ml-2 font-bold text-xs bg-white/50 px-1.5 py-0.5 rounded shadow-sm">+${item.scoreEarned}分</span>`;
+        scoreDetailList.appendChild(detailItem);
+      });
       if (currentPaper && currentPaper.fillInBlankCount > 0 && uploadedFbImages && uploadedFbImages.length > 0) {
         let fbVideosHtml = ''; if (currentPaper.fillBlankVideos && currentPaper.fillBlankVideos.some(v => v)) { fbVideosHtml = '<div class="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100"><h5 class="text-sm font-bold text-indigo-800 mb-2">填空题视频讲解</h5><div class="space-y-2">'; currentPaper.fillBlankVideos.forEach((video, i) => { if (video) fbVideosHtml += `<div class="flex items-center space-x-2"><span class="text-xs font-medium text-gray-600 w-16">第 ${i + 1} 题:</span><button onclick="playExplanationVideo('./video/${video}', '第 ${i + 1} 道填空题讲解')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1 rounded-full hover:bg-indigo-50 transition-colors flex items-center shadow-sm"><i class="fa fa-play-circle mr-1.5 text-indigo-600"></i> 观看视频</button></div>`; }); fbVideosHtml += '</div></div>'; } 
         let stuImagesHtml = ''; if (Array.isArray(uploadedFbImages)) { stuImagesHtml = uploadedFbImages.map(url => `<img src="${url}" class="w-full h-auto max-h-[300px] rounded object-contain cursor-pointer hover:opacity-90 mb-2" onclick="showImagePreview(this.src)" />`).join(''); } else { stuImagesHtml = `<img src="${uploadedFbImages}" class="w-full h-auto max-h-[300px] rounded object-contain cursor-pointer hover:opacity-90" onclick="showImagePreview(this.src)" />`; }
