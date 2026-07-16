@@ -559,6 +559,10 @@
           <input type="text" id="studentGradeInput" readonly class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed">
         </div>
         <div>
+          <label class="block text-gray-700 mb-1">高考分数</label>
+          <input type="number" id="studentGaokaoScoreInput" placeholder="如 600" class="w-full px-4 py-2 border rounded-lg">
+        </div>
+        <div>
           <label class="block text-gray-700 mb-1">积分</label>
           <input type="number" id="studentPointsInput" min="0" value="0" class="w-full px-4 py-2 border rounded-lg">
         </div>
@@ -4282,7 +4286,7 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         alert(`✅ 答案及视频配置已保存，并已重新判分 ${regradeCount} 份答卷`); 
     } 
 
-const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilter = document.getElementById('studentGradeFilter'), studentModal = document.getElementById('studentModal'), studentModalContent = document.getElementById('studentModalContent'), studentNameInput = document.getElementById('studentNameInput'), studentIdInput = document.getElementById('studentIdInput'), studentGradeInput = document.getElementById('studentGradeInput'), studentPointsInput = document.getElementById('studentPointsInput'), cancelStudentModal = document.getElementById('cancelStudentModal'), saveStudentBtn = document.getElementById('saveStudentBtn'), studentCohortInput = document.getElementById('studentCohortInput');
+const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilter = document.getElementById('studentGradeFilter'), studentModal = document.getElementById('studentModal'), studentModalContent = document.getElementById('studentModalContent'), studentNameInput = document.getElementById('studentNameInput'), studentIdInput = document.getElementById('studentIdInput'), studentGradeInput = document.getElementById('studentGradeInput'), studentPointsInput = document.getElementById('studentPointsInput'), cancelStudentModal = document.getElementById('cancelStudentModal'), saveStudentBtn = document.getElementById('saveStudentBtn'), studentCohortInput = document.getElementById('studentCohortInput'), studentGaokaoScoreInput = document.getElementById('studentGaokaoScoreInput');
     let isEditingStudent = false, studentSortField = 'points', studentSortDirection = 'desc';
 
     function updateModalGrade() {
@@ -4327,7 +4331,7 @@ const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilt
         const row = document.createElement('tr');
         // 🚀 核心修复：将flex加在内部的div盒子上，而不是直接加在td上，彻底防止被浏览器挤压隐藏！
         row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${student.isArchived ? 'text-gray-400 line-through' : 'text-gray-900'}">${student.name}</÷td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.grade || ''}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">${student.points}分</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.lastUpdate || '未知'}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex flex-wrap items-center gap-2"><button class="text-blue-500 hover:text-blue-700 view-student-history-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-history mr-1"></i> 记录</button><button class="text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 transition-transform hover:scale-105 school-score-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-bar-chart mr-1"></i> 校内成绩</button>
-          <button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || ''}" data-cohort="${student.cohort || ''}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
+          <button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || ''}" data-cohort="${student.cohort || ''}" data-gaokao-score="${student.gaokaoScore || ''}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
         studentList.appendChild(row);
       });
       document.querySelectorAll('.edit-student-btn').forEach(btn => btn.addEventListener('click', openEditStudentModal));
@@ -4677,6 +4681,7 @@ const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilt
       const yearStart = parseInt(currentYearStr.split('-')[0]);
       studentCohortInput.value = yearStart + 3;
       updateModalGrade();
+      studentGaokaoScoreInput.value = '';
       studentPointsInput.value = 0;
       studentModal.classList.remove('hidden');
       setTimeout(() => {
@@ -4708,6 +4713,7 @@ const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilt
       }
       studentCohortInput.value = cohort;
       updateModalGrade();
+      studentGaokaoScoreInput.value = this.dataset.gaokaoScore || '';
       studentPointsInput.value = this.dataset.points;
       studentModal.classList.remove('hidden');
       setTimeout(() => {
@@ -4716,8 +4722,66 @@ const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilt
       }, 10);
     }
     function closeStudentModal() { studentModalContent.classList.remove('scale-100', 'opacity-100'); studentModalContent.classList.add('scale-95', 'opacity-0'); setTimeout(() => studentModal.classList.add('hidden'), 300); }
-    async function handleSaveStudent() { const name = studentNameInput.value.trim(), id = studentIdInput.value.trim(), cohort = parseInt(studentCohortInput.value), grade = studentGradeInput.value, points = parseInt(studentPointsInput.value); if (!name || !id) return alert('请填写姓名和学号'); if (isNaN(cohort) || cohort <= 0) return alert('请填写有效的学届'); if (isNaN(points) || points < 0) return alert('请输入有效的积分'); const studentPoints = await getData(STUDENT_POINTS_KEY) || {}; if (isEditingStudent) { if (studentPoints[id]) { studentPoints[id].name = name; studentPoints[id].cohort = cohort; studentPoints[id].grade = grade; studentPoints[id].points = points; studentPoints[id].lastUpdate = new Date().toLocaleString() + ' (Admin Edit)'; await saveData(STUDENT_POINTS_KEY, studentPoints); alert('更新成功'); loadStudentPointsList(); closeStudentModal(); } } else { if (studentPoints[id]) return alert('学号已存在'); studentPoints[id] = { name, id, cohort, grade, points, createTime: new Date().getTime(), lastUpdate: new Date().toLocaleString() + ' (Created)', isArchived: false }; await saveData(STUDENT_POINTS_KEY, studentPoints); alert('添加成功'); loadStudentPointsList(); closeStudentModal(); } }
-    async function exportStudentData() { const studentPoints = await getData(STUDENT_POINTS_KEY) || {}, studentsArray = Object.values(studentPoints); if (studentsArray.length === 0) return alert('无数据'); const data = studentsArray.map(s => ({ 姓名: s.name, 学号: s.id, 学届: s.cohort || '', 当前积分: s.points, 上次更新: s.lastUpdate, 年级: s.grade, 状态: s.isArchived ? '已归档' : '活跃' })); exportToExcel(data, '学生数据'); }
+    async function handleSaveStudent() {
+      const name = studentNameInput.value.trim(),
+            id = studentIdInput.value.trim(),
+            cohort = parseInt(studentCohortInput.value),
+            grade = studentGradeInput.value,
+            gaokaoScore = studentGaokaoScoreInput.value ? parseInt(studentGaokaoScoreInput.value) : '',
+            points = parseInt(studentPointsInput.value);
+      if (!name || !id) return alert('请填写姓名和学号');
+      if (isNaN(cohort) || cohort <= 0) return alert('请填写有效的学届');
+      if (studentGaokaoScoreInput.value && (isNaN(gaokaoScore) || gaokaoScore < 0)) return alert('请输入有效的高考分数');
+      if (isNaN(points) || points < 0) return alert('请输入有效的积分');
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+      if (isEditingStudent) {
+        if (studentPoints[id]) {
+          studentPoints[id].name = name;
+          studentPoints[id].cohort = cohort;
+          studentPoints[id].grade = grade;
+          studentPoints[id].gaokaoScore = gaokaoScore;
+          studentPoints[id].points = points;
+          studentPoints[id].lastUpdate = new Date().toLocaleString() + ' (Admin Edit)';
+          await saveData(STUDENT_POINTS_KEY, studentPoints);
+          alert('更新成功');
+          loadStudentPointsList();
+          closeStudentModal();
+        }
+      } else {
+        if (studentPoints[id]) return alert('学号已存在');
+        studentPoints[id] = {
+          name,
+          id,
+          cohort,
+          grade,
+          gaokaoScore,
+          points,
+          createTime: new Date().getTime(),
+          lastUpdate: new Date().toLocaleString() + ' (Created)',
+          isArchived: false
+        };
+        await saveData(STUDENT_POINTS_KEY, studentPoints);
+        alert('添加成功');
+        loadStudentPointsList();
+        closeStudentModal();
+      }
+    }
+    async function exportStudentData() {
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {},
+            studentsArray = Object.values(studentPoints);
+      if (studentsArray.length === 0) return alert('无数据');
+      const data = studentsArray.map(s => ({
+        姓名: s.name,
+        学号: s.id,
+        学届: s.cohort || '',
+        高考分数: s.gaokaoScore || '',
+        当前积分: s.points,
+        上次更新: s.lastUpdate,
+        年级: s.grade,
+        状态: s.isArchived ? '已归档' : '活跃'
+      }));
+      exportToExcel(data, '学生数据');
+    }
 
     async function initGlobalSchoolYear() {
       const yearSelect = document.getElementById('globalSchoolYearSelect');
