@@ -123,6 +123,19 @@
         <i class="fa fa-cogs text-purple-600 mr-3"></i> 答题系统管理后台
       </h1>
       <div class="flex items-center space-x-3">
+        <!-- 全局学年下拉框 -->
+        <div class="flex items-center bg-white px-3 py-1.5 border border-purple-200 rounded-lg shadow-sm">
+          <label for="globalSchoolYearSelect" class="text-sm font-medium text-gray-700 mr-2 flex items-center">
+            <i class="fa fa-calendar text-purple-600 mr-1"></i> 学年
+          </label>
+          <select id="globalSchoolYearSelect" class="text-sm font-bold text-purple-700 bg-transparent focus:outline-none cursor-pointer">
+            <option value="2025-2026">2025-2026</option>
+            <option value="2026-2027">2026-2027</option>
+            <option value="2027-2028">2027-2028</option>
+            <option value="2028-2029">2028-2029</option>
+            <option value="2029-2030">2029-2030</option>
+          </select>
+        </div>
         <button onclick="window.open('live_board.html', '_blank', 'width=1280,height=720')" class="px-5 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center border-2 border-purple-400 border-opacity-50"><i class="fa fa-television text-xl mr-2 animate-pulse"></i> 开启实况大屏</button>
         <a href="index.html" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center"><i class="fa fa-home mr-2"></i> 首页</a>
         <button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center"><i class="fa fa-sign-out mr-2"></i> 退出登录</button>
@@ -525,7 +538,37 @@
   </div>
 
   <div id="answerDetailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[60] backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="detailModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="detailPaperTitle">答题详情</h3><button id="closeDetailModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="answerDetailContent" class="max-h-96 overflow-y-auto pr-2"></div></div></div>
-  <div id="studentModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="studentModalContent"><h3 class="text-xl font-bold text-gray-800 mb-4" id="studentModalTitle">添加学生</h3><div class="space-y-4"><div><label class="block text-gray-700 mb-1">姓名</label><input type="text" id="studentNameInput" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-gray-700 mb-1">学号</label><input type="text" id="studentIdInput" class="w-full px-4 py-2 border rounded-lg"></div><div><label class="block text-gray-700 mb-1">年级</label><select id="studentGradeInput" class="w-full px-4 py-2 border rounded-lg"><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option></select></div><div><label class="block text-gray-700 mb-1">积分</label><input type="number" id="studentPointsInput" min="0" value="0" class="w-full px-4 py-2 border rounded-lg"></div></div><div class="flex justify-end space-x-3 mt-6"><button id="cancelStudentModal" class="px-4 py-2 bg-gray-200 rounded-lg">取消</button><button id="saveStudentBtn" class="px-4 py-2 bg-primary text-white rounded-lg">保存</button></div></div></div>
+  <div id="studentModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm">
+    <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="studentModalContent">
+      <h3 class="text-xl font-bold text-gray-800 mb-4" id="studentModalTitle">添加学生</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-gray-700 mb-1">姓名</label>
+          <input type="text" id="studentNameInput" class="w-full px-4 py-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">学号</label>
+          <input type="text" id="studentIdInput" class="w-full px-4 py-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">学届</label>
+          <input type="number" id="studentCohortInput" placeholder="如 2027" class="w-full px-4 py-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">年级 <span class="text-xs text-gray-400 font-normal">(由学届和当前学年自动生成)</span></label>
+          <input type="text" id="studentGradeInput" readonly class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed">
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">积分</label>
+          <input type="number" id="studentPointsInput" min="0" value="0" class="w-full px-4 py-2 border rounded-lg">
+        </div>
+      </div>
+      <div class="flex justify-end space-x-3 mt-6">
+        <button id="cancelStudentModal" class="px-4 py-2 bg-gray-200 rounded-lg">取消</button>
+        <button id="saveStudentBtn" class="px-4 py-2 bg-primary text-white rounded-lg">保存</button>
+      </div>
+    </div>
+  </div>
 
 <div id="imagePreviewModal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[60] backdrop-blur-sm cursor-zoom-out"><img id="fullScreenPreviewImage" src="" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl transform transition-transform scale-95 opacity-0"></div>
   <div id="studentHistoryModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50 backdrop-blur-sm"><div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 transform transition-all scale-95 opacity-0" id="studentHistoryModalContent"><div class="flex justify-between items-start mb-6"><h3 class="text-xl font-bold text-gray-800" id="studentHistoryModalTitle">记录</h3><button id="closeStudentHistoryModal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div class="max-h-[60vh] overflow-y-auto pr-2" id="studentHistoryList"></div></div></div>
@@ -678,7 +721,7 @@
   <div id="videoAnalyticsModal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[66] backdrop-blur-sm"><div id="videoAnalyticsModalContent" class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 transform transition-all scale-95 opacity-0"><div class="flex justify-between items-start gap-3 mb-4"><div><h3 id="videoAnalyticsModalTitle" class="text-lg font-bold text-gray-800">视频数据分析</h3><p id="videoAnalyticsModalSummary" class="text-sm text-gray-500 mt-1">正在整理观看记录...</p></div><button id="closeVideoAnalyticsModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa fa-times text-xl"></i></button></div><div id="videoAnalyticsModalList" class="space-y-2 max-h-[55vh] overflow-y-auto"></div><div id="videoAnalyticsModalPagination" class="mt-3 flex items-center justify-end gap-1 hidden"></div></div></div>
 
   <script>
-    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', ADMIN_SESSION_KEY = 'adminLoggedIn', PRIZES_STORAGE_KEY = 'exchangePrizes', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions', FORUM_RESOURCE_STORAGE_KEY = 'forumResourceMaterials', TEMP_ANSWER_REPORT_STORAGE_KEY = 'tempAnswerReportPayload', ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
+    const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', ADMIN_SESSION_KEY = 'adminLoggedIn', PRIZES_STORAGE_KEY = 'exchangePrizes', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions', FORUM_RESOURCE_STORAGE_KEY = 'forumResourceMaterials', TEMP_ANSWER_REPORT_STORAGE_KEY = 'tempAnswerReportPayload', CURRENT_SCHOOL_YEAR_KEY = 'currentSchoolYear', ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
     async function getData(key) { if (key === ADMIN_SESSION_KEY) return localStorage.getItem(key); try { const response = await fetch(`/api/data?key=${key}`); return await response.json(); } catch (e) { return null; } }
     async function saveData(key, value) { if (key === ADMIN_SESSION_KEY) { localStorage.setItem(key, value); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: value }) }); } catch (e) { alert("网络错误"); } }
     async function removeData(key) { if (key === ADMIN_SESSION_KEY) { localStorage.removeItem(key); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: null }) }); } catch (e) { console.error(e); } }
@@ -1022,6 +1065,7 @@
       tabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
       initPrizeManagement(); 
       initStudentManagement(); 
+      initGlobalSchoolYear(); 
       initRankingManagement();
       exportAllDataBtn.addEventListener('click', exportAllData); 
       selectImportFileBtn.addEventListener('click', () => importFileInput.click()); 
@@ -4238,10 +4282,32 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
         alert(`✅ 答案及视频配置已保存，并已重新判分 ${regradeCount} 份答卷`); 
     } 
 
-const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilter = document.getElementById('studentGradeFilter'), studentModal = document.getElementById('studentModal'), studentModalContent = document.getElementById('studentModalContent'), studentNameInput = document.getElementById('studentNameInput'), studentIdInput = document.getElementById('studentIdInput'), studentGradeInput = document.getElementById('studentGradeInput'), studentPointsInput = document.getElementById('studentPointsInput'), cancelStudentModal = document.getElementById('cancelStudentModal'), saveStudentBtn = document.getElementById('saveStudentBtn');
+const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilter = document.getElementById('studentGradeFilter'), studentModal = document.getElementById('studentModal'), studentModalContent = document.getElementById('studentModalContent'), studentNameInput = document.getElementById('studentNameInput'), studentIdInput = document.getElementById('studentIdInput'), studentGradeInput = document.getElementById('studentGradeInput'), studentPointsInput = document.getElementById('studentPointsInput'), cancelStudentModal = document.getElementById('cancelStudentModal'), saveStudentBtn = document.getElementById('saveStudentBtn'), studentCohortInput = document.getElementById('studentCohortInput');
     let isEditingStudent = false, studentSortField = 'points', studentSortDirection = 'desc';
 
-    function initStudentManagement() { loadStudentPointsList(); exportStudentsBtn.addEventListener('click', exportStudentData); addStudentBtn.addEventListener('click', openAddStudentModal); cancelStudentModal.addEventListener('click', closeStudentModal); saveStudentBtn.addEventListener('click', handleSaveStudent); studentModal.addEventListener('click', e => e.target === studentModal && closeStudentModal()); if (studentGradeFilter) studentGradeFilter.addEventListener('change', loadStudentPointsList); document.getElementById('sortByIdBtn').addEventListener('click', () => handleStudentSort('id')); document.getElementById('sortByPointsBtn').addEventListener('click', () => handleStudentSort('points')); if (closeSchoolScoreModal) closeSchoolScoreModal.addEventListener('click', closeSchoolScoreModalPanel); if (schoolScoreModal) schoolScoreModal.addEventListener('click', e => e.target === schoolScoreModal && closeSchoolScoreModalPanel()); if (saveSchoolScoreBtn) saveSchoolScoreBtn.addEventListener('click', handleSaveSchoolScore); if (cancelSchoolScoreEditBtn) cancelSchoolScoreEditBtn.addEventListener('click', resetSchoolScoreForm); if (schoolScoreImagesInput) schoolScoreImagesInput.addEventListener('change', handleSchoolScoreImagesUpload); }
+    function updateModalGrade() {
+      const cohortVal = parseInt(studentCohortInput.value);
+      const yearSelect = document.getElementById('globalSchoolYearSelect');
+      if (!yearSelect) return;
+      const currentYearStr = yearSelect.value;
+      const yearStart = parseInt(currentYearStr.split('-')[0]);
+      if (!isNaN(cohortVal) && !isNaN(yearStart)) {
+        const diff = cohortVal - yearStart;
+        if (diff === 3) {
+          studentGradeInput.value = '高一';
+        } else if (diff === 2) {
+          studentGradeInput.value = '高二';
+        } else if (diff === 1) {
+          studentGradeInput.value = '高三';
+        } else {
+          studentGradeInput.value = '';
+        }
+      } else {
+        studentGradeInput.value = '';
+      }
+    }
+
+    function initStudentManagement() { loadStudentPointsList(); exportStudentsBtn.addEventListener('click', exportStudentData); addStudentBtn.addEventListener('click', openAddStudentModal); cancelStudentModal.addEventListener('click', closeStudentModal); saveStudentBtn.addEventListener('click', handleSaveStudent); studentModal.addEventListener('click', e => e.target === studentModal && closeStudentModal()); if (studentGradeFilter) studentGradeFilter.addEventListener('change', loadStudentPointsList); document.getElementById('sortByIdBtn').addEventListener('click', () => handleStudentSort('id')); document.getElementById('sortByPointsBtn').addEventListener('click', () => handleStudentSort('points')); if (studentCohortInput) { studentCohortInput.addEventListener('input', updateModalGrade); } if (closeSchoolScoreModal) closeSchoolScoreModal.addEventListener('click', closeSchoolScoreModalPanel); if (schoolScoreModal) schoolScoreModal.addEventListener('click', e => e.target === schoolScoreModal && closeSchoolScoreModalPanel()); if (saveSchoolScoreBtn) saveSchoolScoreBtn.addEventListener('click', handleSaveSchoolScore); if (cancelSchoolScoreEditBtn) cancelSchoolScoreEditBtn.addEventListener('click', resetSchoolScoreForm); if (schoolScoreImagesInput) schoolScoreImagesInput.addEventListener('change', handleSchoolScoreImagesUpload); }
     function handleStudentSort(field) { if (studentSortField === field) studentSortDirection = studentSortDirection === 'asc' ? 'desc' : 'asc'; else { studentSortField = field; studentSortDirection = 'desc'; } loadStudentPointsList(); }
     
    async function loadStudentPointsList() {
@@ -4260,8 +4326,8 @@ const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilt
      studentsArray.forEach(student => {
         const row = document.createElement('tr');
         // 🚀 核心修复：将flex加在内部的div盒子上，而不是直接加在td上，彻底防止被浏览器挤压隐藏！
-        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${student.isArchived ? 'text-gray-400 line-through' : 'text-gray-900'}">${student.name}</÷td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.grade || '未设置'}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">${student.points}分</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.lastUpdate || '未知'}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex flex-wrap items-center gap-2"><button class="text-blue-500 hover:text-blue-700 view-student-history-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-history mr-1"></i> 记录</button><button class="text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 transition-transform hover:scale-105 school-score-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-bar-chart mr-1"></i> 校内成绩</button>
-          <button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || '高一'}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
+        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${student.isArchived ? 'text-gray-400 line-through' : 'text-gray-900'}">${student.name}</÷td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.grade || ''}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">${student.points}分</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.lastUpdate || '未知'}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex flex-wrap items-center gap-2"><button class="text-blue-500 hover:text-blue-700 view-student-history-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-history mr-1"></i> 记录</button><button class="text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 transition-transform hover:scale-105 school-score-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-bar-chart mr-1"></i> 校内成绩</button>
+          <button class="text-purple-600 hover:text-purple-800 font-bold bg-purple-50 px-2 py-1 rounded shadow-sm border border-purple-100 transition-transform hover:scale-105" onclick="window.open('report.html?id=${student.id}', '_blank')"><i class="fa fa-pie-chart mr-1"></i> 报告</button><button class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-2 py-1 rounded shadow-sm border border-red-100 transition-transform hover:scale-105 generate-wrong-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-list-alt mr-1"></i> 错题清单</button></div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 edit-student-btn" data-id="${student.id}" data-name="${student.name}" data-points="${student.points}" data-grade="${student.grade || ''}" data-cohort="${student.cohort || ''}"><i class="fa fa-edit mr-1"></i> 编辑</button><button class="text-yellow-600 hover:text-yellow-900 ml-3 archive-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa ${student.isArchived ? 'fa-undo' : 'fa-archive'} mr-1"></i> 状态</button><button class="text-red-600 hover:text-red-900 ml-3 delete-student-btn" data-id="${student.id}" data-name="${student.name}"><i class="fa fa-trash mr-1"></i> 删除</button></td>`;
         studentList.appendChild(row);
       });
       document.querySelectorAll('.edit-student-btn').forEach(btn => btn.addEventListener('click', openEditStudentModal));
@@ -4599,11 +4665,113 @@ const addStudentBtn = document.getElementById('addStudentBtn'), studentGradeFilt
         });
     }
     
-    function openAddStudentModal() { isEditingStudent = false; document.getElementById('studentModalTitle').textContent = '添加学生'; studentNameInput.value = ''; studentIdInput.value = ''; studentIdInput.disabled = false; studentIdInput.classList.remove('bg-gray-100', 'cursor-not-allowed'); studentGradeInput.value = '高一'; studentPointsInput.value = 0; studentModal.classList.remove('hidden'); setTimeout(() => { studentModalContent.classList.remove('scale-95', 'opacity-0'); studentModalContent.classList.add('scale-100', 'opacity-100'); studentNameInput.focus(); }, 10); }
-    function openEditStudentModal() { isEditingStudent = true; document.getElementById('studentModalTitle').textContent = '编辑学生'; studentNameInput.value = this.dataset.name; studentIdInput.value = this.dataset.id; studentIdInput.disabled = true; studentIdInput.classList.add('bg-gray-100', 'cursor-not-allowed'); studentGradeInput.value = this.dataset.grade; studentPointsInput.value = this.dataset.points; studentModal.classList.remove('hidden'); setTimeout(() => { studentModalContent.classList.remove('scale-95', 'opacity-0'); studentModalContent.classList.add('scale-100', 'opacity-100'); }, 10); }
+    function openAddStudentModal() {
+      isEditingStudent = false;
+      document.getElementById('studentModalTitle').textContent = '添加学生';
+      studentNameInput.value = '';
+      studentIdInput.value = '';
+      studentIdInput.disabled = false;
+      studentIdInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+      const yearSelect = document.getElementById('globalSchoolYearSelect');
+      const currentYearStr = yearSelect ? yearSelect.value : '2025-2026';
+      const yearStart = parseInt(currentYearStr.split('-')[0]);
+      studentCohortInput.value = yearStart + 3;
+      updateModalGrade();
+      studentPointsInput.value = 0;
+      studentModal.classList.remove('hidden');
+      setTimeout(() => {
+        studentModalContent.classList.remove('scale-95', 'opacity-0');
+        studentModalContent.classList.add('scale-100', 'opacity-100');
+        studentNameInput.focus();
+      }, 10);
+    }
+    function openEditStudentModal() {
+      isEditingStudent = true;
+      document.getElementById('studentModalTitle').textContent = '编辑学生';
+      studentNameInput.value = this.dataset.name;
+      studentIdInput.value = this.dataset.id;
+      studentIdInput.disabled = true;
+      studentIdInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+      let cohort = this.dataset.cohort;
+      if (!cohort) {
+        const baseYear = 2025; // 存量数据按 2025-2026 学年来计算
+        const gradeVal = this.dataset.grade;
+        if (gradeVal === '高一') {
+          cohort = baseYear + 3;
+        } else if (gradeVal === '高二') {
+          cohort = baseYear + 2;
+        } else if (gradeVal === '高三') {
+          cohort = baseYear + 1;
+        } else {
+          cohort = baseYear + 3;
+        }
+      }
+      studentCohortInput.value = cohort;
+      updateModalGrade();
+      studentPointsInput.value = this.dataset.points;
+      studentModal.classList.remove('hidden');
+      setTimeout(() => {
+        studentModalContent.classList.remove('scale-95', 'opacity-0');
+        studentModalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
     function closeStudentModal() { studentModalContent.classList.remove('scale-100', 'opacity-100'); studentModalContent.classList.add('scale-95', 'opacity-0'); setTimeout(() => studentModal.classList.add('hidden'), 300); }
-    async function handleSaveStudent() { const name = studentNameInput.value.trim(), id = studentIdInput.value.trim(), grade = studentGradeInput.value, points = parseInt(studentPointsInput.value); if (!name || !id) return alert('请填写姓名和学号'); if (isNaN(points) || points < 0) return alert('请输入有效的积分'); const studentPoints = await getData(STUDENT_POINTS_KEY) || {}; if (isEditingStudent) { if (studentPoints[id]) { studentPoints[id].name = name; studentPoints[id].grade = grade; studentPoints[id].points = points; studentPoints[id].lastUpdate = new Date().toLocaleString() + ' (Admin Edit)'; await saveData(STUDENT_POINTS_KEY, studentPoints); alert('更新成功'); loadStudentPointsList(); closeStudentModal(); } } else { if (studentPoints[id]) return alert('学号已存在'); studentPoints[id] = { name, id, grade, points, createTime: new Date().getTime(), lastUpdate: new Date().toLocaleString() + ' (Created)', isArchived: false }; await saveData(STUDENT_POINTS_KEY, studentPoints); alert('添加成功'); loadStudentPointsList(); closeStudentModal(); } }
-    async function exportStudentData() { const studentPoints = await getData(STUDENT_POINTS_KEY) || {}, studentsArray = Object.values(studentPoints); if (studentsArray.length === 0) return alert('无数据'); const data = studentsArray.map(s => ({ 姓名: s.name, 学号: s.id, 当前积分: s.points, 上次更新: s.lastUpdate, 年级: s.grade, 状态: s.isArchived ? '已归档' : '活跃' })); exportToExcel(data, '学生数据'); }
+    async function handleSaveStudent() { const name = studentNameInput.value.trim(), id = studentIdInput.value.trim(), cohort = parseInt(studentCohortInput.value), grade = studentGradeInput.value, points = parseInt(studentPointsInput.value); if (!name || !id) return alert('请填写姓名和学号'); if (isNaN(cohort) || cohort <= 0) return alert('请填写有效的学届'); if (isNaN(points) || points < 0) return alert('请输入有效的积分'); const studentPoints = await getData(STUDENT_POINTS_KEY) || {}; if (isEditingStudent) { if (studentPoints[id]) { studentPoints[id].name = name; studentPoints[id].cohort = cohort; studentPoints[id].grade = grade; studentPoints[id].points = points; studentPoints[id].lastUpdate = new Date().toLocaleString() + ' (Admin Edit)'; await saveData(STUDENT_POINTS_KEY, studentPoints); alert('更新成功'); loadStudentPointsList(); closeStudentModal(); } } else { if (studentPoints[id]) return alert('学号已存在'); studentPoints[id] = { name, id, cohort, grade, points, createTime: new Date().getTime(), lastUpdate: new Date().toLocaleString() + ' (Created)', isArchived: false }; await saveData(STUDENT_POINTS_KEY, studentPoints); alert('添加成功'); loadStudentPointsList(); closeStudentModal(); } }
+    async function exportStudentData() { const studentPoints = await getData(STUDENT_POINTS_KEY) || {}, studentsArray = Object.values(studentPoints); if (studentsArray.length === 0) return alert('无数据'); const data = studentsArray.map(s => ({ 姓名: s.name, 学号: s.id, 学届: s.cohort || '', 当前积分: s.points, 上次更新: s.lastUpdate, 年级: s.grade, 状态: s.isArchived ? '已归档' : '活跃' })); exportToExcel(data, '学生数据'); }
+
+    async function initGlobalSchoolYear() {
+      const yearSelect = document.getElementById('globalSchoolYearSelect');
+      if (!yearSelect) return;
+      const currentYear = await getData(CURRENT_SCHOOL_YEAR_KEY) || '2025-2026';
+      yearSelect.value = currentYear;
+      await updateAllStudentsGradesForYear(currentYear);
+      yearSelect.addEventListener('change', async function() {
+        const newYear = this.value;
+        await saveData(CURRENT_SCHOOL_YEAR_KEY, newYear);
+        await updateAllStudentsGradesForYear(newYear);
+        if (typeof loadStudentPointsList === 'function') {
+          loadStudentPointsList();
+        }
+        if (typeof loadRankingData === 'function') {
+          loadRankingData();
+        }
+      });
+    }
+
+    async function updateAllStudentsGradesForYear(newYear) {
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+      const yearStart = parseInt(newYear.split('-')[0]);
+      let changed = false;
+      for (const id in studentPoints) {
+        const student = studentPoints[id];
+        if (student.cohort === undefined || student.cohort === null) {
+          const baseYear = 2025; // 存量数据按 2025-2026 学年来计算
+          if (student.grade === '高一') {
+            student.cohort = baseYear + 3;
+          } else if (student.grade === '高二') {
+            student.cohort = baseYear + 2;
+          } else if (student.grade === '高三') {
+            student.cohort = baseYear + 1;
+          } else {
+            student.cohort = baseYear + 3;
+          }
+          changed = true;
+        }
+        const diff = student.cohort - yearStart;
+        let newGrade = '';
+        if (diff === 3) newGrade = '高一';
+        else if (diff === 2) newGrade = '高二';
+        else if (diff === 1) newGrade = '高三';
+        if (student.grade !== newGrade) {
+          student.grade = newGrade;
+          student.lastUpdate = new Date().toLocaleString();
+          changed = true;
+        }
+      }
+      if (changed) {
+        await saveData(STUDENT_POINTS_KEY, studentPoints);
+      }
+    }
 
     function initRankingManagement() { loadRankingData(); loadExchangeHistoryData(); exportRankingBtn.addEventListener('click', exportRankingData); exportExchangeBtn.addEventListener('click', exportExchangeData); }
     async function loadRankingData() { const studentPoints = await getData(STUDENT_POINTS_KEY) || {}; let studentsArray = Object.values(studentPoints).filter(s => !s.isArchived); studentsArray.sort((a, b) => b.points - a.points); rankingTableBody.innerHTML = ''; if (studentsArray.length === 0) return rankingTableBody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">暂无排行</td></tr>`; studentsArray.forEach((student, index) => { const row = document.createElement('tr'); row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${index + 1}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.name} (${student.id})</td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-accent">${student.points}分</td>`; rankingTableBody.appendChild(row); }); }

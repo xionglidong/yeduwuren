@@ -392,7 +392,15 @@
       if (studentInfo.name) {
         userName = studentInfo.name;
         userId = studentInfo.id;
-        userGrade = studentInfo.grade || '';
+        if (studentPointsData[userId]) {
+          userGrade = studentPointsData[userId].grade || '';
+          if (studentInfo.grade !== userGrade) {
+            studentInfo.grade = userGrade;
+            await saveData(STUDENT_INFO_KEY, studentInfo);
+          }
+        } else {
+          userGrade = studentInfo.grade || '';
+        }
         studentNameInput.value = userName;
         studentIdInput.value = userId;
         if (studentPointsData[userId]) userPoints = studentPointsData[userId].points;
