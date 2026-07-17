@@ -470,7 +470,7 @@
                   </select>
                 </div>
               </div>
-              <div id="archivedIndividualPapersList" class="space-y-3"></div>
+              <div id="archivedIndividualPapersList" class="space-y-3 drop-zone"></div>
               <div id="archivedIndividualPapersPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div>
             </div>
           </div>
@@ -1159,6 +1159,12 @@
       if (addForumResourceBtn) addForumResourceBtn.addEventListener('click', addForumResourceItem);
       if (archivedGradeFilter) archivedGradeFilter.addEventListener('change', () => { window.archivedIndivPage = 1; renderArchivedPaperList(); });
       if (archivedTypeFilter) archivedTypeFilter.addEventListener('change', () => { window.archivedIndivPage = 1; renderArchivedPaperList(); });
+      const archivedListEl = document.getElementById('archivedIndividualPapersList');
+      if (archivedListEl) {
+        archivedListEl.addEventListener('dragover', handleArchivedIndividualPapersDragOver);
+        archivedListEl.addEventListener('dragleave', handleArchivedIndividualPapersDragLeave);
+        archivedListEl.addEventListener('drop', handleArchivedIndividualPapersDrop);
+      }
       fetchVideoLibrary();
       fetchPdfLibrary();
     }
@@ -2027,6 +2033,41 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       e.dataTransfer.setData('text/category-id', e.currentTarget.dataset.categoryId);
       e.dataTransfer.effectAllowed = 'move';
     }
+
+    function handleArchivedCategoryPaperDragStart(e) {
+      e.dataTransfer.setData('text/plain', e.currentTarget.dataset.paperId);
+      e.dataTransfer.setData('text/from-category-id', e.currentTarget.dataset.categoryId);
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleArchivedIndividualPapersDragOver(e) {
+      e.preventDefault();
+      const listEl = document.getElementById('archivedIndividualPapersList');
+      if (listEl && e.dataTransfer.types.includes('text/from-category-id')) {
+        listEl.classList.add('drag-over-category');
+      }
+    }
+
+    function handleArchivedIndividualPapersDragLeave(e) {
+      const listEl = document.getElementById('archivedIndividualPapersList');
+      if (listEl) {
+        listEl.classList.remove('drag-over-category');
+      }
+    }
+
+    async function handleArchivedIndividualPapersDrop(e) {
+      e.preventDefault();
+      const listEl = document.getElementById('archivedIndividualPapersList');
+      if (listEl) {
+        listEl.classList.remove('drag-over-category');
+      }
+      
+      const paperId = e.dataTransfer.getData('text/plain');
+      const fromCategoryId = e.dataTransfer.getData('text/from-category-id');
+      if (!paperId || !fromCategoryId) return;
+      
+      await removePaperFromCategory(paperId, fromCategoryId);
+    }
     
     function handleDragOver(e) {
       e.preventDefault();
@@ -2294,14 +2335,21 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
       const idx = papers.findIndex(p => p.id === paperId);
       if (idx === -1) return;
       
+      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
+      const catIdx = categories.findIndex(c => c.id === categoryId);
+      if (catIdx !== -1 && categories[catIdx].isArchived) {
+        papers[idx].isArchived = true;
+        if (!papers[idx].archivedAt) {
+          papers[idx].archivedAt = new Date().toLocaleString();
+        }
+      }
+      
       const currentCats = getPaperCategoryIds(papers[idx]);
       papers[idx].categoryIds = currentCats.filter(id => id !== categoryId);
       papers[idx].categoryId = papers[idx].categoryIds[0] || '';
       await saveData(PAPER_STORAGE_KEY, papers);
       
       // Update category's paperIds list
-      let categories = await getData(PAPER_CATEGORIES_KEY) || [];
-      const catIdx = categories.findIndex(c => c.id === categoryId);
       if (catIdx !== -1 && Array.isArray(categories[catIdx].paperIds)) {
         categories[catIdx].paperIds = categories[catIdx].paperIds.filter(id => id !== paperId);
         await saveData(PAPER_CATEGORIES_KEY, categories);
@@ -3834,16 +3882,23 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                   archivedCategories.forEach(cat => {
                     const catPapers = papers.filter(p => getPaperCategoryIds(p).includes(cat.id));
                     const papersHtml = catPapers.length === 0
-                      ? `<p class="text-xs text-gray-400 italic">该分类下暂无套题</p>`
+                      ? `<p class="text-xs text-gray-400 italic text-center py-2">该分类下暂无套题，可将右侧套题拖入此处</p>`
                       : catPapers.map(p => `
-                          <div class="flex items-center justify-between text-xs py-1.5 border-b border-gray-100 last:border-0">
-                            <span class="text-gray-700 font-medium">${p.name}</span>
-                            <span class="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">${getPaperTypeLabel(p.type)}</span>
+                          <div class="flex items-center justify-between p-2 border border-gray-100 rounded-lg bg-white hover:border-purple-300 text-xs category-paper-item cursor-grab active:cursor-grabbing transition-all duration-200" draggable="true" data-paper-id="${p.id}" data-category-id="${cat.id}">
+                            <div class="flex items-center gap-2 truncate flex-1 mr-2 pointer-events-none" draggable="false">
+                              <span class="text-[9px] text-white bg-purple-400 px-1.5 py-0.5 rounded whitespace-nowrap">${getPaperTypeLabel(p.type)}</span>
+                              <span class="font-medium text-gray-700 truncate" title="${p.name}">${p.name}</span>
+                              <span class="text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap">${getPaperGradeLabel(p.grade)}</span>
+                            </div>
+                            <button type="button" class="remove-paper-from-category text-gray-400 hover:text-red-500 transition-colors py-1 px-2 border border-transparent rounded hover:border-gray-200" data-paper-id="${p.id}" data-category-id="${cat.id}">
+                              <i class="fa fa-times mr-1"></i>移出
+                            </button>
                           </div>
                         `).join('');
 
                     const catEl = document.createElement('div');
-                    catEl.className = 'bg-white border border-purple-100 rounded-xl p-4 shadow-sm';
+                    catEl.className = 'bg-white border border-purple-100 rounded-xl p-4 shadow-sm drop-zone';
+                    catEl.setAttribute('data-category-id', cat.id);
                     catEl.innerHTML = `
                       <div class="flex justify-between items-start mb-3 gap-2">
                         <div>
@@ -3855,10 +3910,13 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                           <button class="delete-category text-red-500 hover:text-red-700 text-xs font-semibold p-1" data-id="${cat.id}" title="删除分类"><i class="fa fa-trash"></i></button>
                         </div>
                       </div>
-                      <div class="mt-2 bg-gray-50/50 rounded-lg p-3 space-y-1">
+                      <div class="mt-2 bg-gray-50/50 rounded-lg p-3 space-y-2">
                         ${papersHtml}
                       </div>
                     `;
+                    catEl.addEventListener('dragover', handleDragOver);
+                    catEl.addEventListener('dragleave', handleDragLeave);
+                    catEl.addEventListener('drop', handleDrop);
                     archivedCategoriesList.appendChild(catEl);
                   });
                   
@@ -3870,6 +3928,15 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                   archivedCategoriesList.querySelectorAll('.delete-category').forEach(btn => {
                     btn.addEventListener('click', function() {
                       deleteCategory(this.dataset.id);
+                    });
+                  });
+                  archivedCategoriesList.querySelectorAll('.category-paper-item').forEach(item => {
+                    item.addEventListener('dragstart', handleArchivedCategoryPaperDragStart);
+                  });
+                  archivedCategoriesList.querySelectorAll('.remove-paper-from-category').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                      e.stopPropagation();
+                      removePaperFromCategory(this.dataset.paperId, this.dataset.categoryId);
                     });
                   });
                 }
@@ -3920,7 +3987,10 @@ tr.querySelector('.view-record-detail').addEventListener('click', function() {
                     const avgScore = paperAnswers.length > 0 ? (paperAnswers.reduce((sum, item) => sum + getRecordTotalScore(item, paper), 0) / paperAnswers.length).toFixed(1) : 'N/A';
 
                     const itemEl = document.createElement('div');
-                    itemEl.className = 'border border-amber-100 rounded-xl p-4 bg-gradient-to-r from-amber-50 via-white to-white';
+                    itemEl.className = 'border border-amber-100 rounded-xl p-4 bg-gradient-to-r from-amber-50 via-white to-white cursor-grab active:cursor-grabbing transition-all duration-200';
+                    itemEl.setAttribute('draggable', 'true');
+                    itemEl.setAttribute('data-id', paper.id);
+                    itemEl.addEventListener('dragstart', handleDragStart);
                     itemEl.innerHTML = `
                       <div class="flex justify-between items-start gap-4">
                         <div>
