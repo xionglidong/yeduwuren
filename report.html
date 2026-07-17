@@ -115,9 +115,10 @@
         </div>
         <div>
           <h2 class="text-3xl font-bold text-gray-800 mb-1" id="rptName">加载中...</h2>
-          <div class="text-gray-600 text-sm mt-2 flex gap-2">
+          <div class="text-gray-600 text-sm mt-2 flex flex-wrap gap-2">
              <span class="bg-white px-2 py-1 rounded border shadow-sm"><i class="fa fa-id-badge text-blue-500 mr-1"></i> <span id="rptId">--</span></span>
              <span class="bg-white px-2 py-1 rounded border shadow-sm"><i class="fa fa-graduation-cap text-blue-500 mr-1"></i> <span id="rptGrade">--</span></span>
+             <span class="bg-white px-2 py-1 rounded border shadow-sm"><i class="fa fa-calculator text-indigo-500 mr-1"></i> 学习力: <span id="rptLearningPower" class="font-bold text-indigo-600">--</span> <span id="rptRankLp" class="text-xs text-gray-500 font-normal">(--名)</span></span>
           </div>
         </div>
       </div>
@@ -401,6 +402,15 @@
         document.getElementById('rptGrade').innerText = g_currentStudent.grade || '未设置';
         document.getElementById('rptPoints').innerText = g_currentStudent.points;
         document.getElementById('rptTitle').innerText = getRankTitle(g_currentStudent.points);
+        
+        // Calculate and set learning power and its rank
+        const lpVal = g_currentStudent.learningPower !== undefined ? g_currentStudent.learningPower : '--';
+        document.getElementById('rptLearningPower').innerText = lpVal;
+        
+        const allStudentsLp = Object.values(g_allPts).filter(s => !s.isArchived);
+        allStudentsLp.sort((a, b) => (b.learningPower || 0) - (a.learningPower || 0));
+        const lpRank = allStudentsLp.findIndex(s => s.id === g_currentStudent.id) + 1;
+        document.getElementById('rptRankLp').innerText = lpRank > 0 ? `(${lpRank}名)` : '(暂无)';
         
         const img = document.getElementById('rptAvatarImg');
         if (img.src === '' || img.src === window.location.href) img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${g_currentStudent.id}&backgroundColor=b6e3f4`;

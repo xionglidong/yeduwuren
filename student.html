@@ -70,7 +70,46 @@
   <main class="container mx-auto px-4 py-8 max-w-6xl">
     <div class="text-center mb-10"><h2 class="text-3xl font-bold mb-4">学生答题入口</h2><p class="text-gray-600">请填写个人信息并查看积分相关信息</p></div>
     <div id="login-card" class="bg-white rounded-xl shadow-md p-6 mb-8"><div class="grid md:grid-cols-3 gap-4 items-end"><div><label class="block text-gray-700 mb-2">姓名</label><input type="text" id="student-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入姓名"></div><div><label class="block text-gray-700 mb-2">学号</label><input type="text" id="student-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入学号"></div><div><button id="login-btn" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition-all w-full">登录 <i class="fa fa-sign-in ml-1"></i></button></div></div></div>
-    <div id="user-points-card" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden"><div class="flex items-center justify-between"><div><h3 class="text-xl font-bold flex items-center"><i class="fa fa-user-circle text-primary mr-2"></i><span id="user-name-display"></span><span class="text-sm text-gray-500 ml-2" id="user-id-display"></span></h3><p class="text-gray-600 mt-1">当前排名: <span id="user-rank"></span></p></div><div class="text-right"><p class="text-3xl font-bold text-accent" id="user-points">0分</p></div></div><div class="mt-4 pt-4 border-t"><p class="text-gray-600 mt-1 mb-1">当前称号: <span id="currentRankSpan" class="text-sm text-gray-500 mr-5" style="font-size: 18px;"></span> 距离: <span id="nextRankSpan" class="text-sm text-gray-500" style="font-size: 18px;"></span> </p><div class="flex items-center"><div class="w-full bg-gray-200 rounded-full h-2.5"><div id="points-progress" class="bg-accent h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div>
+    <div id="user-points-card" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-xl font-bold flex flex-col">
+            <div>
+              <i class="fa fa-user-circle text-primary"></i>
+              <span id="user-name-display"></span>
+            </div>
+            <span class="text-sm text-gray-500" id="user-id-display"></span>
+          </h3>
+         
+          </div>
+          <div class="text-right">
+            <div class="flex items-center justify-between">
+              <p class="text-3xl font-bold text-accent" id="user-points">0积分</p>
+              <p class="text-gray-600">排名: 
+              <span id="user-rank"></span>
+            </div>
+            
+          </p>
+          <p class="text-gray-600 mt-1">
+            <span id="user-learning-power" class="font-bold text-indigo-600  text-3xl font-bold">--</span> 
+            排名: 
+            <span id="user-learning-power-rank">暂无</span>
+          </p>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t">
+          <p class="text-gray-600 mt-1 mb-1">当前称号: 
+            <span id="currentRankSpan" class="text-sm text-gray-500 mr-5" style="font-size: 18px;"></span> 
+            距离: 
+            <span id="nextRankSpan" class="text-sm text-gray-500" style="font-size: 18px;"></span> 
+          </p>
+          <div class="flex items-center">
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div id="points-progress" class="bg-accent h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     <div id="stats-dashboard" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8 hidden fade-in"><div id="statPapersCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 hover:shadow-lg duration-200 cursor-pointer border border-blue-200 hover:border-blue-400 relative group"><div class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm"><i class="fa fa-hand-pointer-o mr-1"></i>点击查看</div><div><p class="text-sm text-gray-500 font-medium flex items-center">已做任务<i class="fa fa-angle-right ml-1 text-blue-500"></i></p><p class="text-3xl font-bold text-gray-800 mt-1" id="stat-papers">0</p></div><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-xl shadow-sm group-hover:bg-blue-200 transition-colors"><i class="fa fa-book"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">做题总数</p><p class="text-3xl font-bold text-indigo-600 mt-1" id="stat-total-questions">0</p><p class="text-xs text-indigo-500 mt-1 font-medium" id="stat-total-questions-rank">排名：暂无</p></div><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500 text-xl shadow-sm"><i class="fa fa-pencil"></i></div></div><div id="statWrongQuestionsCard" class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 hover:shadow-lg duration-200 cursor-pointer border border-red-200 hover:border-red-400 relative group"><div class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm"><i class="fa fa-hand-pointer-o mr-1"></i>点击查看</div><div><p class="text-sm text-gray-500 font-medium flex items-center">累计错题<i class="fa fa-angle-right ml-1 text-red-500"></i></p><p class="text-3xl font-bold text-red-500 mt-1" id="stat-wrong-questions">0</p></div><div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500 text-xl shadow-sm group-hover:bg-red-200 transition-colors"><i class="fa fa-times-circle"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">正确率</p><p class="text-3xl font-bold text-green-600 mt-1" id="stat-accuracy">0%</p><p class="text-xs text-green-600 mt-1 font-medium" id="stat-accuracy-rank">排名：暂无</p></div><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-500 text-xl shadow-sm"><i class="fa fa-pie-chart"></i></div></div><div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between transition-transform hover:scale-105 duration-200"><div><p class="text-sm text-gray-500 font-medium">学习时长</p><p class="text-2xl font-bold text-violet-600 mt-1" id="stat-learning-time">0分钟</p><p class="text-xs text-violet-500 mt-1 font-medium" id="stat-learning-time-rank">排名：暂无</p></div><div class="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center text-violet-500 text-xl shadow-sm"><i class="fa fa-clock-o"></i></div></div></div>
     
     <!-- Category Practice Section on Student End -->
@@ -105,7 +144,16 @@
     
     <div id="exam-container" class="hidden"><div id="grade1" class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-list text-primary mr-2"></i> 高一年级任务<span id="grade1PaperCount" class="ml-2 text-sm bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0套</span></h3><div class="space-y-4" id="grade1PaperList"><div class="text-center text-gray-500 py-6">加载中...</div></div></div><div id="grade2" class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-list text-primary mr-2"></i> 高二年级任务<span id="grade2PaperCount" class="ml-2 text-sm bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0套</span></h3><div class="space-y-4" id="grade2PaperList"><div class="text-center text-gray-500 py-6">加载中...</div></div></div><div id="grade3" class="bg-white rounded-xl shadow-md p-6 mb-8 fade-in"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-list text-primary mr-2"></i> 高三年级任务<span id="grade3PaperCount" class="ml-2 text-sm bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0套</span></h3><div class="space-y-4" id="grade3PaperList"><div class="text-center text-gray-500 py-6">加载中...</div></div></div></div>
     <!--<div id="wrongRateLeaderboardCard" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden"><div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4"><div><h3 class="text-xl font-bold flex items-center"><i class="fa fa-exclamation-triangle text-red-500 mr-2"></i> 错题排行榜</h3><p class="text-xs text-gray-500 mt-1">按单题错误率从高到低排序，选择题答错算错，填空/简答题未满分算错。</p></div><div class="flex flex-col md:flex-row gap-2 items-center"><input type="date" id="wrongRateStartDate" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" title="开始日期"><span class="text-gray-400 text-xs hidden md:inline">-</span><input type="date" id="wrongRateEndDate" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" title="结束日期"><select id="wrongRateGradeFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"><option value="all">全部年级</option><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option><option value="未设置">未设置</option></select></div></div><div class="overflow-x-auto border border-gray-100 rounded-xl"><table class="min-w-full divide-y divide-gray-100"><thead class="bg-red-50"><tr><th class="px-4 py-3 text-left text-xs font-bold text-red-500">排名</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">套题与题号</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">年级</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">错误率</th><th class="px-4 py-3 text-left text-xs font-bold text-red-500">错误/作答</th></tr></thead><tbody id="wrongRateLeaderboardBody" class="bg-white divide-y divide-gray-100"></tbody></table></div><div id="wrongRateLeaderboardPagination" class="mt-4 flex items-center justify-end gap-1 hidden"></div></div>-->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-8"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-trophy text-accent mr-2"></i> 积分排行榜</h3><div class="grid md:grid-cols-2 gap-3" id="ranking-list"></div></div>
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-trophy text-accent mr-2"></i> 积分排行榜</h3>
+        <div class="grid grid-cols-1 gap-3" id="ranking-list"></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-line-chart text-indigo-600 mr-2"></i> 学习力排行榜</h3>
+        <div class="grid grid-cols-1 gap-3" id="learning-power-ranking-list"></div>
+      </div>
+    </div>
     <div class="bg-white rounded-xl shadow-md p-6 mb-8"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold flex items-center"><i class="fa fa-gift text-primary mr-2"></i> 积分兑换奖品</h3><button id="edit-prizes-btn" class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full hidden"><i class="fa fa-edit mr-1"></i> 编辑奖品</button></div><div class="grid md:grid-cols-3 gap-4" id="prizes-container"></div><div id="prize-edit-form" class="mt-6 hidden"><h4 class="font-bold mb-3">编辑奖品</h4><div class="grid md:grid-cols-3 gap-4"><div><label class="block text-gray-700 mb-2">奖品名称</label><input type="text" id="prize-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-gray-700 mb-2">所需积分</label><input type="number" id="prize-points" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-gray-700 mb-2">描述</label><input type="text" id="prize-desc" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div></div><div class="mt-4 flex justify-end space-x-3"><button id="cancel-edit-prize" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">取消</button><button id="save-prize" class="px-4 py-2 bg-primary text-white rounded-lg">保存</button></div></div></div>
     <div id="exchange-history" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden"><h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa fa-history text-primary mr-2"></i> 兑换记录</h3><div id="history-list" class="space-y-3"></div></div>
 <div id="message-board-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden fade-in">
@@ -747,7 +795,7 @@
     function renderPrizes() { prizesContainer.innerHTML = ''; prizes.forEach(prize => { const prizeCard = document.createElement('div'); prizeCard.className = 'border rounded-lg p-4 text-center hover:shadow-md transition-shadow prize-card'; prizeCard.dataset.points = prize.points; prizeCard.dataset.id = prize.id; prizeCard.innerHTML = `<div class="w-16 h-16 ${prize.bgColor} rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa ${prize.icon} ${prize.iconColor} text-2xl"></i></div><h4 class="font-medium mb-1">${prize.name}</h4><p class="text-sm text-gray-500 mb-2">${prize.description}</p><p class="text-accent font-bold">${prize.points}分</p><button class="mt-2 text-sm bg-gray-200 text-gray-500 px-3 py-1 rounded-full prize-btn" data-prize="${prize.name}">积分不足</button>`; prizesContainer.appendChild(prizeCard); }); document.querySelectorAll('.prize-btn').forEach(btn => btn.addEventListener('click', handlePrizeExchange)); if (userName) updatePrizeButtons(); }
     function togglePrizeEditForm() { prizeEditForm.classList.toggle('hidden'); }
     async function savePrizeData() { const prizeName = document.getElementById('prize-name').value.trim(), prizePoints = parseInt(document.getElementById('prize-points').value), prizeDesc = document.getElementById('prize-desc').value.trim(); if (!prizeName || !prizePoints || !prizeDesc) return showGeneralModal('输入错误', '请填写完整的奖品信息', 'warning'); prizes.push({ id: 'prize_' + Date.now(), name: prizeName, points: prizePoints, description: prizeDesc, icon: 'fa-gift', iconColor: 'text-primary', bgColor: 'bg-blue-100' }); await saveData(PRIZES_STORAGE_KEY, prizes); renderPrizes(); togglePrizeEditForm(); document.getElementById('prize-name').value = ''; document.getElementById('prize-points').value = ''; document.getElementById('prize-desc').value = ''; showGeneralModal('成功', '奖品添加成功', 'success'); }
-    async function handleLogin() { const name = studentNameInput.value.trim(), id = studentIdInput.value.trim(); if (!name || !id) return alert('请输入姓名和学号'); studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; if (!studentPointsData[id]) return alert('登录失败：该学号不存在。请联系老师添加账号。'); if (studentPointsData[id].name !== name) return alert('登录失败：姓名与学号不匹配，请检查输入。'); userName = studentPointsData[id].name; userId = id; userGrade = studentPointsData[id].grade || ''; studentInfo = { name: userName, id: userId, grade: userGrade }; await saveData(STUDENT_INFO_KEY, studentInfo); userPoints = studentPointsData[id].points; document.getElementById('user-name-display').textContent = userName; document.getElementById('user-id-display').textContent = `学号: ${userId} 年级：${userGrade || '未设置'}`; updateUserPointsDisplay(); await calculateUserRank(); document.getElementById('login-card').classList.add('hidden'); userPointsCard.classList.remove('hidden'); exchangeHistory.classList.remove('hidden'); examContainer.classList.remove('hidden'); document.getElementById('module-tabs').classList.remove('hidden'); document.getElementById('message-board-section').classList.remove('hidden'); if (learningCustomSection) learningCustomSection.classList.remove('hidden'); learningPanelPageState[studentCategoriesContainer.id] = 1; await loadMessages(); await loadAndRenderPapers(); await renderStudentStats(); await loadExchangeRecords(); updatePrizeButtons(); showGeneralModal('登录成功', `欢迎 ${userName}（学号：${userId}），当前积分：${userPoints}分`, 'success'); updateLogoutButtonState(); await checkDefaultedTimers(); }
+    async function handleLogin() { const name = studentNameInput.value.trim(), id = studentIdInput.value.trim(); if (!name || !id) return alert('请输入姓名 and 学号'); studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; if (!studentPointsData[id]) return alert('登录失败：该学号不存在。请联系老师添加账号。'); if (studentPointsData[id].name !== name) return alert('登录失败：姓名与学号不匹配，请检查输入。'); userName = studentPointsData[id].name; userId = id; userGrade = studentPointsData[id].grade || ''; await updateCurrentStudentLearningPower(); studentInfo = { name: userName, id: userId, grade: userGrade }; await saveData(STUDENT_INFO_KEY, studentInfo); userPoints = studentPointsData[id].points; document.getElementById('user-name-display').textContent = userName; document.getElementById('user-id-display').textContent = `学号: ${userId} 年级：${userGrade || '未设置'}`; updateUserPointsDisplay(); await calculateUserRank(); document.getElementById('login-card').classList.add('hidden'); userPointsCard.classList.remove('hidden'); exchangeHistory.classList.remove('hidden'); examContainer.classList.remove('hidden'); document.getElementById('module-tabs').classList.remove('hidden'); document.getElementById('message-board-section').classList.remove('hidden'); if (learningCustomSection) learningCustomSection.classList.remove('hidden'); learningPanelPageState[studentCategoriesContainer.id] = 1; await loadMessages(); await loadAndRenderPapers(); await renderStudentStats(); await loadExchangeRecords(); updatePrizeButtons(); showGeneralModal('登录成功', `欢迎 ${userName}（学号：${userId}），当前积分：${userPoints}分`, 'success'); updateLogoutButtonState(); await checkDefaultedTimers(); }
 
     function parseSubmitTime(submitTime) { if (!submitTime) return null; if (submitTime instanceof Date) return submitTime; const normalized = String(submitTime).replace(/-/g, '/'); const dt = new Date(normalized); if (Number.isNaN(dt.getTime())) return null; return dt; }
     function getPeriodStepDays(period) { if (period === 'week') return 7; return 30; }
@@ -1689,9 +1737,135 @@
       }, 10);
       renderStatsListModal();
     }
-    function updateUserPointsDisplay() { document.getElementById('user-points').textContent = `${userPoints}分`; let currentRankObj = RANK_SYSTEM[0], nextRankObj = null; for (let i = 0; i < RANK_SYSTEM.length; i++) { if (userPoints >= RANK_SYSTEM[i].threshold) { currentRankObj = RANK_SYSTEM[i]; nextRankObj = RANK_SYSTEM[i + 1] || null; } else break; } let progress = 0, nextLevelText = '已达最高段位'; if (nextRankObj) { const pointsNeeded = nextRankObj.threshold - currentRankObj.threshold, currentProgress = userPoints - currentRankObj.threshold; progress = pointsNeeded > 0 ? (currentProgress / pointsNeeded) * 100 : 100; nextLevelText = `${nextRankObj.name}`; } else progress = 100; document.getElementById('points-progress').style.width = `${progress}%`; document.querySelector('#currentRankSpan').innerHTML = `<span class="font-bold mr-2 transition-colors duration-500" style="color: ${currentRankObj.color}">${currentRankObj.name}</span>`; document.querySelector('#nextRankSpan').innerHTML = `<span class="font-bold mr-2 transition-colors duration-500" style="color: ${nextRankObj?.color || '#999'}">${nextLevelText}</span>${nextRankObj ? nextRankObj.threshold - userPoints + '分' : ''}`; }
-    async function calculateUserRank() { studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; const studentsArray = Object.values(studentPointsData); studentsArray.sort((a, b) => b.points - a.points); userRank = studentsArray.findIndex(s => s.id === userId) + 1; document.getElementById('user-rank').textContent = `第${userRank}名`; }
-    async function loadRankingList() { rankingList.innerHTML = ''; studentPointsData = await getData(STUDENT_POINTS_KEY) || {}; const studentsArray = Object.values(studentPointsData); studentsArray.sort((a, b) => b.points - a.points); const topStudents = studentsArray.slice(0, 10); if (topStudents.length === 0) return rankingList.innerHTML = '<div class="md:col-span-2 text-center text-gray-500 py-6">暂无排名数据</div>'; topStudents.forEach((student, index) => { let rankStyle = index === 0 ? 'bg-yellow-500 text-white' : index === 1 ? 'bg-gray-300 text-gray-700' : index === 2 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'; const rankItem = document.createElement('div'); rankItem.className = 'flex items-center p-3 border rounded-lg'; rankItem.innerHTML = `<div class="w-8 h-8 rounded-full ${rankStyle} flex items-center justify-center font-bold mr-3">${index + 1}</div><div class="flex-1"><p class="font-medium">${student.name}</p><p class="text-sm text-gray-500">学号: ${student.id || '未知'}</p></div><div class="text-right"><p class="font-bold text-accent">${student.points}分</p></div>`; rankingList.appendChild(rankItem); }); }
+    function updateUserPointsDisplay() { document.getElementById('user-points').textContent = `${userPoints} 积分`; let currentRankObj = RANK_SYSTEM[0], nextRankObj = null; for (let i = 0; i < RANK_SYSTEM.length; i++) { if (userPoints >= RANK_SYSTEM[i].threshold) { currentRankObj = RANK_SYSTEM[i]; nextRankObj = RANK_SYSTEM[i + 1] || null; } else break; } let progress = 0, nextLevelText = '已达最高段位'; if (nextRankObj) { const pointsNeeded = nextRankObj.threshold - currentRankObj.threshold, currentProgress = userPoints - currentRankObj.threshold; progress = pointsNeeded > 0 ? (currentProgress / pointsNeeded) * 100 : 100; nextLevelText = `${nextRankObj.name}`; } else progress = 100; document.getElementById('points-progress').style.width = `${progress}%`; document.querySelector('#currentRankSpan').innerHTML = `<span class="font-bold mr-2 transition-colors duration-500" style="color: ${currentRankObj.color}">${currentRankObj.name}</span>`; document.querySelector('#nextRankSpan').innerHTML = `<span class="font-bold mr-2 transition-colors duration-500" style="color: ${nextRankObj?.color || '#999'}">${nextLevelText}</span>${nextRankObj ? nextRankObj.threshold - userPoints + '分' : ''}`; }
+    function calculateStudentLearningMetrics(studentId, allAnswers, papers) {
+      const studentAnswers = allAnswers.filter(a => a.studentId === studentId);
+      const paperMap = new Map((papers || []).map(p => [p.id, p]));
+
+      let totalScore = 0;
+      let totalPossibleScore = 0;
+      let totalSeconds = 0;
+      let totalQuestions = 0;
+
+      studentAnswers.forEach(ans => {
+        const paper = paperMap.get(ans.paperId);
+        const score = paper ? getRecordTotalScore(ans, paper) : (parseFloat(ans.score) || 0);
+        const possible = paper ? (parseFloat(paper.totalPoints) || 0) : (parseFloat(ans.totalPoints) || 0);
+        
+        totalScore += score;
+        totalPossibleScore += possible;
+
+        const elapsed = parseInt(ans.actualTimeElapsed) || parseInt(ans.timeElapsed) || 0;
+        totalSeconds += elapsed;
+
+        if (paper) {
+          totalQuestions += (paper.questionCount || 0) + (paper.fillInBlankCount || 0);
+        } else if (ans.answers) {
+          totalQuestions += ans.answers.length;
+        }
+      });
+
+      const accuracy = totalPossibleScore > 0 ? (totalScore / totalPossibleScore) : 0;
+      const durationMin = Math.round(totalSeconds / 60);
+
+      return {
+        accuracy,
+        durationMin,
+        questions: totalQuestions,
+        attempts: studentAnswers.length
+      };
+    }
+
+    async function updateCurrentStudentLearningPower() {
+      if (!userId) return;
+      const allAnswers = await getData(ANSWER_STORAGE_KEY) || [];
+      const papers = await getData(PAPER_STORAGE_KEY) || [];
+      const formula = await getData('learningPowerFormula') || {
+        cPoints: 0.001,
+        cAccuracy: 0.5,
+        cDuration: 0.001,
+        cQuestions: 0.01
+      };
+      
+      const studentPoints = await getData(STUDENT_POINTS_KEY) || {};
+      const student = studentPoints[userId];
+      if (!student) return;
+      
+      const metrics = calculateStudentLearningMetrics(userId, allAnswers, papers);
+      
+      const x = (formula.cPoints * (student.points || 0)) +
+                (formula.cAccuracy * metrics.accuracy) +
+                (formula.cDuration * metrics.durationMin) +
+                (formula.cQuestions * metrics.questions);
+      
+      const power = 100 * (1 - 1 / (1 + x));
+      student.learningPower = Math.round(power * 10) / 10;
+      
+      await saveData(STUDENT_POINTS_KEY, studentPoints);
+      studentPointsData = studentPoints;
+    }
+
+    async function calculateUserRank() {
+      studentPointsData = await getData(STUDENT_POINTS_KEY) || {};
+      const studentsArray = Object.values(studentPointsData);
+      
+      // Points Rank
+      const pointsArray = [...studentsArray].sort((a, b) => b.points - a.points);
+      userRank = pointsArray.findIndex(s => s.id === userId) + 1;
+      document.getElementById('user-rank').textContent = `第${userRank}名`;
+      
+      // Learning Power Rank
+      const lpArray = [...studentsArray].sort((a, b) => (b.learningPower || 0) - (a.learningPower || 0));
+      const userLpRank = lpArray.findIndex(s => s.id === userId) + 1;
+      const userLpValue = studentPointsData[userId] && studentPointsData[userId].learningPower !== undefined ? studentPointsData[userId].learningPower : '--';
+      
+      const lpDisplay = document.getElementById('user-learning-power');
+      if (lpDisplay) lpDisplay.textContent = userLpValue + " 学力";
+      const lpRankDisplay = document.getElementById('user-learning-power-rank');
+      if (lpRankDisplay) lpRankDisplay.textContent = userLpRank > 0 ? `第${userLpRank}名` : '暂无';
+    }
+
+    async function loadRankingList() {
+      rankingList.innerHTML = '';
+      const lpRankingList = document.getElementById('learning-power-ranking-list');
+      if (lpRankingList) lpRankingList.innerHTML = '';
+      
+      studentPointsData = await getData(STUDENT_POINTS_KEY) || {};
+      const studentsArray = Object.values(studentPointsData);
+      
+      // Points Ranking
+      const pointsArray = [...studentsArray].sort((a, b) => b.points - a.points);
+      const topStudents = pointsArray.slice(0, 10);
+      if (topStudents.length === 0) {
+        rankingList.innerHTML = '<div class="text-center text-gray-500 py-6">暂无排名数据</div>';
+      } else {
+        topStudents.forEach((student, index) => {
+          let rankStyle = index === 0 ? 'bg-yellow-500 text-white' : index === 1 ? 'bg-gray-300 text-gray-700' : index === 2 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700';
+          const rankItem = document.createElement('div');
+          rankItem.className = 'flex items-center p-3 border rounded-lg';
+          rankItem.innerHTML = `<div class="w-8 h-8 rounded-full ${rankStyle} flex items-center justify-center font-bold mr-3">${index + 1}</div><div class="flex-1"><p class="font-medium">${student.name}</p><p class="text-sm text-gray-500">学号: ${student.id || '未知'}</p></div><div class="text-right"><p class="font-bold text-accent">${student.points}分</p></div>`;
+          rankingList.appendChild(rankItem);
+        });
+      }
+
+      // Learning Power Ranking
+      if (lpRankingList) {
+        const lpArray = [...studentsArray].sort((a, b) => (b.learningPower || 0) - (a.learningPower || 0));
+        const topLpStudents = lpArray.slice(0, 10);
+        if (topLpStudents.length === 0) {
+          lpRankingList.innerHTML = '<div class="text-center text-gray-500 py-6">暂无排名数据</div>';
+        } else {
+          topLpStudents.forEach((student, index) => {
+            let rankStyle = index === 0 ? 'bg-yellow-500 text-white' : index === 1 ? 'bg-gray-300 text-gray-700' : index === 2 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700';
+            const rankItem = document.createElement('div');
+            rankItem.className = 'flex items-center p-3 border rounded-lg';
+            const lpVal = student.learningPower !== undefined ? student.learningPower : '--';
+            rankItem.innerHTML = `<div class="w-8 h-8 rounded-full ${rankStyle} flex items-center justify-center font-bold mr-3">${index + 1}</div><div class="flex-1"><p class="font-medium">${student.name}</p><p class="text-sm text-gray-500">学号: ${student.id || '未知'}</p></div><div class="text-right"><p class="font-bold text-indigo-600">${lpVal}</p></div>`;
+            lpRankingList.appendChild(rankItem);
+          });
+        }
+      }
+    }
     async function loadExchangeRecords() { exchangeRecords = await getData(EXCHANGE_RECORDS_KEY) || []; const userRecords = exchangeRecords.filter(record => record.studentId === userId); if (userRecords.length === 0) { historyList.innerHTML = ''; historyList.appendChild(noExchangeHint); return; } historyList.innerHTML = ''; userRecords.forEach(record => { const historyItem = document.createElement('div'); historyItem.className = 'flex items-center justify-between p-3 border rounded-lg bg-gray-50'; historyItem.innerHTML = `<div><p class="font-medium">${record.prizeName}</p><p class="text-sm text-gray-500">${record.time}</p></div><p class="text-accent font-bold">-${record.points}分</p>`; historyList.appendChild(historyItem); }); }
     function updatePrizeButtons() { document.querySelectorAll('.prize-card').forEach(card => { const requiredPoints = parseInt(card.dataset.points), prizeBtn = card.querySelector('.prize-btn'); if (userPoints >= requiredPoints) { prizeBtn.classList.remove('bg-gray-200', 'text-gray-500'); prizeBtn.classList.add('bg-primary/10', 'text-primary'); prizeBtn.textContent = '兑换'; prizeBtn.disabled = false; } else { prizeBtn.classList.remove('bg-primary/10', 'text-primary'); prizeBtn.classList.add('bg-gray-200', 'text-gray-500'); prizeBtn.textContent = '积分不足'; prizeBtn.disabled = true; } }); }
     async function handlePrizeExchange() { if (!userName) return showGeneralModal('请先登录', '请先登录后再进行兑换', 'warning'); const requiredPoints = parseInt(this.closest('.prize-card').dataset.points), prizeName = this.dataset.prize; if (userPoints < requiredPoints) return showGeneralModal('兑换失败', `您的积分不足，需要${requiredPoints}分`, 'warning'); if (!confirm(`确定要兑换${prizeName}吗？将消耗${requiredPoints}积分。`)) return; exchangeRecords.push({ id: 'exchange_' + Date.now(), studentId: userId, studentName: userName, prizeName: prizeName, points: requiredPoints, time: new Date().toLocaleString() }); await saveData(EXCHANGE_RECORDS_KEY, exchangeRecords); userPoints -= requiredPoints; studentPointsData[userId].points = userPoints; studentPointsData[userId].lastUpdate = new Date().toLocaleString(); await saveData(STUDENT_POINTS_KEY, studentPointsData); updateUserPointsDisplay(); updatePrizeButtons(); await loadExchangeRecords(); await calculateUserRank(); await loadRankingList(); showGeneralModal('兑换成功', `您已成功兑换${prizeName}，积分已扣除${requiredPoints}分`, 'success'); }
@@ -3131,6 +3305,7 @@ submitAllBtn.disabled =
           } else {
               message = `本次得分 ${score} 分，未超过历史最高分 ${previousBestScore} 分，积分不变。`;
           }
+          await updateCurrentStudentLearningPower();
           closeAnswerModal(); showScoreDetailModal(score, currentPaper.totalPoints, scoreDetails, message, secondsElapsed); await calculateUserRank(); await loadRankingList(); await loadAndRenderPapers(); updatePrizeButtons();
       } finally { submitAllBtn.disabled = false; submitAllBtn.innerHTML = '提交所有答案'; }
     }
