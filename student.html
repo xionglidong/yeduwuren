@@ -351,18 +351,48 @@
 
   <script>
     document.getElementById('mobile-menu-btn').addEventListener('click', () => document.getElementById('mobile-menu').classList.toggle('hidden'));
-    async function getData(key) { if (key === STUDENT_INFO_KEY) return localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : null; try { const response = await fetch(`/api/data?key=${key}`); return await response.json(); } catch (e) { return null; } }
-    async function saveData(key, value, type) { if (key === STUDENT_INFO_KEY) { localStorage.setItem(key, JSON.stringify(value)); return; } 
-    try { if (key === ANSWER_STORAGE_KEY && Array.isArray(value) && value.length > 0 && type == "submitAllAnswers") 
-      { 
-        const latestRecord = value[value.length - 1]; 
-        await fetch('/api/submit', { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ action: 'submit_paper', 
-          data: latestRecord }) }); 
-          return; 
-      } await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: value }) }); } catch (e) { alert("⚠️ 网络连接中断，数据提交失败！请举手示意老师。"); } }
+    const g_dataCache = {};
+    const g_dataPending = {};
+    async function getData(key, forceRefresh = false) {
+      if (key === STUDENT_INFO_KEY) return localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : null;
+      if (!forceRefresh && g_dataCache.hasOwnProperty(key)) return g_dataCache[key];
+      if (!forceRefresh && g_dataPending[key]) return g_dataPending[key];
+      g_dataPending[key] = (async () => {
+        try {
+          const response = await fetch(`/api/data?key=${key}`);
+          const data = await response.json();
+          g_dataCache[key] = data;
+          return data;
+        } catch (e) {
+          return null;
+        } finally {
+          delete g_dataPending[key];
+        }
+      })();
+      return g_dataPending[key];
+    }
+    async function saveData(key, value, type) {
+      if (key === STUDENT_INFO_KEY) { localStorage.setItem(key, JSON.stringify(value)); return; }
+      delete g_dataCache[key];
+      try {
+        if (key === ANSWER_STORAGE_KEY && Array.isArray(value) && value.length > 0 && type == "submitAllAnswers") {
+          const latestRecord = value[value.length - 1];
+          await fetch('/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'submit_paper', data: latestRecord })
+          });
+          return;
+        }
+        await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'save_settings', key: key, data: value })
+        });
+      } catch (e) {
+        alert("⚠️ 网络连接中断，数据提交失败！请举手示意老师。");
+      }
+    }
 
     let userPoints = 0, userName = '', userId = '', userGrade = '', userRank = 0;
     const RANK_SYSTEM = [ { name: '学者', threshold: 0, color: '#737373' }, { name: '学徒', threshold: 10, color: '#B87333' }, { name: '学士', threshold: 50, color: '#8493A8' }, { name: '学客', threshold: 200, color: '#C69D3D' }, { name: '学匠', threshold: 500, color: '#2EA29F' }, { name: '学师', threshold: 800, color: '#4169E1' }, { name: '学霸', threshold: 1200, color: '#FF1A1A' }, { name: '学王', threshold: 1500, color: '#F16022' }, { name: '学灵', threshold: 1800, color: '#9F5CF7' }, { name: '学尊', threshold: 2000, color: '#C533FF' }, { name: '学宗', threshold: 2500, color: '#FF4D00' }, { name: '学皇', threshold: 3000, color: '#DC143C' }, { name: '学帝', threshold: 3500, color: '#D60000' }, { name: '学仙', threshold: 4000, color: '#DAA520' }, { name: '学圣', threshold: 4500, color: '#FF8C00' }, { name: '学神', threshold: 5000, color: '#FF0000' } ];

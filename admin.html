@@ -23,7 +23,7 @@
       
       /* 2. 释放弹窗的固定定位，让它回归正常的文档流 */
       body > #wrongReportModal { 
-        display: block !important; 
+        display: block !important;
         position: static !important; 
         opacity: 1 !important;
       }
@@ -757,9 +757,40 @@
 
   <script>
     const PAPER_STORAGE_KEY = 'gradePapers', ANSWER_STORAGE_KEY = 'studentAnswers', ADMIN_SESSION_KEY = 'adminLoggedIn', PRIZES_STORAGE_KEY = 'exchangePrizes', STUDENT_POINTS_KEY = 'studentPoints', EXCHANGE_RECORDS_KEY = 'exchangeRecords', SELF_LEARNING_STORAGE_KEY = 'selfLearningContents', SELF_LEARNING_WATCH_STORAGE_KEY = 'selfLearningWatchStats', SELF_LEARNING_INTERACTION_STORAGE_KEY = 'selfLearningInteractions', FORUM_RESOURCE_STORAGE_KEY = 'forumResourceMaterials', TEMP_ANSWER_REPORT_STORAGE_KEY = 'tempAnswerReportPayload', CURRENT_SCHOOL_YEAR_KEY = 'currentSchoolYear', ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
-    async function getData(key) { if (key === ADMIN_SESSION_KEY) return localStorage.getItem(key); try { const response = await fetch(`/api/data?key=${key}`); return await response.json(); } catch (e) { return null; } }
-    async function saveData(key, value) { if (key === ADMIN_SESSION_KEY) { localStorage.setItem(key, value); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: value }) }); } catch (e) { alert("网络错误"); } }
-    async function removeData(key) { if (key === ADMIN_SESSION_KEY) { localStorage.removeItem(key); return; } try { await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: null }) }); } catch (e) { console.error(e); } }
+    const g_dataCache = {};
+    const g_dataPending = {};
+    async function getData(key, forceRefresh = false) {
+      if (key === ADMIN_SESSION_KEY) return localStorage.getItem(key);
+      if (!forceRefresh && g_dataCache.hasOwnProperty(key)) return g_dataCache[key];
+      if (!forceRefresh && g_dataPending[key]) return g_dataPending[key];
+      g_dataPending[key] = (async () => {
+        try {
+          const response = await fetch(`/api/data?key=${key}`);
+          const data = await response.json();
+          g_dataCache[key] = data;
+          return data;
+        } catch (e) {
+          return null;
+        } finally {
+          delete g_dataPending[key];
+        }
+      })();
+      return g_dataPending[key];
+    }
+    async function saveData(key, value) {
+      if (key === ADMIN_SESSION_KEY) { localStorage.setItem(key, value); return; }
+      g_dataCache[key] = value;
+      try {
+        await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: value }) });
+      } catch (e) { alert("网络错误"); }
+    }
+    async function removeData(key) {
+      if (key === ADMIN_SESSION_KEY) { localStorage.removeItem(key); return; }
+      delete g_dataCache[key];
+      try {
+        await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_settings', key: key, data: null }) });
+      } catch (e) { console.error(e); }
+    }
     function escapeHtmlText(value) {
       return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
     }
